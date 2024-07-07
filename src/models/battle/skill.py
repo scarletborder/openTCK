@@ -21,14 +21,17 @@ class Skill(ABC):
         ...
 
     @abstractmethod
+    def GetSkillID(self): ...
+
+    @abstractmethod
     def GetSkillType(self) -> SkillType: ...
 
     # 使用类
     @abstractmethod
-    def JudgeLegal(self, target_id: int, times: int) -> bool:
+    def JudgeLegal(self, target_id: int, times: int, game) -> bool:
         """检测技能是否参数正确"""
 
     @abstractmethod
-    def Cast(self, caster_id: int, target_id: int, times: int):
+    def Cast(self, caster_id: int, target_id: int, times: int, game):
         """在结算时候的释放技能"""
         ...

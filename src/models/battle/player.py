@@ -17,7 +17,7 @@ class Player:
 
     # 显示类函数
     def __repr__(self) -> str:
-        return f"<{self.id}{self.Name}>:{self.Health}/{self.Point}"
+        return f"<{self.id}{self.Name}>:{self.Health}/{self.Point}({self.health_change:+}/{self.point_change:+})"
 
     # 功能类函数
     def ChangeHealth(self, val: int):
@@ -33,12 +33,17 @@ class Player:
             self.is_point_change = True
         self.point_change += val
 
-    def OnRoundStart():
+    def OnRoundStart(self):
         """回合开始初始化数值"""
-        ...
+        self.defense_level = 0  # 防御等级，为0则为不设防
+        self.health_change = 0
+        self.point_change = 0
+        self.is_health_change = False
+        self.is_point_change = False
 
-    def OnRoundEnd():
+    def OnRoundEnd(self):
         """回合结束结算数值"""
-        ...
+        self.Health += self.health_change
+        self.Point += self.point_change
 
     # 交互类函数
