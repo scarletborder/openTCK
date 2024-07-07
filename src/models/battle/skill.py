@@ -1,4 +1,4 @@
-from src.enum.skill import SkillType
+from src.constant.enum.skill import SkillType
 from abc import ABC, abstractmethod
 
 
@@ -33,5 +33,8 @@ class Skill(ABC):
 
     @abstractmethod
     def Cast(self, caster_id: int, target_id: int, times: int, game):
-        """在结算时候的释放技能"""
+        """回合结束时的结算会按次序触发每个技能的 cast 函数
+
+        cast 函数不要管使用技能的耗费 magic point
+        """
         ...

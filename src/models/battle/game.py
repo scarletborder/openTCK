@@ -2,7 +2,7 @@ from src.models.battle.player import Player
 from src.battle.skills import Skill_Table, ImportSkillTable
 import src.utils.judge_skill_type as jst
 from prettytable import PrettyTable
-from src.enum.skill import SkillID, int_to_enum
+from src.constant.enum.skill import SkillID, int_to_enum
 
 
 class Game:

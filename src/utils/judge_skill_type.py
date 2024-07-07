@@ -1,4 +1,4 @@
-from src.enum.skill import SkillID
+from src.constant.enum.skill import SkillID
 
 
 def IsSingle(s: SkillID) -> bool:

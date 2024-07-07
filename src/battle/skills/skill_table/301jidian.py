@@ -1,5 +1,5 @@
 from src.models.battle.skill import Skill
-from src.enum.skill import SkillType, SkillID
+from src.constant.enum.skill import SkillType, SkillID
 from typing import TYPE_CHECKING
 
 if TYPE_CHECKING:
