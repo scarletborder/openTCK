@@ -1,6 +1,6 @@
 [player_info]
 # Username which will be displayed in lobby
-player_name = "Anonymous"
+player_name = "WAngdan"
 
 [address]
 # For host mode, the IP and port which will be boardcastd.

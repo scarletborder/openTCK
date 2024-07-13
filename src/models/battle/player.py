@@ -4,7 +4,7 @@ class Player:
         self.Name = Name
         self.id = id
         # 全局属性
-        self.Health = 6
+        self.Health = 7
         self.Point = 0
 
         # 计算中属性
