@@ -33,7 +33,7 @@ class Lobby:
             new_player = PlayerInfo(new_uid, name)
             self.player_infos[new_uid] = new_player
         else:
-            new_uid = len(self.player_infos) + 1
+            new_uid = len(self.player_infos)
             new_player = PlayerInfo(new_uid, name)
             self.player_infos.append(new_player)
 

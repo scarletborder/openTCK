@@ -41,6 +41,7 @@ class PlayerLink(ABC):
 
 class HostPlayerLink(PlayerLink):
     def __init__(self):
+        super().__init__()
         self.clients = []
 
     async def broadCast(self, data, writer=None):
@@ -131,14 +132,17 @@ class HostPlayerLink(PlayerLink):
                     # 昭告全国
                     await self.broadCast(recv_data, writer)
                     SLB.Current_Lobby = recv_data.content
-                    SLB.Current_Lobby.GetLobbyTable()
+                    print(SLB.Current_Lobby.GetLobbyTable())
                 elif recv_data.data_type == LinkEvent.LOBBYASSIGN:
                     """uid用户发送了自己的name"""
-                    SLB.Current_Lobby.player_infos[recv_data.uid] = recv_data.content
+                    SLB.Current_Lobby.player_infos[recv_data.uid].name = (
+                        recv_data.content
+                    )
                     await self.broadCast(
                         LobbyUpdateData(SLB.My_Player_Info.GetId(), SLB.Current_Lobby),
                         None,
                     )
+                    print(SLB.Current_Lobby.GetLobbyTable())
 
             except ConnectionResetError:
                 break
@@ -181,6 +185,7 @@ class HostPlayerLink(PlayerLink):
 
 class ClientPlayerLink(PlayerLink):
     def __init__(self):
+        super().__init__()
         self.sender = None
         self.content = None
 
@@ -243,7 +248,7 @@ class ClientPlayerLink(PlayerLink):
                     """被分配id"""
                     SLB.My_Player_Info.id = parserd_data["value"]
                     SLB.My_Player_Info.name = Cfg["player_info"]["player_name"]
-                    writer.write(
+                    await self.Send(
                         LobbyAssignData(SLB.My_Player_Info.id, SLB.My_Player_Info.name)
                     )
 
@@ -272,9 +277,8 @@ async def SendThingsForever(Linker: PlayerLink):
             # 发送message
             asyncio.create_task(Linker.SendMessage(content[1:]))
             continue
-        elif LM.IsMenuCommand(content) is True:
-            # 执行菜单指令
-            print("菜单指令还没做")
+        elif LM.RunMenuCommand(content, Linker) is True:
+            # 执行了菜单指令
             continue
         else:
             # action

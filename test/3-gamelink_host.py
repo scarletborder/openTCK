@@ -37,3 +37,9 @@ from src.utils.link.player_link import HostPlayerLink
 async def Main():
     my_host = HostPlayerLink()
     await my_host.JoinLobby()
+
+
+import asyncio
+
+if __name__ == "__main__":
+    asyncio.run(Main())
