@@ -7,7 +7,6 @@ if TYPE_CHECKING:
 
 
 class SkillFangyu(Skill):
-
     def __init__(self, caster_id: int, args: list) -> None:
         """无args"""
         super().__init__(caster_id, args)

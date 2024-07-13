@@ -109,6 +109,10 @@ class SkillStash:
 
     def Process(self, game: Game): ...
 
+    def ShowStatus(self):
+        for sk in self.caster_skill.values():
+            print(sk)
+
     # def IsPlayerUseSpecifiedSkillToPlayer(
     #     self, caster_id: int, target_id: int, skill_id: SkillID
     # ) -> tuple[bool, int]:

@@ -25,7 +25,7 @@ class Lobby:
     def GetNumber(self):
         return len(self.player_infos) - len(self.lack)
 
-    def AddPlayer(self, name: str) -> PlayerInfo:
+    def AddPlayer(self, name: str = "Anonymous") -> PlayerInfo:
         # 如果lack还有坑，填补上
         if len(self.lack) > 0:
             new_uid = self.lack[0]

@@ -73,6 +73,9 @@ class Skill(ABC):
 
     def GetAllTimes(self) -> int: ...
 
+    def __str__(self) -> str:
+        return f"{self.caster_id} -> {self.GetTitle()}"
+
 
 class AttackSkill(Skill):
     @staticmethod
@@ -91,6 +94,12 @@ class SingleAttackSkill(AttackSkill):
             self.targets.append(args[pos])
             self.times.append(args[1 + pos])
             pos += 2
+
+    def __str__(self) -> str:
+        s = ""
+        for idx in range(len(self.targets)):
+            s += f"{self.targets[idx]}({self.times[idx]} Times)  "
+        return f"{self.caster_id} -{self.GetTitle()}> {s}"
 
     def GetTargetTimes(self, target_id: int) -> int:
         """对目标使用了多少次技能"""

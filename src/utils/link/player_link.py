@@ -5,6 +5,8 @@ from src.models.link.link_data import (
     MessageData,
     BattleActionData,
     BattleResultData,
+    LobbyUpdateData,
+    LobbyAssignData,
     LinkEvent,
 )
 from src.models.battle.skill import Skill
@@ -82,6 +84,14 @@ class HostPlayerLink(PlayerLink):
         self.clients.append(writer)
         addr = writer.get_extra_info("peername")
         print(f"New client: {addr}")
+        # 分配一个player_info
+        new_player_info = SLB.Current_Lobby.AddPlayer()
+        writer.write(
+            pickle.dumps(
+                LobbyAssignData(SLB.My_Player_Info.GetId(), new_player_info.GetId())
+            )
+        )
+        await writer.drain()
 
         while True:
             try:
@@ -94,7 +104,7 @@ class HostPlayerLink(PlayerLink):
                 # 根据messageEvent来分支
                 if recv_data.data_type == LinkEvent.CHATMESSAGE:
                     print(parserd_data["msg"])
-                    asyncio.create_task(self.broadCast(recv_data, writer))
+                    await self.broadCast(recv_data, writer)
 
                 elif recv_data.data_type == LinkEvent.BATTLEACTION:
                     # 加入技能
@@ -105,31 +115,48 @@ class HostPlayerLink(PlayerLink):
                         >= SLB.Current_Lobby.GetNumber()
                     ):  # 如果所有人都做出了行为
                         SBA.Current_Game.OnRoundEnd()
-                        asyncio.create_task(
-                            self.broadCast(
-                                BattleResultData(
-                                    SLB.My_Player_Info.GetId(), SBA.Current_Game
-                                )
+                        await self.broadCast(
+                            BattleResultData(
+                                SLB.My_Player_Info.GetId(), SBA.Current_Game
                             )
                         )
-                    ...
 
+                        SBA.Current_Game.Skill_Stash.ShowStatus()
+                        SBA.Current_Game.GetStatus()
+                        SBA.Current_Game.OnRoundStart()
+                        self.could_send_action.set()
+                        print("你可以发送技能了")
                     ...
                 elif recv_data.data_type == LinkEvent.LOBBYUPDATE:
+                    # 昭告全国
+                    await self.broadCast(recv_data, writer)
                     SLB.Current_Lobby = recv_data.content
-                    asyncio.create_task(self.broadCast(recv_data, writer))
+                    SLB.Current_Lobby.GetLobbyTable()
+                elif recv_data.data_type == LinkEvent.LOBBYASSIGN:
+                    """uid用户发送了自己的name"""
+                    SLB.Current_Lobby.player_infos[recv_data.uid] = recv_data.content
+                    await self.broadCast(
+                        LobbyUpdateData(SLB.My_Player_Info.GetId(), SLB.Current_Lobby),
+                        None,
+                    )
 
             except ConnectionResetError:
                 break
 
+        # 用户离开
         print(f"Client {addr} disconnected")
         self.clients.remove(writer)
         writer.close()
         await writer.wait_closed()
+        SLB.Current_Lobby.LeavePlayer(new_player_info.GetId())
+        asyncio.create_task(
+            self.broadCast(
+                LobbyUpdateData(SLB.My_Player_Info.GetId(), SLB.Current_Lobby),
+                None,
+            )
+        )
 
     async def SendAction(self, sk: Skill):
-        # 禁用
-        self.could_send_action.clear()
         SBA.Current_Game.AddSkill(sk)
 
         if (
@@ -137,19 +164,25 @@ class HostPlayerLink(PlayerLink):
             >= SLB.Current_Lobby.GetNumber()
         ):  # 如果所有人都做出了行为
             SBA.Current_Game.OnRoundEnd()
-            asyncio.create_task(
-                self.broadCast(
-                    BattleResultData(SLB.My_Player_Info.GetId(), SBA.Current_Game)
-                )
+            await self.broadCast(
+                BattleResultData(SLB.My_Player_Info.GetId(), SBA.Current_Game)
             )
+
+            SBA.Current_Game.Skill_Stash.ShowStatus()
+            SBA.Current_Game.GetStatus()
+            SBA.Current_Game.OnRoundStart()
+            self.could_send_action.set()
+            print("你可以发送技能了")
 
     async def SendMessage(self, msg: str):
         msg_data = MessageData(SLB.My_Player_Info.GetId(), msg)
-        asyncio.create_task(self.broadCast(msg_data, None))
+        await self.broadCast(msg_data, None)
 
 
 class ClientPlayerLink(PlayerLink):
-    def __init__(self): ...
+    def __init__(self):
+        self.sender = None
+        self.content = None
 
     async def JoinLobby(self):
         """作为client加入lobby
@@ -158,11 +191,65 @@ class ClientPlayerLink(PlayerLink):
 
         2. 尝试加入并发送测试数据包
         """
-        ...
+        self.host_ip = Cfg["address"]["host_ip"]
+        self.port = Cfg["address"]["port"]
+        print("Connecting...")
+        self.reader, self.writer = await asyncio.open_connection(
+            self.host_ip, self.port
+        )
 
-    async def SendAction(self, skills: list): ...
+        print("Connected to server!")
+        await asyncio.gather(
+            self.recv_data(self.reader, self.writer), SendThingsForever(self)
+        )
 
-    async def SendMessage(self, msg: str): ...
+    async def Send(self, data):
+        data = pickle.dumps(data)
+        self.writer.write(data)
+        await self.writer.drain()
+
+    async def SendAction(self, sk: Skill):
+        await self.Send(BattleActionData(SLB.My_Player_Info.GetId(), sk))
+
+    async def SendMessage(self, msg: str):
+        await self.Send(MessageData(SLB.My_Player_Info.GetId(), msg))
+
+    async def recv_data(self, reader, writer):
+        while True:
+            try:
+                data = await reader.read(4096)
+                if not data:
+                    print("Server disconnected")
+                    break
+
+                recv_data: LinkData = pickle.loads(data)
+                parserd_data = recv_data.Parser()
+                # 根据messageEvent来分支
+                if recv_data.data_type == LinkEvent.CHATMESSAGE:
+                    print(parserd_data["msg"])
+
+                elif recv_data.data_type == LinkEvent.BATTLERESULT:
+                    SBA.Current_Game = parserd_data["game"]
+                    SBA.Current_Game.Skill_Stash.ShowStatus()
+                    SBA.Current_Game.GetStatus()
+                    self.could_send_action.set()
+                    print("你可以发送技能了")
+
+                elif recv_data.data_type == LinkEvent.LOBBYUPDATE:
+                    SLB.Current_Lobby = recv_data.content
+                    print(SLB.Current_Lobby.GetLobbyTable())
+
+                elif recv_data.data_type == LinkEvent.LOBBYASSIGN:
+                    """被分配id"""
+                    SLB.My_Player_Info.id = parserd_data["value"]
+                    SLB.My_Player_Info.name = Cfg["player_info"]["player_name"]
+                    writer.write(
+                        LobbyAssignData(SLB.My_Player_Info.id, SLB.My_Player_Info.name)
+                    )
+
+            except (ConnectionResetError, EOFError, pickle.UnpicklingError):
+                print("Server disconnected")
+                break
 
 
 """设置状态"""
@@ -187,7 +274,7 @@ async def SendThingsForever(Linker: PlayerLink):
             continue
         elif LM.IsMenuCommand(content) is True:
             # 执行菜单指令
-            ...
+            print("菜单指令还没做")
             continue
         else:
             # action
@@ -206,6 +293,8 @@ async def SendThingsForever(Linker: PlayerLink):
                 else:
                     # sendaction
                     asyncio.create_task(Linker.SendAction(sk))
+                    # 禁用
+                    Linker.could_send_action.clear()
                     # t.add_done_callback()
                     ...
 

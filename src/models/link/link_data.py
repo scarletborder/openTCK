@@ -29,6 +29,14 @@ class LobbyUpdateData(LinkData):
         return {"lobby": self.content}
 
 
+class LobbyAssignData(LinkData):
+    def __init__(self, uid: int, content):
+        super().__init__(LinkEvent.LOBBYASSIGN, uid, content)
+
+    def Parser(self) -> dict:
+        return {"value": self.content}
+
+
 class BattleActionData(LinkData):
     def __init__(self, uid: int, sk):
         """
