@@ -75,27 +75,48 @@ class SkillQin(SingleAttackSkill):
         for idx in range(len(self.targets)):
             target_id = self.targets[idx]
             times = self.times[idx]
-            target_skill, target_targets = game.Skill_Stash.GetTargetSkill(target_id)
+            target_skill, target_targets = game.Skill_Stash.getTargetSkillDetail(
+                target_id
+            )
             if isinstance(target_skill, AttackSkill):
-                if caster_id in target_targets:
-                    if target_skill.GetSkillID() == SkillID.SHA: # p Qin遇q Sha,揿方-pq,杀方+pq
-                        used_times = target_skill.GetTargetTimes(self.caster_id)
-                        game.players[self.caster_id].ChangeHealth(-times * used_times * 1)
-                        game.players[target_id].ChangeHealth(+times * used_times * 1)  # type: ignore
+                if isinstance(target_skill, SingleAttackSkill):
+                    # 是单体攻击
+                    if caster_id in target_targets:
+                        if (
+                            target_skill.GetSkillID() == SkillID.SHA
+                        ):  # p Qin遇q Sha,揿方-pq,杀方+pq
+                            used_times = target_skill.GetTargetTimes(self.caster_id)
+                            game.players[self.caster_id].ChangeHealth(
+                                -times * used_times * 1
+                            )
+                            game.players[target_id].ChangeHealth(+times * used_times * 1)  # type: ignore
+                            continue
+                        elif target_skill.GetAttackLevel() >= 1:  # 遇到高级攻击无效
+                            if (
+                                target_skill.GetSkillID() == SkillID.FAGONG
+                            ):  # 遇到法攻则正常
+                                pass
+                            else:  # 遇到其他高级攻击无效
+                                continue
+                else:  # 是群体攻击
+                    if (
+                        target_skill.GetAttackLevel() >= self.GetAttackLevel()
+                    ):  # 遇到高级攻击无效
                         continue
-                    elif target_skill.GetAttackLevel() >= 1: # 遇到高级攻击无效
-                        if target_skill.GetSkillID() == SkillID.FAGONG: # 遇到法攻则正常
-                            game.players[target_id].ChangeHealth(-times * 1)
-                            continue
-                        else: # 遇到高级攻击无效
-                            continue
+
             elif isinstance(target_skill, DefenseSkill):
                 # 针对防御等级
-                if game.players[target_id].defense_level >= 1 and game.players[target_id].defense_level != 2:  # "Gaofang"无法防御，其他则可以
-                    continue  # 无效化           
+                if (
+                    game.players[target_id].defense_level >= 1
+                    and game.players[target_id].defense_level != 2
+                ):  # "Gaofang"无法防御，其他则可以
+                    continue  # 无效化
+
             elif isinstance(target_skill, CommandSkill):
                 pass
+
             game.players[target_id].ChangeHealth(-times * 3)
+
 
 from src.battle.skills import Skill_Table, Skill_Name_To_ID  # noqa: E402
 

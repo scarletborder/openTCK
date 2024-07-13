@@ -78,11 +78,18 @@ class Skill(ABC):
 
 
 class AttackSkill(Skill):
+    def __init__(self, caster_id: int, args: list) -> None:
+        super().__init__(caster_id, args)
+        self.targets = []
+        self.times = []
+
     @staticmethod
     def GetAttackLevel() -> int: ...
 
+
 class DefenseSkill(Skill):
     pass
+
 
 class CommandSkill(Skill):
     pass

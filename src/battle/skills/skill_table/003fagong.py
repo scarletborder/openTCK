@@ -77,20 +77,31 @@ class SkillFagong(SingleAttackSkill):
             target_id = self.targets[idx]
             times = self.times[idx]
 
-            target_skill, target_targets = game.Skill_Stash.GetTargetSkill(target_id)
+            target_skill, target_targets = game.Skill_Stash.getTargetSkillDetail(
+                target_id
+            )
 
             if isinstance(target_skill, AttackSkill):
-                if caster_id in target_targets:
-                    if target_skill.GetSkillID() == SkillID.SHA: # 遇到sha无效
+                if isinstance(target_skill, SingleAttackSkill):
+                    # 是单体攻击
+                    if caster_id in target_targets:
+                        if target_skill.GetSkillID() == SkillID.SHA:  # 遇到sha无效
+                            continue
+                        elif target_skill.GetSkillID() == SkillID.QIN:  # 遇到qin无效
+                            continue
+                        elif target_skill.GetAttackLevel() >= self.GetAttackLevel():
+                            # 遇到高级攻击无效
+                            continue
+
+                else:  # 是群体攻击
+                    if target_skill.GetAttackLevel() >= self.GetAttackLevel():
+                        # 遇到高级攻击无效
                         continue
-                    elif target_skill.GetSkillID() == SkillID.QIN: # 遇到qin无效
-                        continue
-                    elif target_skill.GetAttackLevel() >= 2: # 遇到高级攻击无效
-                        continue
+
             elif isinstance(target_skill, DefenseSkill):
                 # 针对防御等级
                 if game.players[target_id].defense_level >= 2:  # "高防"
-                    continue  # 无效化                
+                    continue  # 无效化
             elif isinstance(target_skill, CommandSkill):
                 pass
             game.players[target_id].ChangeHealth(-times * 1)

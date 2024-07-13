@@ -113,6 +113,7 @@ class SkillStash:
     def Process(self, game: Game): ...
 
     def GetSkillStatus(self) -> str:
+        """查看回合内技能的使用情况"""
         return "\n".join([str(_) for _ in self.caster_skill.values()])
 
     # def IsPlayerUseSpecifiedSkillToPlayer(
@@ -126,11 +127,10 @@ class SkillStash:
 
     #     return False, 0
 
-    def getTargetSkillDetail(
-        self, target: int
-    ) -> tuple[Skill | None, list[str]]:
-        """获取某个目标的技能详情"""
+    def getTargetSkillDetail(self, target: int) -> tuple[Skill | None, list[int]]:
+        """获取某个目标的单体技能实例和其选定的目标们"""
         sk = self.caster_skill[target]
+        assert isinstance(sk, AttackSkill)
         return sk, sk.targets
 
     def IsPlayerUseSpecifiedSkill(
