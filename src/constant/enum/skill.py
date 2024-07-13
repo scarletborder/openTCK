@@ -27,6 +27,7 @@ class SkillID(Enum):
 
     # multi
     WANJIAN = 101
+    NANMAN = 102
 
     # defense
     FANGYU = 201
