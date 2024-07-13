@@ -7,41 +7,60 @@ if TYPE_CHECKING:
 
 
 class SkillFangyu(Skill):
-    def __init__(self) -> None:
-        super().__init__()
 
-    def GetName(self) -> str:
+    def __init__(self, caster_id: int, args: list) -> None:
+        """无args"""
+        super().__init__(caster_id, args)
+        return
+
+    @staticmethod
+    def NewSkill(caster, args: list[str]) -> tuple[bool, Skill | None, str]:
+        if len(args) > 0:
+            return False, None, "防御技能不接受参数"
+
+        return True, SkillFangyu(caster, []), ""
+
+    @staticmethod
+    def GetTitle() -> str:
         """获取技能名称"""
         return "防御"
 
-    def GetDescription(self) -> str:
+    @staticmethod
+    def GetName() -> str:
+        return "fangyu"
+
+    @staticmethod
+    def GetDescription() -> str:
         """获取技能描述"""
         return """抵挡杀、揿、万箭、吸血"""
 
-    def GetPoint(self) -> int:
-        """获取技能释放需要的点数"""
+    @staticmethod
+    def GetBasicPoint() -> int:
         return 0
 
-    def GetSkillType(self) -> SkillType:
+    def GetPoint(self) -> int:
+        """获取技能释放需要的点数"""
+        return self.GetBasicPoint()
+
+    @staticmethod
+    def GetSkillType() -> SkillType:
         return SkillType.DEFENSE
 
-    def GetSkillID(self) -> SkillID:
-        return SkillID.GAOFANG
+    @staticmethod
+    def GetSkillID() -> SkillID:
+        return SkillID.FANGYU
 
     # 使用类
 
-    def JudgeLegal(self, target_id: int, times: int, game: "Game") -> bool:
-        """检测技能是否参数正确"""
+    def JudgeLegal(self, game: "Game") -> bool:
         return True
 
-    def Cast(self, caster_id: int, target_id: int, times: int, game: "Game"):
-        """在结算时候的释放技能"""
+    def Cast(self, game: "Game"):
         # 提升防御等级
-        game.players[caster_id].defense_level = 2
+        game.players[self.caster_id].defense_level = 1
 
 
 from src.battle.skills import Skill_Table, Skill_Name_To_ID  # noqa: E402
 
-__skill = SkillFangyu()
-Skill_Table[__skill.GetSkillID().value] = __skill
-Skill_Name_To_ID[__skill.GetName()] = __skill.GetSkillID().value
+Skill_Table[SkillFangyu.GetSkillID().value] = SkillFangyu
+Skill_Name_To_ID[SkillFangyu.GetName()] = SkillFangyu.GetSkillID().value

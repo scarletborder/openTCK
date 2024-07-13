@@ -20,8 +20,20 @@ project_root = os.path.abspath(os.path.join(current_dir, "../"))
 # 将项目根目录添加到 sys.path
 sys.path.append(project_root)
 
-from src.utils.player_link import HostPlayerLink
+from src.utils.link.player_link import HostPlayerLink
 
-my_host = HostPlayerLink()
 
-my_host.JoinLobby()
+"""
+运行时
+一个Link 实例
+一个Lobby 实例
+
+一个Game 实例
+
+
+"""
+
+
+async def Main():
+    my_host = HostPlayerLink()
+    await my_host.JoinLobby()

@@ -1,7 +1,7 @@
 # import threading
 from src.models.battle.skill import Skill
 
-Skill_Table: dict[int, Skill] = dict()  # 技能id - 技能
+Skill_Table: dict[int, type[Skill]] = dict()  # 技能id - 技能
 Skill_Name_To_ID: dict[str, int] = dict()  # 技能名 - 技能id
 
 

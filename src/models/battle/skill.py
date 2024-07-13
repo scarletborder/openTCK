@@ -1,40 +1,108 @@
-from src.constant.enum.skill import SkillType
+from src.constant.enum.skill import SkillType, SkillID
 from abc import ABC, abstractmethod
+from typing import TYPE_CHECKING
+
+if TYPE_CHECKING:
+    from src.models.battle.game import Game
 
 
 class Skill(ABC):
     # 显示信息类函数
 
+    def __init__(self, caster_id: int, args: list) -> None:
+        self.caster_id = caster_id
+
+    @staticmethod
     @abstractmethod
-    def GetName(self) -> str:
-        """获取技能名称"""
+    def NewSkill(caster: int, args: list[str]) -> tuple[bool, "Skill | None", str]:
+        """字符串参数是否正确，并导出一个实例化"""
         ...
 
+    @staticmethod
     @abstractmethod
-    def GetDescription(self) -> str:
+    def GetTitle() -> str:
+        """获取技能中文名称"""
+        ...
+
+    @staticmethod
+    @abstractmethod
+    def GetName() -> str:
+        """获取技能拼音名称"""
+        ...
+
+    @staticmethod
+    @abstractmethod
+    def GetDescription() -> str:
         """获取技能描述"""
         ...
 
+    @staticmethod
     @abstractmethod
-    def GetPoint(self) -> int:
-        """获取技能释放需要的点数"""
+    def GetBasicPoint() -> int:
+        """获取一次技能释放需要耗费的基础点数"""
         ...
 
+    @staticmethod
     @abstractmethod
-    def GetSkillID(self): ...
+    def GetSkillID() -> SkillID: ...
+
+    @staticmethod
+    @abstractmethod
+    def GetSkillType() -> SkillType: ...
 
     @abstractmethod
-    def GetSkillType(self) -> SkillType: ...
+    def GetPoint(self) -> int:
+        """获取技能释放需要耗费的全部点数"""
+        ...
 
     # 使用类
-    @abstractmethod
-    def JudgeLegal(self, target_id: int, times: int, game) -> bool:
-        """检测技能是否参数正确"""
 
     @abstractmethod
-    def Cast(self, caster_id: int, target_id: int, times: int, game):
+    def Cast(self, game: "Game"):
         """回合结束时的结算会按次序触发每个技能的 cast 函数
 
         cast 函数不要管使用技能的耗费 magic point
         """
         ...
+
+    @staticmethod
+    def GetAttackLevel() -> int:
+        return -1
+
+    def GetTargetTimes(self, target_id: int) -> int: ...
+
+    def GetAllTimes(self) -> int: ...
+
+
+class AttackSkill(Skill):
+    @staticmethod
+    def GetAttackLevel() -> int: ...
+
+
+class SingleAttackSkill(AttackSkill):
+    def __init__(self, caster_id: int, args: list) -> None:
+        """args为偶数个，[0]为目标，[1]为次数"""
+        super().__init__(caster_id, args)
+        pos = 0
+        self.targets = []
+        self.times = []
+
+        while pos + 1 < len(args):
+            self.targets.append(args[pos])
+            self.times.append(args[1 + pos])
+            pos += 2
+
+    def GetTargetTimes(self, target_id: int) -> int:
+        """对目标使用了多少次技能"""
+        try:
+            idx = self.targets.index(target_id)
+        except ValueError:
+            idx = -1
+
+        if idx < 0:
+            return 0
+        return self.times[idx]
+
+    def GetAllTimes(self) -> int:
+        """获得使用技能的所有次数"""
+        return sum(self.times)
