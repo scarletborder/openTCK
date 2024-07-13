@@ -26,6 +26,7 @@ class SkillID(Enum):
     FAGONG = 3
 
     # multi
+    WANJIAN = 101
 
     # defense
     FANGYU = 201

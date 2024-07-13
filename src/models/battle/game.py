@@ -2,6 +2,7 @@ from src.models.battle.player import Player
 from src.models.battle.skill import Skill, AttackSkill, SingleAttackSkill
 from src.battle.skills import Skill_Table, ImportSkillTable
 import src.utils.judge_skill_type as jst
+from src.utils.lobby import Lobby
 from prettytable import PrettyTable
 from src.constant.enum.skill import SkillID, int_to_enum
 
@@ -33,10 +34,40 @@ class Game:
 
         return table
 
-    def OnRoundStart(self):
+    def OnRoundStart(self, lobby: "Lobby"):
+        # 判断游戏是否结束
+        lids = self.GetALiveUIDs(lobby)
+        if len(lids) <= 1:
+            if len(lids) == 1:
+                print(f"游戏结束了,{self.players[lids[0]].Name}是Winner")
+            else:
+                print("人员全部离线，游戏结束")
+            return
+
+        # reset
         self.Skill_Stash.reset()
         for pl in self.players.values():
             pl.OnRoundStart()
+
+    def GetLiveUIDs(self) -> list[int]:
+        """获取所有活人的uid"""
+        ret = []
+        for uid, player_info in self.players.items():
+            if player_info.Health > 0:
+                # 血大于0
+                ret.append(uid)
+
+        return ret
+
+    def GetALiveUIDs(self, lobby: "Lobby") -> list[int]:
+        """获取所有在线活人的uid"""
+        ret = []
+        for uid, player_info in self.players.items():
+            if player_info.Health > 0 and lobby.IsUidLeave(uid) is False:
+                # 血大于0并且没有离开
+                ret.append(uid)
+
+        return ret
 
     def JudgeAddSkill(self, sk: "Skill") -> tuple[bool, str]:
         """判断当前状态下是否能加入技能"""
@@ -95,6 +126,18 @@ class Game:
             self.players[caster_id].ChangePoint(-sk_v.GetPoint())
 
         return
+
+    def HasAllLivePlayerDone(self, lobby: "Lobby") -> bool:
+        """所有在线的存活玩家是否完成了释放技能"""
+        for uid, player_info in self.players.items():
+            if player_info.Health > 0:
+                if (
+                    uid not in self.Skill_Stash.caster_skill.keys()  # 没有释放技能
+                ) and lobby.IsUidLeave(uid) is False:
+                    # 并且没有离开
+                    return False
+
+        return True
 
 
 class SkillStash:

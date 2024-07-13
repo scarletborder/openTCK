@@ -63,10 +63,6 @@ class SkillSha(SingleAttackSkill):
         return 1
 
     # 使用类
-
-    def JudgeLegal(self, target_id: int, times: int, game: "Game") -> bool:
-        return True
-
     def Cast(self, game: "Game"):
         caster_id = self.caster_id
         for idx in range(len(self.targets)):
@@ -93,7 +89,6 @@ class SkillSha(SingleAttackSkill):
                     if target_skill.GetAttackLevel() >= self.GetAttackLevel():
                         # 遇到高级攻击无效
                         continue
-
             elif isinstance(target_skill, DefenseSkill):
                 # 针对防御等级
                 if (

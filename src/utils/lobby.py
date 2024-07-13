@@ -23,6 +23,7 @@ class Lobby:
         self.lack = []
 
     def GetNumber(self):
+        """获取在线人数个数(包括死人)"""
         return len(self.player_infos) - len(self.lack)
 
     def AddPlayer(self, name: str = "Anonymous") -> PlayerInfo:
@@ -38,6 +39,10 @@ class Lobby:
             self.player_infos.append(new_player)
 
         return new_player
+
+    def IsUidLeave(self, uid: int) -> bool:
+        """指定uid用户是否离开"""
+        return uid in self.lack
 
     def GetGameArgs(self) -> list[tuple[int, str]]:
         """获得启动游戏需要的参数"""

@@ -2,6 +2,8 @@ from src.constant.enum.skill import SkillType, SkillID
 from abc import ABC, abstractmethod
 from typing import TYPE_CHECKING
 
+from src.models.battle.game import Game
+
 if TYPE_CHECKING:
     from src.models.battle.game import Game
 
@@ -88,11 +90,55 @@ class AttackSkill(Skill):
 
 
 class DefenseSkill(Skill):
-    pass
+    @staticmethod
+    def GetSkillType() -> SkillType:
+        return SkillType.DEFENSE
 
 
 class CommandSkill(Skill):
-    pass
+    @staticmethod
+    def GetSkillType() -> SkillType:
+        return SkillType.COMMAND
+
+
+class MultiAttackSkill(AttackSkill):
+    def __init__(self, caster_id: int, args: list) -> None:
+        super().__init__(caster_id, args)
+        self.targets = []
+        self.times = []
+
+    def GetTargetTimes(self, target_id: int) -> int:
+        """对目标使用了多少次技能"""
+        return 1
+        # try:
+        #     idx = self.targets.index(target_id)
+        # except ValueError:
+        #     idx = -1
+
+        # if idx < 0:
+        #     return 0
+        # return self.times[idx]
+
+    def GetAllTimes(self) -> int:
+        """获得使用技能的所有次数"""
+        return sum(self.times)
+
+    @staticmethod
+    def GetSkillType() -> SkillType:
+        return SkillType.MULTI
+
+    def SingleCast(self, game: Game, caster_id: int, target_id: int, times: int):
+        """群体攻击对单体造成的结算"""
+        ...
+
+    def Cast(self, game: Game):
+        self.targets = list(game.GetLiveUIDs())
+        self.targets.remove(self.caster_id)
+        self.times = [1 for _ in range(len(self.targets))]
+        for idx in range(len(self.targets)):
+            tid = self.targets[idx]
+            times = self.times[idx]
+            self.SingleCast(game, self.caster_id, tid, times)
 
 
 class SingleAttackSkill(AttackSkill):
@@ -128,3 +174,7 @@ class SingleAttackSkill(AttackSkill):
     def GetAllTimes(self) -> int:
         """获得使用技能的所有次数"""
         return sum(self.times)
+
+    @staticmethod
+    def GetSkillType() -> SkillType:
+        return SkillType.SINGLE

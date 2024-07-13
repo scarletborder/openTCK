@@ -100,7 +100,7 @@ class HostPlayerLink(PlayerLink):
         )
 
         print(SBA.Current_Game.GetStatus())
-        SBA.Current_Game.OnRoundStart()
+        SBA.Current_Game.OnRoundStart(SLB.Current_Lobby)
         self.could_send_action.set()
         print("你可以发送技能了")
 
@@ -138,10 +138,7 @@ class HostPlayerLink(PlayerLink):
                     # 加入技能
                     SBA.Current_Game.AddSkill(parserd_data["skill"])
 
-                    if (
-                        len(SBA.Current_Game.Skill_Stash.caster_skill)
-                        >= SLB.Current_Lobby.GetNumber()
-                    ):  # 如果所有人都做出了行为
+                    if SBA.Current_Game.HasAllLivePlayerDone(SLB.Current_Lobby):
                         SBA.Current_Game.OnRoundEnd()
                         await self.broadCast(
                             BattleResultData(
@@ -151,9 +148,16 @@ class HostPlayerLink(PlayerLink):
 
                         print(SBA.Current_Game.Skill_Stash.GetSkillStatus())
                         print(SBA.Current_Game.GetStatus())
-                        SBA.Current_Game.OnRoundStart()
-                        self.could_send_action.set()
-                        print("你可以发送技能了")
+                        SBA.Current_Game.OnRoundStart(SLB.Current_Lobby)
+
+                        if (
+                            SBA.Current_Game.players[SLB.My_Player_Info.GetId()].Health
+                            > 0
+                        ):
+                            self.could_send_action.set()
+                            print("你可以发送技能了")
+                        else:
+                            print("你4了，但是可以继续观战聊天")
                     ...
                 elif recv_data.data_type == LinkEvent.LOBBYUPDATE:
                     # 昭告全国
@@ -190,10 +194,7 @@ class HostPlayerLink(PlayerLink):
     async def SendAction(self, sk: Skill):
         SBA.Current_Game.AddSkill(sk)
 
-        if (
-            len(SBA.Current_Game.Skill_Stash.caster_skill)
-            >= SLB.Current_Lobby.GetNumber()
-        ):  # 如果所有人都做出了行为
+        if SBA.Current_Game.HasAllLivePlayerDone(SLB.Current_Lobby):
             SBA.Current_Game.OnRoundEnd()
             await self.broadCast(
                 BattleResultData(SLB.My_Player_Info.GetId(), SBA.Current_Game)
@@ -201,9 +202,13 @@ class HostPlayerLink(PlayerLink):
 
             print(SBA.Current_Game.Skill_Stash.GetSkillStatus())
             print(SBA.Current_Game.GetStatus())
-            SBA.Current_Game.OnRoundStart()
-            self.could_send_action.set()
-            print("你可以发送技能了")
+            SBA.Current_Game.OnRoundStart(SLB.Current_Lobby)
+
+            if SBA.Current_Game.players[SLB.My_Player_Info.GetId()].Health > 0:
+                self.could_send_action.set()
+                print("你可以发送技能了")
+            else:
+                print("你4了，但是可以继续观战聊天")
 
     async def SendMessage(self, msg: str):
         msg_data = MessageData(SLB.My_Player_Info.GetId(), msg)
@@ -267,8 +272,11 @@ class ClientPlayerLink(PlayerLink):
                     SBA.Current_Game = parserd_data["game"]
                     print(SBA.Current_Game.Skill_Stash.GetSkillStatus())
                     print(SBA.Current_Game.GetStatus())
-                    self.could_send_action.set()
-                    print("你可以发送技能了")
+                    if SBA.Current_Game.players[SLB.My_Player_Info.GetId()].Health > 0:
+                        self.could_send_action.set()
+                        print("你可以发送技能了")
+                    else:
+                        print("你4了，但是可以继续观战聊天")
 
                 elif recv_data.data_type == LinkEvent.LOBBYUPDATE:
                     SLB.Current_Lobby = recv_data.content

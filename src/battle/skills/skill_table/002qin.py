@@ -64,11 +64,6 @@ class SkillQin(SingleAttackSkill):
         return 1
 
     # 使用类
-
-    def JudgeLegal(self, target_id: int, times: int, game: "Game") -> bool:
-        """检测技能是否参数正确"""
-        return True
-
     def Cast(self, game: "Game"):
         """在结算时候的释放技能"""
         caster_id = self.caster_id
@@ -103,7 +98,6 @@ class SkillQin(SingleAttackSkill):
                         target_skill.GetAttackLevel() >= self.GetAttackLevel()
                     ):  # 遇到高级攻击无效
                         continue
-
             elif isinstance(target_skill, DefenseSkill):
                 # 针对防御等级
                 if (
