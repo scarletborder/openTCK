@@ -54,3 +54,11 @@ class BattleResultData(LinkData):
 
     def Parser(self) -> dict:
         return {"game": self.content}
+
+
+class BattleStartData(LinkData):
+    def __init__(self, uid: int, game):
+        super().__init__(LinkEvent.BATTLESTART, uid, game)
+
+    def Parser(self) -> dict:
+        return {"game": self.content}

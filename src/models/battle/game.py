@@ -14,6 +14,9 @@ class Game:
     def AddPlayer(self, player: Player):
         self.players[player.id] = player
 
+    # def AddPlayerByID(self, uid:int):
+    #     self.players[uid] = player
+
     def GetStatus(self) -> PrettyTable:
         """展示场上每个玩家的属性"""
         table = PrettyTable()

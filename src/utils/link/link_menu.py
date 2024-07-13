@@ -1,17 +1,25 @@
+import src.storage.lobby as SLB
+
+
 from typing import TYPE_CHECKING
 
 if TYPE_CHECKING:
-    from src.utils.link.player_link import PlayerLink
+    from src.utils.link.player_link import PlayerLink, HostPlayerLink
 
 
-def RunMenuCommand(s: str, Linker: "PlayerLink") -> bool:
+async def RunMenuCommand(s: str, Linker: "PlayerLink") -> bool:
     if s == "help":
         print(
             """Menu Command
 help - Look up all menu commands.
+list - Display uids and names of players in lobby.
 start - [Host only] Hold up a game and start.
 """
         )
+        return True
+
+    elif s == "list":
+        print(SLB.Current_Lobby.GetLobbyTable())
         return True
 
     elif s == "start":
@@ -20,5 +28,12 @@ start - [Host only] Hold up a game and start.
             return True
         print("游戏开始了")
         # host下发游戏开始
+        # Linker:HostPlayerLink
+        await Linker.StartGame()  # type: ignore
         return True
+
+    elif s == "whoami":
+        print(f"uid:{SLB.My_Player_Info.GetId()}/{SLB.My_Player_Info.GetName()}")
+        return True
+
     return False
