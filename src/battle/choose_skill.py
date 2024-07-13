@@ -25,9 +25,12 @@ def ChooseSkillByName(
 
 
 def ParserSkill(
-    caster_id: int, c_s: str, game: "Game"
+    caster_id: int, input_s: str, game: "Game"
 ) -> tuple[bool, str, "Skill | None"]:
-    sl = c_s.strip().split(" ")
+    """解析用户输入内容为技能或者提示输入不合法或当前情况无法使用
+    @input_s : 用户输入的原生内容，会被解析成skill供返回
+    """
+    sl = input_s.strip().split(" ")
     if len(sl) == 0:
         return False, "未识别到任何技能", None
 

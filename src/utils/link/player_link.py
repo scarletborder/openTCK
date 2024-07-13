@@ -121,7 +121,7 @@ class HostPlayerLink(PlayerLink):
                             )
                         )
 
-                        SBA.Current_Game.Skill_Stash.ShowStatus()
+                        print(SBA.Current_Game.Skill_Stash.GetSkillStatus())
                         SBA.Current_Game.GetStatus()
                         SBA.Current_Game.OnRoundStart()
                         self.could_send_action.set()
@@ -168,7 +168,7 @@ class HostPlayerLink(PlayerLink):
                 BattleResultData(SLB.My_Player_Info.GetId(), SBA.Current_Game)
             )
 
-            SBA.Current_Game.Skill_Stash.ShowStatus()
+            print(SBA.Current_Game.Skill_Stash.GetSkillStatus())
             SBA.Current_Game.GetStatus()
             SBA.Current_Game.OnRoundStart()
             self.could_send_action.set()
@@ -230,7 +230,7 @@ class ClientPlayerLink(PlayerLink):
 
                 elif recv_data.data_type == LinkEvent.BATTLERESULT:
                     SBA.Current_Game = parserd_data["game"]
-                    SBA.Current_Game.Skill_Stash.ShowStatus()
+                    print(SBA.Current_Game.Skill_Stash.GetSkillStatus())
                     SBA.Current_Game.GetStatus()
                     self.could_send_action.set()
                     print("你可以发送技能了")

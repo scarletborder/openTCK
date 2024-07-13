@@ -46,22 +46,43 @@ import src.battle.choose_skill as csk
 
 print("所有人使用一次积点")
 game.OnRoundStart()
-csk.ParserSkill(1, "jidian", game)
-csk.ParserSkill(2, "jidian", game)
-csk.ParserSkill(3, "jidian", game)
+
+_, _, sk = csk.ParserSkill(1, "jidian", game)
+if sk:
+    game.AddSkill(sk)
+_, _, sk = csk.ParserSkill(2, "jidian", game)
+if sk:
+    game.AddSkill(sk)
+_, _, sk = csk.ParserSkill(3, "jidian", game)
+if sk:
+    game.AddSkill(sk)
+
 game.OnRoundEnd()
 print(game.GetStatus())
+print(game.Skill_Stash.GetSkillStatus())
 
 print("#" * 20)
 print("1-杀>2, 2-QIN>1, 3非法法攻")
 game.OnRoundStart()
-ok, msg = csk.ParserSkill(1, "sha 2 1", game)
-print(msg)
-ok, msg = csk.ParserSkill(2, "qin 1 1", game)
-print(msg)
-ok, msg = csk.ParserSkill(3, "fagong 1 1", game)
-print(msg)
+ok, msg, sk = csk.ParserSkill(1, "sha 2 1", game)
+if ok is False or sk is None:
+    print(msg)
+else:
+    game.AddSkill(sk)
+
+ok, msg, sk = csk.ParserSkill(2, "qin 1 1", game)
+if ok is False or sk is None:
+    print(msg)
+else:
+    game.AddSkill(sk)
+
+ok, msg, sk = csk.ParserSkill(3, "fagong 1 1", game)
+if ok is False or sk is None:
+    print(msg)
+else:
+    game.AddSkill(sk)
 game.OnRoundEnd()
 print(game.GetStatus())
+print(game.Skill_Stash.GetSkillStatus())
 
 print("#" * 20)

@@ -109,9 +109,8 @@ class SkillStash:
 
     def Process(self, game: Game): ...
 
-    def ShowStatus(self):
-        for sk in self.caster_skill.values():
-            print(sk)
+    def GetSkillStatus(self) -> str:
+        return "\n".join([str(_) for _ in self.caster_skill.values()])
 
     # def IsPlayerUseSpecifiedSkillToPlayer(
     #     self, caster_id: int, target_id: int, skill_id: SkillID
