@@ -127,7 +127,11 @@ class HostPlayerLink(PlayerLink):
                 parserd_data = recv_data.Parser()
                 # 根据messageEvent来分支
                 if recv_data.data_type == LinkEvent.CHATMESSAGE:
-                    print(parserd_data["msg"])
+                    print(
+                        f"{recv_data.uid}/{SLB.Current_Lobby.player_infos[recv_data.uid].GetName()}:"
+                        + parserd_data["msg"]
+                    )
+
                     await self.broadCast(recv_data, writer)
 
                 elif recv_data.data_type == LinkEvent.BATTLEACTION:
@@ -254,7 +258,10 @@ class ClientPlayerLink(PlayerLink):
                 parserd_data = recv_data.Parser()
                 # 根据messageEvent来分支
                 if recv_data.data_type == LinkEvent.CHATMESSAGE:
-                    print(parserd_data["msg"])
+                    print(
+                        f"{recv_data.uid}/{SLB.Current_Lobby.player_infos[recv_data.uid].GetName()}:"
+                        + parserd_data["msg"]
+                    )
 
                 elif recv_data.data_type == LinkEvent.BATTLERESULT:
                     SBA.Current_Game = parserd_data["game"]
