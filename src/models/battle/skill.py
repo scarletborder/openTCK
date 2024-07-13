@@ -2,8 +2,6 @@ from src.constant.enum.skill import SkillType, SkillID
 from abc import ABC, abstractmethod
 from typing import TYPE_CHECKING
 
-from src.models.battle.game import Game
-
 if TYPE_CHECKING:
     from src.models.battle.game import Game
 
@@ -127,11 +125,11 @@ class MultiAttackSkill(AttackSkill):
     def GetSkillType() -> SkillType:
         return SkillType.MULTI
 
-    def SingleCast(self, game: Game, caster_id: int, target_id: int, times: int):
+    def SingleCast(self, game: "Game", caster_id: int, target_id: int, times: int):
         """群体攻击对单体造成的结算"""
         ...
 
-    def Cast(self, game: Game):
+    def Cast(self, game: "Game"):
         self.targets = list(game.GetLiveUIDs())
         self.targets.remove(self.caster_id)
         self.times = [1 for _ in range(len(self.targets))]
