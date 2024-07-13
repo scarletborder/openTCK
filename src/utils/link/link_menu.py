@@ -1,6 +1,6 @@
 import src.storage.lobby as SLB
 from src.models.link.link_data import LobbyUpdateData
-
+from prettytable import PrettyTable
 from typing import TYPE_CHECKING
 
 if TYPE_CHECKING:
@@ -45,4 +45,45 @@ exit - Leave the lobby.
         )
         return True
 
+    elif s == "skills":
+        ListSkills()
+        return True
+    elif s[:6] == "query ":
+        keys = s[6:]
+        QuerySkill(keys)
+        return True
+
     return False
+
+
+from src.battle.skills import Skill_Table, Skill_Name_To_ID  # noqa: E402
+
+
+def QuerySkill(key):
+    flag = False
+    try:
+        keyid = int(key)
+        flag = True  # id
+    except ValueError:
+        ...
+
+    if flag is False:  # id
+        if key not in Skill_Name_To_ID.keys():
+            print("该技能不存在")
+            return
+        keyid = Skill_Name_To_ID[key]
+
+    print(
+        f"""{keyid}-{Skill_Table[keyid].GetTitle()}-{Skill_Table[keyid].GetName()}
+{Skill_Table[keyid].GetDescription()}"""
+    )
+
+
+def ListSkills():
+    table = PrettyTable()
+    table.field_names = ["Title", "id", "pinyin"]
+
+    for pinyin, sid in Skill_Name_To_ID.items():
+        table.add_row([Skill_Table[sid].GetTitle(), sid, pinyin])
+
+    print(table)

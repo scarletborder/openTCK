@@ -308,6 +308,8 @@ async def SendThingsForever(Linker: PlayerLink):
     while True:
         await Linker.could_type.wait()
         content = await loop.run_in_executor(None, input, ">")  # vanilla input
+        if content is None or len(content) == 0:
+            continue
         if content[0] == "!":
             # 发送message
             asyncio.create_task(Linker.SendMessage(content[1:]))
