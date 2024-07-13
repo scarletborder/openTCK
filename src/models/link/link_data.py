@@ -14,22 +14,35 @@ class LinkData:
 
 
 class MessageData(LinkData):
+    def __init__(self, uid: int, msg_str: str):
+        super().__init__(LinkEvent.CHATMESSAGE, uid, msg_str)
+
     def Parser(self) -> dict:
         return {"msg": f":{self.content}", "uid": self.uid}
 
 
 class LobbyUpdateData(LinkData):
+    def __init__(self, uid: int, lobby):
+        super().__init__(LinkEvent.LOBBYUPDATE, uid, lobby)
+
     def Parser(self) -> dict:
-        return self.content
+        return {"lobby": self.content}
 
 
 class BattleActionData(LinkData):
+    def __init__(self, uid: int, sk):
+        """
+        @`sk_dump`:技能的实例化
+        """
+        super().__init__(LinkEvent.BATTLEACTION, uid, sk)
+
     def Parser(self) -> dict:
-        content = dict(self.content)
-        content.update({"uid": self.uid})
-        return content
+        return {"skill": self.content, "uid": self.uid}
 
 
 class BattleResultData(LinkData):
+    def __init__(self, uid: int, game):
+        super().__init__(LinkEvent.BATTLERESULT, uid, game)
+
     def Parser(self) -> dict:
-        return self.content
+        return {"game": self.content}

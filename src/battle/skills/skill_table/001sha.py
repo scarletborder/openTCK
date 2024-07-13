@@ -81,7 +81,10 @@ class SkillSha(SingleAttackSkill):
             if is_used:
                 continue  # qin 单独在qin技能中处理
 
-            if game.Skill_Stash.GetTargetAttackLevel(target_id) > self.GetAttackLevel():
+            if (
+                game.Skill_Stash.GetTargetAttackLevel(target_id, self.caster_id)
+                > self.GetAttackLevel()
+            ):
                 continue  # 无效化
             game.players[target_id].ChangeHealth(-times * 1)
 

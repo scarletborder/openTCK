@@ -1,5 +1,5 @@
 from src.models.battle.player import Player
-from src.models.battle.skill import Skill, AttackSkill
+from src.models.battle.skill import Skill, AttackSkill, SingleAttackSkill
 from src.battle.skills import Skill_Table, ImportSkillTable
 import src.utils.judge_skill_type as jst
 from prettytable import PrettyTable
@@ -35,16 +35,22 @@ class Game:
         for pl in self.players.values():
             pl.OnRoundStart()
 
-    def AddSkill(self, sk: "Skill") -> tuple[bool, str]:
-        # tlist = self.Skill_Stash.caster_skill.get(caster_id, [])
-        # # 多次技能只允许全为单体攻击
-        # if len(tlist) > 0 and (jst.IsSingleByInt(skill_id) is not True):
-        #     return False, "多次技能只允许全为单体攻击"
-
+    def JudgeAddSkill(self, sk: "Skill") -> tuple[bool, str]:
+        """判断当前状态下是否能加入技能"""
         # 是否缺少点数
         if self.players[sk.caster_id].Point < sk.GetPoint():
             # + self.Skill_Stash.GetPointRecord(caster_id):
             return False, "no enough point"
+        else:
+            return True, ""
+
+        # 冰冻效果只能sleep
+
+    def AddSkill(self, sk: "Skill"):
+        # tlist = self.Skill_Stash.caster_skill.get(caster_id, [])
+        # # 多次技能只允许全为单体攻击
+        # if len(tlist) > 0 and (jst.IsSingleByInt(skill_id) is not True):
+        #     return False, "多次技能只允许全为单体攻击"
 
         # 成功添加
         self.Skill_Stash.caster_skill[sk.caster_id] = sk
@@ -55,7 +61,7 @@ class Game:
         #     self.Skill_Stash.GetPointRecord(caster_id)
         #     + Skill_Table[skill_id].GetPoint() * times,
         # )
-        return True, ""
+        # return True, ""
 
     def OnRoundEnd(self):
         self.calculateRoundResult()
@@ -125,12 +131,17 @@ class SkillStash:
             return False, None
         return False, None
 
-    def GetTargetAttackLevel(self, target_id: int) -> int:
-        """判断某目标的攻击等级(如果不是攻击技能永远为0)"""
-        if (
-            isinstance(self.caster_skill[target_id], AttackSkill) is True
-        ):  # 是否是攻击技能
-            return self.caster_skill[target_id].GetAttackLevel()  # type: ignore
+    def GetTargetAttackLevel(self, uid: int, target: int) -> int:
+        """判断某人向某个目标的攻击等级(如果不是攻击技能永远为0)"""
+        sk = self.caster_skill[uid]
+        if isinstance(sk, AttackSkill) is True:  # 是否是攻击技能
+            if isinstance(sk, SingleAttackSkill) is True:  # 是单体
+                if target in sk.targets:  # type: ignore
+                    return sk.GetAttackLevel()
+                else:
+                    return 0
+            else:  # 是群体
+                return sk.GetAttackLevel()  # type: ignore
         return 0
 
     # def UpdatePointRecord(self, caster_id, new_value):

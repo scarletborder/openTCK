@@ -99,6 +99,11 @@ class SkillQin(SingleAttackSkill):
             if is_used and sk and sk.GetTargetTimes(self.caster_id) > 0:
                 continue  # 遇到法攻无效
 
+            if (
+                game.Skill_Stash.GetTargetAttackLevel(target_id, self.caster_id)
+                > self.GetAttackLevel()
+            ):
+                continue  # 无效化
             game.players[target_id].ChangeHealth(-times * 3)
 
 

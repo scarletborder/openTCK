@@ -93,6 +93,11 @@ class SkillFagong(SingleAttackSkill):
             if is_used and sk and sk.GetTargetTimes(target_id) > 0:
                 continue  # 遇到qin双方无效
 
+            if (
+                game.Skill_Stash.GetTargetAttackLevel(target_id, self.caster_id)
+                > self.GetAttackLevel()
+            ):
+                continue  # 无效化
             game.players[target_id].ChangeHealth(-times * 1)
 
 

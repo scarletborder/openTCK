@@ -1,5 +1,5 @@
 from abc import ABC, abstractmethod
-from src.utils.parser_action import ParserSkillList
+from src.battle.choose_skill import ParserSkill
 from src.models.link.link_data import (
     LinkData,
     MessageData,
@@ -7,8 +7,13 @@ from src.models.link.link_data import (
     BattleResultData,
     LinkEvent,
 )
+from src.models.battle.skill import Skill
+
 from src.constant.config.conf import Cfg
 import src.utils.link.link_menu as LM
+from src.utils.lobby import Lobby
+import src.storage.battle as SBA
+import src.storage.lobby as SLB
 import asyncio
 import pickle
 
@@ -18,12 +23,15 @@ class PlayerLink(ABC):
     def __init__(self):
         self.could_type = asyncio.Event()  # 是否可以输入字符
         self.could_send_action = asyncio.Event()  # 是否可以出招
+        self.could_type.set()
+        self.could_send_action.set()
+        self.is_host = False
 
     @abstractmethod
     async def JoinLobby(self): ...
 
     @abstractmethod
-    async def SendAction(self, skills: list): ...
+    async def SendAction(self, skill: Skill): ...
 
     @abstractmethod
     async def SendMessage(self, msg: str): ...
@@ -33,6 +41,12 @@ class HostPlayerLink(PlayerLink):
     def __init__(self):
         self.clients = []
 
+    async def broadCast(self, data, writer=None):
+        for client in self.clients:
+            if client != writer:
+                client.write(pickle.dumps(data))
+                await client.drain()
+
     async def JoinLobby(self):
         """作为host创建lobby
 
@@ -40,9 +54,13 @@ class HostPlayerLink(PlayerLink):
 
         2. 尝试开放
         """
-        self.Player_Name = Cfg["player_info"]["player_name"]
         self.host_ip = Cfg["address"]["host_ip"]
         self.port = Cfg["address"]["port"]
+        self.is_host = True
+        SLB.Current_Lobby = Lobby()
+        SLB.My_Player_Info = SLB.Current_Lobby.AddPlayer(
+            Cfg["player_info"]["player_name"]
+        )
         self.clients = []
 
         self.Server = await asyncio.start_server(
@@ -57,7 +75,8 @@ class HostPlayerLink(PlayerLink):
         # gather forever
         async with self.Server:
             await asyncio.gather(self.Server.serve_forever(), SendThingsForever(self))
-        ...
+
+        print("大厅已经关闭")
 
     async def handle_client(self, reader, writer):
         self.clients.append(writer)
@@ -74,22 +93,32 @@ class HostPlayerLink(PlayerLink):
                 parserd_data = recv_data.Parser()
                 # 根据messageEvent来分支
                 if recv_data.data_type == LinkEvent.CHATMESSAGE:
-                    print()
-                    for client in self.clients:
-                        if client != writer:
-                            client.write(data)
-                            await client.drain()
+                    print(parserd_data["msg"])
+                    asyncio.create_task(self.broadCast(recv_data, writer))
 
                 elif recv_data.data_type == LinkEvent.BATTLEACTION:
-                    if self.could_send_action.is_set() is False:
-                        # 忽略
-                        ...
+                    # 加入技能
+                    SBA.Current_Game.AddSkill(parserd_data["skill"])
+
+                    if (
+                        len(SBA.Current_Game.Skill_Stash.caster_skill)
+                        >= SLB.Current_Lobby.GetNumber()
+                    ):  # 如果所有人都做出了行为
+                        SBA.Current_Game.OnRoundEnd()
+                        asyncio.create_task(
+                            self.broadCast(
+                                BattleResultData(
+                                    SLB.My_Player_Info.GetId(), SBA.Current_Game
+                                )
+                            )
+                        )
                     ...
 
-                if message.strip() == "!":
-                    break
-                print(f"Received {message} from {addr}")
-                await broadcast(message, writer)
+                    ...
+                elif recv_data.data_type == LinkEvent.LOBBYUPDATE:
+                    SLB.Current_Lobby = recv_data.content
+                    asyncio.create_task(self.broadCast(recv_data, writer))
+
             except ConnectionResetError:
                 break
 
@@ -98,9 +127,25 @@ class HostPlayerLink(PlayerLink):
         writer.close()
         await writer.wait_closed()
 
-    async def SendAction(self, skills: list): ...
+    async def SendAction(self, sk: Skill):
+        # 禁用
+        self.could_send_action.clear()
+        SBA.Current_Game.AddSkill(sk)
 
-    async def SendMessage(self, msg: list): ...
+        if (
+            len(SBA.Current_Game.Skill_Stash.caster_skill)
+            >= SLB.Current_Lobby.GetNumber()
+        ):  # 如果所有人都做出了行为
+            SBA.Current_Game.OnRoundEnd()
+            asyncio.create_task(
+                self.broadCast(
+                    BattleResultData(SLB.My_Player_Info.GetId(), SBA.Current_Game)
+                )
+            )
+
+    async def SendMessage(self, msg: str):
+        msg_data = MessageData(SLB.My_Player_Info.GetId(), msg)
+        asyncio.create_task(self.broadCast(msg_data, None))
 
 
 class ClientPlayerLink(PlayerLink):
@@ -117,7 +162,7 @@ class ClientPlayerLink(PlayerLink):
 
     async def SendAction(self, skills: list): ...
 
-    async def SendMessage(self, msg: list): ...
+    async def SendMessage(self, msg: str): ...
 
 
 """设置状态"""
@@ -152,11 +197,21 @@ async def SendThingsForever(Linker: PlayerLink):
                 continue
             else:
                 # parser first
-                ok, skill_list = ParserSkillList(content)
-                if ok is False:
-                    print("Your action input is not legal")
+                ok, msg, sk = ParserSkill(
+                    SLB.My_Player_Info.GetId(), content, SBA.Current_Game
+                )
+                if ok is False or sk is None:
+                    print("Fail:" + msg)
                     continue
-                # judge 能不能放出来
+                else:
+                    # sendaction
+                    asyncio.create_task(Linker.SendAction(sk))
+                    # t.add_done_callback()
+                    ...
 
+                # ~ 时间到了也禁用
                 # 最后发送
-                Linker.SendAction()
+
+
+# def SendActionCalback(obj):
+#     print()
