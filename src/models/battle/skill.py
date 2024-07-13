@@ -81,6 +81,12 @@ class AttackSkill(Skill):
     @staticmethod
     def GetAttackLevel() -> int: ...
 
+class DefenseSkill(Skill):
+    pass
+
+class CommandSkill(Skill):
+    pass
+
 
 class SingleAttackSkill(AttackSkill):
     def __init__(self, caster_id: int, args: list) -> None:

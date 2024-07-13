@@ -126,6 +126,13 @@ class SkillStash:
 
     #     return False, 0
 
+    def getTargetSkillDetail(
+        self, target: int
+    ) -> tuple[Skill | None, list[str]]:
+        """获取某个目标的技能详情"""
+        sk = self.caster_skill[target]
+        return sk, sk.targets
+
     def IsPlayerUseSpecifiedSkill(
         self, uid: int, skill_id: SkillID
     ) -> tuple[bool, Skill | None]:

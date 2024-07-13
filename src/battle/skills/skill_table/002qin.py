@@ -1,4 +1,4 @@
-from src.models.battle.skill import Skill, SingleAttackSkill
+from src.models.battle.skill import *
 from src.constant.enum.skill import SkillType, SkillID
 from typing import TYPE_CHECKING
 
@@ -71,41 +71,31 @@ class SkillQin(SingleAttackSkill):
 
     def Cast(self, game: "Game"):
         """在结算时候的释放技能"""
+        caster_id = self.caster_id
         for idx in range(len(self.targets)):
             target_id = self.targets[idx]
             times = self.times[idx]
-            # 针对防御等级
-            if game.players[target_id].defense_level >= 1:  # "防御"
-                return  # 无效化
-
-            # 针对sha
-            is_used, sk = game.Skill_Stash.IsPlayerUseSpecifiedSkill(
-                target_id, SkillID.SHA
-            )
-
-            if is_used and sk:
-                used_times = sk.GetTargetTimes(self.caster_id)
-                if used_times > 0:
-                    # 自己掉血
-                    game.players[self.caster_id].ChangeHealth(-times * used_times * 1)
-                    # 给杀方回血
-                    game.players[target_id].ChangeHealth(+times * used_times * 1)  # type: ignore
-                    continue
-
-            # 针对法攻
-            is_used, sk = game.Skill_Stash.IsPlayerUseSpecifiedSkill(
-                target_id, SkillID.FAGONG
-            )
-            if is_used and sk and sk.GetTargetTimes(self.caster_id) > 0:
-                continue  # 遇到法攻无效
-
-            if (
-                game.Skill_Stash.GetTargetAttackLevel(target_id, self.caster_id)
-                > self.GetAttackLevel()
-            ):
-                continue  # 无效化
+            target_skill, target_targets = game.Skill_Stash.GetTargetSkill(target_id)
+            if isinstance(target_skill, AttackSkill):
+                if caster_id in target_targets:
+                    if target_skill.GetSkillID() == SkillID.SHA: # p Qin遇q Sha,揿方-pq,杀方+pq
+                        used_times = target_skill.GetTargetTimes(self.caster_id)
+                        game.players[self.caster_id].ChangeHealth(-times * used_times * 1)
+                        game.players[target_id].ChangeHealth(+times * used_times * 1)  # type: ignore
+                        continue
+                    elif target_skill.GetAttackLevel() >= 1: # 遇到高级攻击无效
+                        if target_skill.GetSkillID() == SkillID.FAGONG: # 遇到法攻则正常
+                            game.players[target_id].ChangeHealth(-times * 1)
+                            continue
+                        else: # 遇到高级攻击无效
+                            continue
+            elif isinstance(target_skill, DefenseSkill):
+                # 针对防御等级
+                if game.players[target_id].defense_level >= 1 and game.players[target_id].defense_level != 2:  # "Gaofang"无法防御，其他则可以
+                    continue  # 无效化           
+            elif isinstance(target_skill, CommandSkill):
+                pass
             game.players[target_id].ChangeHealth(-times * 3)
-
 
 from src.battle.skills import Skill_Table, Skill_Name_To_ID  # noqa: E402
 
