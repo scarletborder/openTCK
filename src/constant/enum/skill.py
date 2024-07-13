@@ -36,3 +36,4 @@ class SkillID(Enum):
     # command
     SLEEP = 300
     JIDIAN = 301
+    TAO = 329
