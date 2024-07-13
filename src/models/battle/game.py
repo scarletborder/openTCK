@@ -34,16 +34,7 @@ class Game:
 
         return table
 
-    def OnRoundStart(self, lobby: "Lobby"):
-        # 判断游戏是否结束
-        lids = self.GetALiveUIDs(lobby)
-        if len(lids) <= 1:
-            if len(lids) == 1:
-                print(f"游戏结束了,{self.players[lids[0]].Name}是Winner")
-            else:
-                print("人员全部离线，游戏结束")
-            return
-
+    def OnRoundStart(self):
         # reset
         self.Skill_Stash.reset()
         for pl in self.players.values():
@@ -173,8 +164,9 @@ class SkillStash:
     def getTargetSkillDetail(self, target: int) -> tuple[Skill | None, list[int]]:
         """获取某个目标的单体技能实例和其选定的目标们"""
         sk = self.caster_skill[target]
-        assert isinstance(sk, AttackSkill)
-        return sk, sk.targets
+        if isinstance(sk, AttackSkill):
+            return sk, sk.targets
+        return sk, []
 
     def IsPlayerUseSpecifiedSkill(
         self, uid: int, skill_id: SkillID

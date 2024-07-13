@@ -76,7 +76,7 @@ def QuerySkill(key):
         keyid = Skill_Name_To_ID[key]
 
     print(
-        f"""{keyid}-{Skill_Table[keyid].GetTitle()}-{Skill_Table[keyid].GetName()}
+        f"""{keyid}-{Skill_Table[keyid].GetTitle()}-{Skill_Table[keyid].GetName()}-{Skill_Table[keyid].GetBasicPoint()}P
 {Skill_Table[keyid].GetDescription()}"""
     )
 
