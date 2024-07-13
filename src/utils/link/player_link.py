@@ -100,7 +100,7 @@ class HostPlayerLink(PlayerLink):
         )
 
         print(SBA.Current_Game.GetStatus())
-        SBA.Current_Game.OnRoundStart(SLB.Current_Lobby)
+        SBA.Current_Game.OnRoundStart()
         self.could_send_action.set()
         print("你可以发送技能了")
 
@@ -148,17 +148,29 @@ class HostPlayerLink(PlayerLink):
 
                         print(SBA.Current_Game.Skill_Stash.GetSkillStatus())
                         print(SBA.Current_Game.GetStatus())
-                        SBA.Current_Game.OnRoundStart(SLB.Current_Lobby)
-
-                        if (
-                            SBA.Current_Game.players[SLB.My_Player_Info.GetId()].Health
-                            > 0
-                        ):
-                            self.could_send_action.set()
-                            print("你可以发送技能了")
+                        SBA.Current_Game.OnRoundStart()
+                        # 判断游戏是否结束
+                        lids = SBA.Current_Game.GetALiveUIDs(SLB.Current_Lobby)
+                        if len(lids) <= 1:
+                            if len(lids) == 1:
+                                print(
+                                    f"游戏结束了,{SBA.Current_Game.players[lids[0]].Name}是Winner\nhost输入start再开一把"
+                                )
+                            else:
+                                print("人员全部离线，游戏结束")
+                            continue
                         else:
-                            print("你4了，但是可以继续观战聊天")
-                    ...
+                            if (
+                                SBA.Current_Game.players[
+                                    SLB.My_Player_Info.GetId()
+                                ].Health
+                                > 0
+                            ):
+                                self.could_send_action.set()
+                                print("你可以发送技能了")
+                            else:
+                                print("你4了，但是可以继续观战聊天")
+
                 elif recv_data.data_type == LinkEvent.LOBBYUPDATE:
                     # 昭告全国
                     await self.broadCast(recv_data, writer)
@@ -202,13 +214,23 @@ class HostPlayerLink(PlayerLink):
 
             print(SBA.Current_Game.Skill_Stash.GetSkillStatus())
             print(SBA.Current_Game.GetStatus())
-            SBA.Current_Game.OnRoundStart(SLB.Current_Lobby)
-
-            if SBA.Current_Game.players[SLB.My_Player_Info.GetId()].Health > 0:
-                self.could_send_action.set()
-                print("你可以发送技能了")
+            SBA.Current_Game.OnRoundStart()
+            # 判断游戏是否结束
+            lids = SBA.Current_Game.GetALiveUIDs(SLB.Current_Lobby)
+            if len(lids) <= 1:
+                if len(lids) == 1:
+                    print(
+                        f"游戏结束了,{SBA.Current_Game.players[lids[0]].Name}是Winner\nhost输入start再开一把"
+                    )
+                else:
+                    print("人员全部离线，游戏结束")
+                return
             else:
-                print("你4了，但是可以继续观战聊天")
+                if SBA.Current_Game.players[SLB.My_Player_Info.GetId()].Health > 0:
+                    self.could_send_action.set()
+                    print("你可以发送技能了")
+                else:
+                    print("你4了，但是可以继续观战聊天")
 
     async def SendMessage(self, msg: str):
         msg_data = MessageData(SLB.My_Player_Info.GetId(), msg)
@@ -272,11 +294,24 @@ class ClientPlayerLink(PlayerLink):
                     SBA.Current_Game = parserd_data["game"]
                     print(SBA.Current_Game.Skill_Stash.GetSkillStatus())
                     print(SBA.Current_Game.GetStatus())
-                    if SBA.Current_Game.players[SLB.My_Player_Info.GetId()].Health > 0:
-                        self.could_send_action.set()
-                        print("你可以发送技能了")
+                    # 判断游戏是否结束
+                    lids = SBA.Current_Game.GetALiveUIDs(SLB.Current_Lobby)
+                    if len(lids) <= 1:
+                        if len(lids) == 1:
+                            print(
+                                f"游戏结束了,{SBA.Current_Game.players[lids[0]].Name}是Winner\nhost输入start再开一把"
+                            )
+                        else:
+                            print("人员全部离线，游戏结束")
                     else:
-                        print("你4了，但是可以继续观战聊天")
+                        if (
+                            SBA.Current_Game.players[SLB.My_Player_Info.GetId()].Health
+                            > 0
+                        ):
+                            self.could_send_action.set()
+                            print("你可以发送技能了")
+                        else:
+                            print("你4了，但是可以继续观战聊天")
 
                 elif recv_data.data_type == LinkEvent.LOBBYUPDATE:
                     SLB.Current_Lobby = recv_data.content

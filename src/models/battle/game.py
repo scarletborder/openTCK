@@ -34,16 +34,7 @@ class Game:
 
         return table
 
-    def OnRoundStart(self, lobby: "Lobby"):
-        # 判断游戏是否结束
-        lids = self.GetALiveUIDs(lobby)
-        if len(lids) <= 1:
-            if len(lids) == 1:
-                print(f"游戏结束了,{self.players[lids[0]].Name}是Winner")
-            else:
-                print("人员全部离线，游戏结束")
-            return
-
+    def OnRoundStart(self):
         # reset
         self.Skill_Stash.reset()
         for pl in self.players.values():
