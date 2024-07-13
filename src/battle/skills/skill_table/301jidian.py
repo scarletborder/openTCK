@@ -1,4 +1,4 @@
-from src.models.battle.skill import Skill
+from src.models.battle.skill import Skill, CommandSkill
 from src.constant.enum.skill import SkillType, SkillID
 from typing import TYPE_CHECKING
 
@@ -6,11 +6,12 @@ if TYPE_CHECKING:
     from src.models.battle.game import Game
 
 
-class SkillJidian(Skill):
+class SkillJidian(CommandSkill):
 
     def __init__(self, caster_id: int, args: list) -> None:
         """无args"""
         super().__init__(caster_id, args)
+        self.used_times = 0
         return
 
     @staticmethod
@@ -53,8 +54,11 @@ class SkillJidian(Skill):
     # 使用类
     def Cast(self, game: "Game"):
         """在结算时候的释放技能"""
+        if self.used_times >= 1:
+            return
         # +1point
         game.players[self.caster_id].ChangePoint(+1)
+        self.used_times += 1
 
 
 from src.battle.skills import Skill_Table, Skill_Name_To_ID  # noqa: E402
