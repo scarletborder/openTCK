@@ -87,6 +87,27 @@ class DefenseSkill(Skill):
 class CommandSkill(Skill):
     pass
 
+class MultiAttackSkill(AttackSkill):
+    def __init__(self, caster_id: int, args: list) -> None:
+        super().__init__(caster_id, args)
+        self.targets = list(Game.players.keys()).remove(self.caster_id)
+        self.times = [1 for _ in len(self.targets)]
+    
+    def GetTargetTimes(self, target_id: int) -> int:
+        """对目标使用了多少次技能"""
+        try:
+            idx = self.targets.index(target_id)
+        except ValueError:
+            idx = -1
+
+        if idx < 0:
+            return 0
+        return self.times[idx]
+
+    def GetAllTimes(self) -> int:
+        """获得使用技能的所有次数"""
+        return sum(self.times)
+
 
 class SingleAttackSkill(AttackSkill):
     def __init__(self, caster_id: int, args: list) -> None:

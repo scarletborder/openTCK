@@ -63,10 +63,6 @@ class SkillSha(SingleAttackSkill):
         return 1
 
     # 使用类
-
-    def JudgeLegal(self, target_id: int, times: int, game: "Game") -> bool:
-        return True
-
     def Cast(self, game: "Game"):
         caster_id = self.caster_id
         for idx in range(len(self.targets)):
@@ -77,7 +73,7 @@ class SkillSha(SingleAttackSkill):
                 if caster_id in target_targets:
                     if target_skill.GetSkillID() == SkillID.QIN: # qin 单独在qin技能中处理
                         continue
-                    elif target_skill.GetAttackLevel() >= 1: # 遇到高级攻击无效
+                    elif target_skill.GetAttackLevel() >= self.GetAttackLevel(): # 遇到高级攻击无效
                         if target_skill.GetSkillID() == SkillID.FAGONG: # 遇到法攻则正常
                             game.players[target_id].ChangeHealth(-times * 1)
                             continue

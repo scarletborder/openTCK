@@ -51,11 +51,6 @@ class SkillGaofang(Skill):
         return SkillID.GAOFANG
 
     # 使用类
-
-    def JudgeLegal(self, target_id: int, times: int, game: "Game") -> bool:
-        """检测技能是否参数正确"""
-        return True
-
     def Cast(self, game: "Game"):
         """在结算时候的释放技能"""
         # 提升防御等级

@@ -50,10 +50,6 @@ class SkillFangyu(Skill):
         return SkillID.FANGYU
 
     # 使用类
-
-    def JudgeLegal(self, game: "Game") -> bool:
-        return True
-
     def Cast(self, game: "Game"):
         # 提升防御等级
         game.players[self.caster_id].defense_level = 1

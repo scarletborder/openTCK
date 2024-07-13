@@ -64,11 +64,6 @@ class SkillQin(SingleAttackSkill):
         return 1
 
     # 使用类
-
-    def JudgeLegal(self, target_id: int, times: int, game: "Game") -> bool:
-        """检测技能是否参数正确"""
-        return True
-
     def Cast(self, game: "Game"):
         """在结算时候的释放技能"""
         caster_id = self.caster_id
@@ -83,12 +78,8 @@ class SkillQin(SingleAttackSkill):
                         game.players[self.caster_id].ChangeHealth(-times * used_times * 1)
                         game.players[target_id].ChangeHealth(+times * used_times * 1)  # type: ignore
                         continue
-                    elif target_skill.GetAttackLevel() >= 1: # 遇到高级攻击无效
-                        if target_skill.GetSkillID() == SkillID.FAGONG: # 遇到法攻则正常
-                            game.players[target_id].ChangeHealth(-times * 1)
-                            continue
-                        else: # 遇到高级攻击无效
-                            continue
+                    elif target_skill.GetAttackLevel() >= self.GetAttackLevel(): # 遇到高级攻击无效
+                        continue
             elif isinstance(target_skill, DefenseSkill):
                 # 针对防御等级
                 if game.players[target_id].defense_level >= 1 and game.players[target_id].defense_level != 2:  # "Gaofang"无法防御，其他则可以

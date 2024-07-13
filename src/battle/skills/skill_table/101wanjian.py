@@ -6,43 +6,32 @@ if TYPE_CHECKING:
     from src.models.battle.game import Game
 
 
-class SkillFagong(SingleAttackSkill):
+class SkillWanjian(MultiAttackSkill):
 
     def __init__(self, caster_id: int, args: list) -> None:
-        """args为偶数个，[0]为目标，[1]为次数"""
+        """args为空"""
         super().__init__(caster_id, args)
 
     @staticmethod
     def NewSkill(caster, args: list[str]) -> tuple[bool, Skill | None, str]:
-        if len(args) % 2 != 0:
-            return False, None, "单体攻击参数需要为偶数"
-        ret = []
-        for arg in args:
-            try:
-                iarg = int(arg)
-            except ValueError:
-                iarg = -1
-
-            if iarg < 0:
-                return False, None, f"参数错误{arg}"
-
-            ret.append(iarg)
-
-        return True, SkillFagong(caster, ret), ""
-
+        if len(args) > 0:
+            return False, None, "MULTI不需要任何参数"
+        else:
+            return True, SkillWanjian(caster, []), ""
+    
     @staticmethod
     def GetTitle() -> str:
         """获取技能名称"""
-        return "法攻"
+        return "万箭"
 
     @staticmethod
     def GetName() -> str:
-        return "fagong"
+        return "wanjian"
 
     @staticmethod
     def GetDescription() -> str:
         """获取技能描述"""
-        return """目标-1，若遇杀，则法攻无效；若遇揿，则双方均无效"""
+        return """群体攻击，所有目标-2"""
 
     @staticmethod
     def GetBasicPoint() -> int:
@@ -50,15 +39,15 @@ class SkillFagong(SingleAttackSkill):
 
     def GetPoint(self) -> int:
         """获取技能释放需要的点数"""
-        return self.GetAllTimes() * self.GetBasicPoint()
+        return self.GetBasicPoint() # AOE只需要算一次释放点数
 
     @staticmethod
     def GetSkillType() -> SkillType:
-        return SkillType.SINGLE
+        return SkillType.MULTI
 
     @staticmethod
     def GetSkillID() -> SkillID:
-        return SkillID.FAGONG
+        return SkillID.WANJIAN
 
     @staticmethod
     def GetAttackLevel() -> int:
@@ -73,25 +62,19 @@ class SkillFagong(SingleAttackSkill):
             times = self.times[idx]
 
             target_skill, target_targets = game.Skill_Stash.GetTargetSkill(target_id)
-
             if isinstance(target_skill, AttackSkill):
                 if caster_id in target_targets:
-                    if target_skill.GetSkillID() == SkillID.SHA: # 遇到sha无效
-                        continue
-                    elif target_skill.GetSkillID() == SkillID.QIN: # 遇到qin无效
-                        continue
-                    elif target_skill.GetAttackLevel() >= self.GetAttackLevel(): # 遇到高级攻击无效
+                    if target_skill.GetAttackLevel() >= self.GetAttackLevel(): # 遇到高级攻击无效
                         continue
             elif isinstance(target_skill, DefenseSkill):
                 # 针对防御等级
-                if game.players[target_id].defense_level >= 2:  # "高防"
+                if game.players[target_id].defense_level >= 1:
                     continue  # 无效化                
             elif isinstance(target_skill, CommandSkill):
                 pass
-            game.players[target_id].ChangeHealth(-times * 1)
-
+            game.players[target_id].ChangeHealth(-times * 2)
 
 from src.battle.skills import Skill_Table, Skill_Name_To_ID  # noqa: E402
 
-Skill_Table[SkillFagong.GetSkillID().value] = SkillFagong
-Skill_Name_To_ID[SkillFagong.GetName()] = SkillFagong.GetSkillID().value
+Skill_Table[SkillWanjian.GetSkillID().value] = SkillWanjian
+Skill_Name_To_ID[SkillWanjian.GetName()] = SkillWanjian.GetSkillID().value
