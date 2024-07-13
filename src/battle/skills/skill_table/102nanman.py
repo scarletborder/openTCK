@@ -1,3 +1,4 @@
+from src.models.battle.game import Game
 from src.models.battle.skill import *
 from src.constant.enum.skill import SkillType, SkillID
 from typing import TYPE_CHECKING
@@ -18,7 +19,7 @@ class SkillNanman(MultiAttackSkill):
             return False, None, "MULTI不需要任何参数"
         else:
             return True, SkillNanman(caster, []), ""
-    
+
     @staticmethod
     def GetTitle() -> str:
         """获取技能名称"""
@@ -39,7 +40,7 @@ class SkillNanman(MultiAttackSkill):
 
     def GetPoint(self) -> int:
         """获取技能释放需要的点数"""
-        return self.GetBasicPoint() # AOE只需要算一次释放点数
+        return self.GetBasicPoint()  # AOE只需要算一次释放点数
 
     @staticmethod
     def GetSkillType() -> SkillType:
@@ -54,25 +55,26 @@ class SkillNanman(MultiAttackSkill):
         return 3
 
     # 使用类
+    def SingleCast(self, game: Game, caster_id: int, target_id: int, times: int):
+        target_skill, target_targets = game.Skill_Stash.getTargetSkillDetail(target_id)
+        if isinstance(target_skill, AttackSkill):
+            if caster_id in target_targets:
+                if (
+                    target_skill.GetAttackLevel() >= self.GetAttackLevel()
+                ):  # 遇到高级攻击无效
+                    return
+        elif isinstance(target_skill, DefenseSkill):
+            # 针对防御等级
+            if game.players[target_id].defense_level >= 2:
+                return  # 无效化
+        elif isinstance(target_skill, CommandSkill):
+            pass
+        game.players[target_id].ChangeHealth(-times * 3)
+
     def Cast(self, game: "Game"):
         """在结算时候的释放技能"""
-        caster_id = self.caster_id
-        for idx in range(len(self.targets)):
-            target_id = self.targets[idx]
-            times = self.times[idx]
+        super().Cast(game)
 
-            target_skill, target_targets = game.Skill_Stash.GetTargetSkill(target_id)
-            if isinstance(target_skill, AttackSkill):
-                if caster_id in target_targets:
-                    if target_skill.GetAttackLevel() >= self.GetAttackLevel(): # 遇到高级攻击无效
-                        continue
-            elif isinstance(target_skill, DefenseSkill):
-                # 针对防御等级
-                if game.players[target_id].defense_level >= 2:
-                    continue  # 无效化                
-            elif isinstance(target_skill, CommandSkill):
-                pass
-            game.players[target_id].ChangeHealth(-times * 3)
 
 from src.battle.skills import Skill_Table, Skill_Name_To_ID  # noqa: E402
 
