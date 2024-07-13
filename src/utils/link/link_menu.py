@@ -13,6 +13,8 @@ async def RunMenuCommand(s: str, Linker: "PlayerLink") -> bool:
             """Menu Command
 help - Look up all menu commands.
 list - Display uids and names of players in lobby.
+skills - List all available skills.
+query [skill id|skill pinyin] - look for detailed skill description
 start - [Host only] Hold up a game and start.
 exit - Leave the lobby.
 """
