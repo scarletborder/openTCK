@@ -6,4 +6,4 @@ player_name = "Anonymous"
 # For host mode, the IP and port which will be boardcastd.
 # For client mode, the IP and port which will be connected to.
 host_ip = "127.0.0.1"
-port = 48966
+port = 47989

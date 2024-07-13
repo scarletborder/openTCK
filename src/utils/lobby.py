@@ -50,6 +50,7 @@ class Lobby:
     def LeavePlayer(self, uid: int):
         """一位玩家离开"""
         self.lack.append(uid)
+        self.player_infos[uid].name = "LEAVE " + self.player_infos[uid].name
 
     # 显示类
     def GetLobbyTable(self) -> PrettyTable:

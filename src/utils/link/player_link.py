@@ -28,11 +28,14 @@ class PlayerLink(ABC):
         self.could_type = asyncio.Event()  # 是否可以输入字符
         self.could_send_action = asyncio.Event()  # 是否可以出招
         self.could_type.set()
-        self.could_send_action.set()
+        self.could_send_action.clear()
         self.is_host = False
 
     @abstractmethod
     async def JoinLobby(self): ...
+
+    @abstractmethod
+    async def Send(self, data): ...
 
     @abstractmethod
     async def SendAction(self, skill: Skill): ...
@@ -45,6 +48,9 @@ class HostPlayerLink(PlayerLink):
     def __init__(self):
         super().__init__()
         self.clients = []
+
+    async def Send(self, data):
+        await self.broadCast(data)
 
     async def broadCast(self, data, writer=None):
         for client in self.clients:
