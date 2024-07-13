@@ -173,8 +173,8 @@ class SkillStash:
     def getTargetSkillDetail(self, target: int) -> tuple[Skill | None, list[int]]:
         """获取某个目标的单体技能实例和其选定的目标们"""
         sk = self.caster_skill[target]
-        assert isinstance(sk, AttackSkill)
-        return sk, sk.targets
+        # assert isinstance(sk, AttackSkill)
+        return sk, sk.targets  # type: ignore
 
     def IsPlayerUseSpecifiedSkill(
         self, uid: int, skill_id: SkillID
