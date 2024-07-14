@@ -65,7 +65,7 @@ exit - Leave the lobby.
             return True
         if s[:9] != "gamerule ":
             print("==Game Rule==\n")
-            for key, settings in Cfg["gamerule"]:
+            for key, settings in Cfg["gamerule"].items():
                 print(f"{key}\r{settings}")
             return True
         keys = s[9:]
