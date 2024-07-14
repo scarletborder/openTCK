@@ -11,7 +11,7 @@ class SkillSha(SingleAttackSkill):
         super().__init__(caster_id, args)
 
     @staticmethod
-    def NewSkill(caster, args: list[str]) -> tuple[bool, Skill | None, str]:
+    def NewSkill(caster, args: list[str], game: "Game|None" = None) -> tuple[bool, Skill | None, str]:
         if len(args) == 0:
             return False, None, "请至少选择一名玩家进行攻击"
         if len(args) % 2 != 0:

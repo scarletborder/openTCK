@@ -30,7 +30,7 @@ class SkillTao(CommandSkill):
         return f"{self.caster_id} -{self.GetTitle()}> {s}"
 
     @staticmethod
-    def NewSkill(caster, args: list[str]) -> tuple[bool, Skill | None, str]:
+    def NewSkill(caster, args: list[str], game: "Game|None" = None) -> tuple[bool, Skill | None, str]:
         if len(args) == 0:
             return True, SkillTao(caster, []), ""
         elif len(args) % 2 != 0:
@@ -104,8 +104,7 @@ class SkillTao(CommandSkill):
         for idx in range(len(self.targets)):
             target_id = self.targets[idx]
             times = self.times[idx]
-
-            game.players[target_id].ChangeHealth(+times * 1)
+            game.players[target_id].ChangeHealth(times * self.health_change)
 
 
 from src.battle.skills import Skill_Table, Skill_Name_To_ID  # noqa: E402

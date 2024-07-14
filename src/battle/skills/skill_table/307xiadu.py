@@ -11,17 +11,15 @@ if TYPE_CHECKING:
     from src.models.battle.game import Game, TriggerType
 
 
-class TaoTrigger(SpecifiedSkillTrigger):
+class XiaduTaoTrigger(SpecifiedSkillTrigger):
     def __init__(
         self, game: "Game", tri_type: TriggerType, sk: Skill, sp_skid: SkillID
     ):
         super().__init__(game, tri_type, sk, sp_skid)
 
     @staticmethod
-    def NewTrigger(game: "Game", sk: Skill, arg: int) -> BattleTrigger:
-        """@arg: 几份毒"""
-        tri = TaoTrigger(game, TriggerType.B_SPECIFIEDSKILL, sk, SkillID.TAO)
-
+    def NewTrigger(game: "Game", sk: Skill) -> BattleTrigger:
+        tri = XiaduTaoTrigger(game, TriggerType.B_SPECIFIEDSKILL, sk, SkillID.TAO)
         return tri
 
     def Cast(self, game: "Game", arg: Skill):
@@ -56,7 +54,7 @@ class SkillXiadu(CommandSkill):
         return f"{self.caster_id} -> {self.GetTitle()} ({self.GetAllTimes()} Times)"
 
     @staticmethod
-    def NewSkill(caster, args: list[str]) -> tuple[bool, Skill | None, str]:
+    def NewSkill(caster, args: list[str], game: "Game|None" = None) -> tuple[bool, Skill | None, str]:
         if len(args) >= 2:
             return False, None, "下毒参数至多为1"
         elif len(args) == 0:
@@ -116,10 +114,11 @@ class SkillXiadu(CommandSkill):
 
     # 使用类
     def Cast(self, game: "Game"):
-        """在结算时候的释放技能"""
-        # 添加trigger
-        tri = TaoTrigger.NewTrigger(game, self, self.GetAllTimes())
-        game.AddTrigger(tri)
+        for i in range(self.GetTargetTimes()): # 先使用循环，后期需要更改再将其次数写入trigger中
+            """在结算时候的释放技能"""
+            # 添加trigger
+            tri = XiaduTaoTrigger.NewTrigger(game, self)
+            game.AddTrigger(tri)
 
 
 from src.battle.skills import Skill_Table, Skill_Name_To_ID  # noqa: E402

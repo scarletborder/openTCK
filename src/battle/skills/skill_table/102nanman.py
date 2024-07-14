@@ -14,7 +14,7 @@ class SkillNanman(MultiAttackSkill):
         super().__init__(caster_id, args)
 
     @staticmethod
-    def NewSkill(caster, args: list[str]) -> tuple[bool, Skill | None, str]:
+    def NewSkill(caster, args: list[str], game: "Game|None" = None) -> tuple[bool, Skill | None, str]:
         if len(args) > 0:
             return False, None, "MULTI不需要任何参数"
         else:

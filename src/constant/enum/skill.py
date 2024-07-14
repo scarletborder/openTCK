@@ -38,3 +38,4 @@ class SkillID(Enum):
     JIDIAN = 301
     XIADU = 307
     TAO = 329
+    FANTAN = 346

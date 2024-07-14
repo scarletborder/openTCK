@@ -15,7 +15,7 @@ class Skill(ABC):
 
     @staticmethod
     @abstractmethod
-    def NewSkill(caster: int, args: list[str]) -> tuple[bool, "Skill | None", str]:
+    def NewSkill(caster: int, args: list[str], game: "Game|None" = None) -> tuple[bool, "Skill | None", str]:
         """字符串参数是否正确，并导出一个实例化"""
         ...
 
@@ -94,6 +94,10 @@ class AttackSkill(Skill):
         super().__init__(caster_id, args)
         self.targets = []
         self.times = []
+    
+    def SetTarget(self, new_target: list[int]):
+        """用于trigger修改原技能的target"""
+        self.targets = new_target
 
     @staticmethod
     def GetAttackLevel() -> int: ...
