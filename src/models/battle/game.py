@@ -97,7 +97,12 @@ class Game:
         # 1. 看指令技能，设置trigger
         for caster_id, sk_v in self.Skill_Stash.caster_skill.items():
             if jst.IsCommand(sk_v.GetSkillID()):
-                sk_v.Cast(self)
+                try:
+                    sk_v.Cast(self)
+                except BaseException as e:
+                    # 执行技能出错
+                    self.Skill_Stash.sk_error += f"error in {caster_id}/{self.players[caster_id].Name} use {sk_v.GetName()}: {e}\n"
+                    ...
             # for sk in sk_v:
             #     if jst.IsCommand(sk[1]):
             #         Skill_Table[sk[1].value].Cast(caster_id, sk[0], sk[2], self)
@@ -105,12 +110,18 @@ class Game:
         # 2. 看防御技能
         for caster_id, sk_v in self.Skill_Stash.caster_skill.items():
             if jst.IsDefense(sk_v.GetSkillID()):
-                sk_v.Cast(self)
+                try:
+                    sk_v.Cast(self)
+                except BaseException as e:
+                    self.Skill_Stash.sk_error += f"error in {caster_id}/{self.players[caster_id].Name} use {sk_v.GetName()}: {e}\n"
 
         # 3. 看攻击技能
         for caster_id, sk_v in self.Skill_Stash.caster_skill.items():
             if jst.IsSingle(sk_v.GetSkillID()) or jst.IsMulti(sk_v.GetSkillID()):
-                sk_v.Cast(self)
+                try:
+                    sk_v.Cast(self)
+                except BaseException as e:
+                    self.Skill_Stash.sk_error += f"error in {caster_id}/{self.players[caster_id].Name} use {sk_v.GetName()}: {e}\n"
 
         # Final. 使用技能耗费点数
         for caster_id, sk_v in self.Skill_Stash.caster_skill.items():
@@ -134,6 +145,7 @@ class Game:
 class SkillStash:
     def __init__(self) -> None:
         self.caster_skill: dict[int, Skill] = {}  # 施法者id - 技能实例
+        self.sk_error = ""
 
         # # 统计人物这一局用过的点数
         # # self.point_record_dirty: dict[int, bool] = {}  # 减少重复计算
@@ -141,14 +153,15 @@ class SkillStash:
 
     def reset(self):
         self.caster_skill = {}
+        self.sk_error = ""
         # for caster_id in self.point_record.keys():
         #     self.point_record[caster_id] = 0
 
     def Process(self, game: Game): ...
 
     def GetSkillStatus(self) -> str:
-        """查看回合内技能的使用情况"""
-        return "\n".join([str(_) for _ in self.caster_skill.values()])
+        """查看回合内技能的使用情况和错误日志"""
+        return "\n".join([str(_) for _ in self.caster_skill.values()]) + self.sk_error
 
     # def IsPlayerUseSpecifiedSkillToPlayer(
     #     self, caster_id: int, target_id: int, skill_id: SkillID

@@ -48,11 +48,11 @@ class SkillTao(Skill):
                 ret.append(iarg)
 
             return True, SkillTao(caster, ret), ""
-        
+
     def GetAllTimes(self) -> int:
         """获得使用技能的所有次数"""
         return sum(self.times)
-    
+
     def GetTargetTimes(self, target_id: int) -> int:
         """对目标使用了多少次技能"""
         try:
@@ -81,7 +81,7 @@ class SkillTao(Skill):
     @staticmethod
     def GetBasicPoint() -> int:
         return 3
-    
+
     def GetPoint(self) -> int:
         """获取技能释放需要的点数"""
         return self.GetAllTimes() * self.GetBasicPoint()
@@ -97,14 +97,10 @@ class SkillTao(Skill):
     # 使用类
     def Cast(self, game: "Game"):
         """在结算时候的释放技能"""
-        caster_id = self.caster_id
         for idx in range(len(self.targets)):
             target_id = self.targets[idx]
             times = self.times[idx]
 
-            target_skill, target_targets = game.Skill_Stash.getTargetSkillDetail(
-                target_id
-            )
             game.players[target_id].ChangeHealth(+times * 1)
 
 
