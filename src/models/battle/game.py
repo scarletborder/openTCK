@@ -28,7 +28,7 @@ class Game:
         self.players: dict[int, Player] = {}
         self.Skill_Stash = SkillStash()
         self.Trigger_Stash = TriggerStash()
-        self.Skill_Log = ""
+        self.Player_Status = ""
         self.context = {}
 
     def AddPlayer(self, player: Player):
@@ -39,10 +39,20 @@ class Game:
 
     def GetStatus(self):
         """展示场上每个玩家的属性"""
-        return self.Skill_Log
+        return self.Player_Status
 
     def OnRoundStart(self):
         # reset
+        is_somebody_hurt = False
+        for pl in self.players.values():
+            if pl.is_health_change:
+                is_somebody_hurt = True
+            pl.OnRoundStart()
+
+        if is_somebody_hurt and Cfg["gamerule"]["drain_when_hurt"]:
+            for pl in self.players.values():
+                pl.Point = 0
+
         tmp_table = PrettyTable()
         tmp_table.field_names = ["id", "name", "Health", "Point"]
         for t_id, t_player in self.players.items():
@@ -55,18 +65,8 @@ class Game:
                 ]
             )
 
-        self.Skill_Log = tmp_table.get_formatted_string()
-
+        self.Player_Status = tmp_table.get_formatted_string()
         self.Skill_Stash.reset()
-        is_somebody_hurt = False
-        for pl in self.players.values():
-            if pl.is_health_change:
-                is_somebody_hurt = True
-            pl.OnRoundStart()
-
-        if is_somebody_hurt and Cfg["gamerule"]["drain_when_hurt"]:
-            for pl in self.players.values():
-                pl.Point = 0
 
     def GetLiveUIDs(self) -> list[int]:
         """获取所有活人的uid"""

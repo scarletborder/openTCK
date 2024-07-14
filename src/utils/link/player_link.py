@@ -95,12 +95,11 @@ class HostPlayerLink(PlayerLink):
         for uid, pname in args:
             SBA.Current_Game.AddPlayer(Player(pname, uid))
 
+        SBA.Current_Game.OnRoundStart()
         await self.broadCast(
             BattleStartData(SLB.My_Player_Info.GetId(), SBA.Current_Game)
         )
-
         print(SBA.Current_Game.GetStatus())
-        SBA.Current_Game.OnRoundStart()
         self.could_send_action.set()
         print("你可以发送技能了")
 
