@@ -3,10 +3,10 @@ from src.constant.enum.skill import SkillType, SkillID
 from typing import TYPE_CHECKING
 
 if TYPE_CHECKING:
-    from src.models.battle.game import Game
+    from src.models.battle.game import Game, TriggerType, BattleTrigger
 
 
-class SkillTao(CommandSkill):
+class SkillXiadu(CommandSkill):
 
     def __init__(self, caster_id: int, args: list) -> None:
         super().__init__(caster_id, args)
@@ -47,7 +47,7 @@ class SkillTao(CommandSkill):
                     return False, None, f"参数错误{arg}"
                 ret.append(iarg)
 
-            return True, SkillTao(caster, ret), ""
+            return True, SkillXiadu(caster, ret), ""
 
     def GetAllTimes(self) -> int:
         """获得使用技能的所有次数"""
@@ -111,5 +111,5 @@ class SkillTao(CommandSkill):
 
 from src.battle.skills import Skill_Table, Skill_Name_To_ID  # noqa: E402
 
-Skill_Table[SkillTao.GetSkillID().value] = SkillTao
-Skill_Name_To_ID[SkillTao.GetName()] = SkillTao.GetSkillID().value
+Skill_Table[SkillXiadu.GetSkillID().value] = SkillXiadu
+Skill_Name_To_ID[SkillXiadu.GetName()] = SkillXiadu.GetSkillID().value

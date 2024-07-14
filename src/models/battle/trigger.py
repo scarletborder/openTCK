@@ -49,3 +49,16 @@ class SpecifiedSkillTrigger(BattleTrigger):
         固定接受参数包括game，和引发触发器的技能实例
         """
         ...
+
+
+class SpecifiedPlayerTrigger(BattleTrigger):
+    def __init__(self, game: Game, tri_type: TriggerType, sk: Skill, sp_plid: int):
+        super().__init__(game, tri_type, sk)
+        self.sp_plid = sp_plid
+
+    def Cast(self, game: Game, arg: Skill):
+        """指定技能触发器触发时的函数
+
+        固定接受参数包括game，和引发触发器的技能实例
+        """
+        ...

@@ -20,6 +20,7 @@ if TYPE_CHECKING:
         TriggerType,
         BattleTrigger,
         SpecifiedSkillTrigger,
+        SpecifiedPlayerTrigger,
     )
 
 
@@ -102,10 +103,45 @@ class Game:
                 tril = self.Trigger_Stash.p_skill_triggers.get(tri.sp_skid, [])
                 tril.append(tri)
                 self.Trigger_Stash.p_skill_triggers[tri.sp_skid] = tril
+        elif isinstance(tri, SpecifiedPlayerTrigger):
+            if tri.Type == TriggerType.B_SPECIFIEDPLAYER:
+                tril = self.Trigger_Stash.b_player_triggers.get(tri.sp_plid, [])
+                tril.append(tri)
+                self.Trigger_Stash.b_player_triggers[tri.sp_plid] = tril
+            else:
+                tril = self.Trigger_Stash.p_player_triggers.get(tri.sp_plid, [])
+                tril.append(tri)
+                self.Trigger_Stash.p_player_triggers[tri.sp_plid] = tril
         else:
             tril = self.Trigger_Stash.misc_triggers.get(tri.Type, [])
             tril.append(tri)
             self.Trigger_Stash.misc_triggers[tri.Type] = tril
+
+    def AddNextTrigger(self, tri: "BattleTrigger"):
+        """向下一回合加入触发器"""
+        # 判断是否是针对独特技能
+        if isinstance(tri, SpecifiedSkillTrigger):
+            if tri.Type == TriggerType.B_SPECIFIEDSKILL:
+                tril = self.Trigger_Stash.Nb_skill_triggers.get(tri.sp_skid, [])
+                tril.append(tri)
+                self.Trigger_Stash.Nb_skill_triggers[tri.sp_skid] = tril
+            else:
+                tril = self.Trigger_Stash.Np_skill_triggers.get(tri.sp_skid, [])
+                tril.append(tri)
+                self.Trigger_Stash.Np_skill_triggers[tri.sp_skid] = tril
+        elif isinstance(tri, SpecifiedPlayerTrigger):
+            if tri.Type == TriggerType.B_SPECIFIEDPLAYER:
+                tril = self.Trigger_Stash.b_player_triggers.get(tri.sp_plid, [])
+                tril.append(tri)
+                self.Trigger_Stash.b_player_triggers[tri.sp_plid] = tril
+            else:
+                tril = self.Trigger_Stash.p_player_triggers.get(tri.sp_plid, [])
+                tril.append(tri)
+                self.Trigger_Stash.p_player_triggers[tri.sp_plid] = tril
+        else:
+            tril = self.Trigger_Stash.Nmisc_triggers.get(tri.Type, [])
+            tril.append(tri)
+            self.Trigger_Stash.Nmisc_triggers[tri.Type] = tril
 
     def OnRoundEnd(self):
         self.calculateRoundResult()
@@ -185,7 +221,7 @@ class SkillStash:
         # self.point_record: dict[int, int] = {}
 
     def reset(self):
-        self.caster_skill = {}
+        self.caster_skill.clear()
         self.sk_error = ""
         # for caster_id in self.point_record.keys():
         #     self.point_record[caster_id] = 0
@@ -253,7 +289,24 @@ class TriggerStash:
         self.b_player_triggers: dict[int, list["BattleTrigger"]] = {}
         self.p_player_triggers: dict[int, list["BattleTrigger"]] = {}
 
-    ...
+        self.Nmisc_triggers: dict["TriggerType", list["BattleTrigger"]] = {}
+        self.Nb_skill_triggers: dict[SkillID, list["BattleTrigger"]] = {}
+        self.Np_skill_triggers: dict[SkillID, list["BattleTrigger"]] = {}
+        self.Nb_player_triggers: dict[int, list["BattleTrigger"]] = {}
+        self.Np_player_triggers: dict[int, list["BattleTrigger"]] = {}
+
+    def reset(self):
+        self.misc_triggers = self.Nmisc_triggers.copy()
+        self.b_skill_triggers = self.Nb_skill_triggers.copy()
+        self.p_skill_triggers = self.Np_skill_triggers.copy()
+        self.b_player_triggers = self.Nb_player_triggers.copy()
+        self.p_player_triggers = self.Np_player_triggers.copy()
+
+        self.Nmisc_triggers.clear()
+        self.Nb_skill_triggers.clear()
+        self.Np_skill_triggers.clear()
+        self.Nb_player_triggers.clear()
+        self.Np_player_triggers.clear()
 
 
 def CastSkill(game: Game, sk_v: "Skill"):
