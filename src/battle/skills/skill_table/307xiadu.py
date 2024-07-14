@@ -10,31 +10,21 @@ class SkillXiadu(CommandSkill):
 
     def __init__(self, caster_id: int, args: list) -> None:
         super().__init__(caster_id, args)
-        if len(args) != 0:
-            pos = 0
-            self.targets = []
-            self.times = []
-            while pos + 1 < len(args):
-                self.targets.append(args[pos])
-                self.times.append(args[1 + pos])
-                pos += 2
-        else:
+        if len(args) == 1:
+            self.times = [args[0]]
+        elif len(args) == 0:
             # 参数留空时，默认对自己使用
-            self.targets = [self.caster_id]
             self.times = [1]
 
     def __str__(self) -> str:
-        s = ""
-        for idx in range(len(self.targets)):
-            s += f"{self.targets[idx]}({self.times[idx]} Times)  "
-        return f"{self.caster_id} -{self.GetTitle()}> {s}"
+        return f"{self.caster_id} -> {self.GetTitle()} ({self.GetAllTimes()} Times)"
 
     @staticmethod
     def NewSkill(caster, args: list[str]) -> tuple[bool, Skill | None, str]:
-        if len(args) == 0:
-            return False, None, "请至少选择一名玩家进行下毒"
-        elif len(args) % 2 != 0:
-            return False, None, "下毒参数需要为偶数"
+        if len(args) >= 2:
+            return False, None, "下毒参数至多为1"
+        elif len(args) == 0:
+            return True, SkillXiadu(caster, []), ""
         else:
             ret = []
             for arg in args:
@@ -52,17 +42,6 @@ class SkillXiadu(CommandSkill):
     def GetAllTimes(self) -> int:
         """获得使用技能的所有次数"""
         return sum(self.times)
-
-    def GetTargetTimes(self, target_id: int) -> int:
-        """对目标使用了多少次技能"""
-        try:
-            idx = self.targets.index(target_id)
-        except ValueError:
-            idx = -1
-
-        if idx < 0:
-            return 0
-        return self.times[idx]
 
     @staticmethod
     def GetTitle() -> str:
