@@ -1,4 +1,4 @@
-from src.models.battle.skill import Skill
+from src.models.battle.skill import Skill, DefenseSkill
 from src.constant.enum.skill import SkillType, SkillID
 from typing import TYPE_CHECKING
 
@@ -6,7 +6,7 @@ if TYPE_CHECKING:
     from src.models.battle.game import Game
 
 
-class SkillFangyu(Skill):
+class SkillFangyu(DefenseSkill):
     def __init__(self, caster_id: int, args: list) -> None:
         """无args"""
         super().__init__(caster_id, args)
