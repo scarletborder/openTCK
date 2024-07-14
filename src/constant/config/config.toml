@@ -1,9 +1,12 @@
 [player_info]
 # Username which will be displayed in lobby
-player_name = "WAngdan"
+player_name = "Anonymous"
 
 [address]
 # For host mode, the IP and port which will be boardcastd.
 # For client mode, the IP and port which will be connected to.
 host_ip = "127.0.0.1"
 port = 47989
+
+[gamerule]
+drain_when_hurt = true

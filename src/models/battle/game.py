@@ -20,6 +20,7 @@ from src.models.battle.trigger import (
     SpecifiedSkillTrigger,
     SpecifiedPlayerTrigger,
 )
+from src.constant.config.conf import Cfg
 
 
 class Game:
@@ -28,6 +29,7 @@ class Game:
         self.Skill_Stash = SkillStash()
         self.Trigger_Stash = TriggerStash()
         self.Skill_Log = ""
+        self.context = {}
 
     def AddPlayer(self, player: Player):
         self.players[player.id] = player
@@ -56,8 +58,15 @@ class Game:
         self.Skill_Log = tmp_table.get_formatted_string()
 
         self.Skill_Stash.reset()
+        is_somebody_hurt = False
         for pl in self.players.values():
+            if pl.is_health_change:
+                is_somebody_hurt = True
             pl.OnRoundStart()
+
+        if is_somebody_hurt and Cfg["gamerule"]["drain_when_hurt"]:
+            for pl in self.players.values():
+                pl.Point = 0
 
     def GetLiveUIDs(self) -> list[int]:
         """获取所有活人的uid"""

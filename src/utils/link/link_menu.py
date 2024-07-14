@@ -2,6 +2,7 @@ import src.storage.lobby as SLB
 from src.models.link.link_data import LobbyUpdateData
 from prettytable import PrettyTable
 from typing import TYPE_CHECKING
+from src.constant.config.conf import Cfg
 
 if TYPE_CHECKING:
     from src.utils.link.player_link import PlayerLink, HostPlayerLink
@@ -16,6 +17,7 @@ list - Display uids and names of players in lobby.
 skills - List all available skills.
 query [skill id|skill pinyin] - look for detailed skill description
 start - [Host only] Hold up a game and start.
+gamerule - [Host only] Modify game rules
 exit - Leave the lobby.
 """
         )
@@ -50,10 +52,27 @@ exit - Leave the lobby.
     elif s == "skills":
         ListSkills()
         return True
-    elif s[:6] == "query ":
+    elif s[:5] == "query":
+        if s[:6] != "query ":
+            print("query必须接受参数")
+            return False
         keys = s[6:]
         QuerySkill(keys)
         return True
+    elif s[:8] == "gamerule":
+        if Linker.is_host is False:
+            print("host only command")
+            return True
+        if s[:9] != "gamerule ":
+            print("gamerule必须接受参数")
+            return False
+        keys = s[9:]
+        op = keys.strip().split(" ")
+        if len(op) == 1:
+            op.append("")
+        ModifyGameRule(op[0], op[1])
+        return True
+        ...
 
     return False
 
@@ -79,6 +98,33 @@ def QuerySkill(key):
         f"""{keyid}-{Skill_Table[keyid].GetTitle()}-{Skill_Table[keyid].GetName()}-{Skill_Table[keyid].GetBasicPoint()}P
 {Skill_Table[keyid].GetDescription()}"""
     )
+
+
+def ModifyGameRule(key: str, option: str):
+    def str_to_bool(s):
+        if s == "True":
+            return True
+        elif s == "False":
+            return False
+        else:
+            raise ValueError("Invalid input: must be 'True' or 'False'")
+
+    if option == "":
+        ops = Cfg["gamerule"].get(key, None)
+        print(f"\nGame Rule: {key} = {ops}\n")
+    else:
+        op = False
+        try:
+            op = str_to_bool(option)
+        except ValueError as e:
+            print(e)
+
+        if key not in Cfg["gamerule"].keys():
+            print(f"\nWarning: no option named {key}\n")
+
+        Cfg["gamerule"][key] = op
+
+    return True
 
 
 def ListSkills():
