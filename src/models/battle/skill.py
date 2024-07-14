@@ -65,6 +65,16 @@ class Skill(ABC):
         """
         ...
 
+    def SetCast(self, new_cast_func):
+        """new_cast_func是新的cast方法，需要接受一个game类型的参数"""
+        self.Cast = new_cast_func
+
+    def UnableCast(self):
+        def blank(game: "Game"):
+            return
+
+        self.SetCast(blank)
+
     @staticmethod
     def GetAttackLevel() -> int:
         return -1
@@ -94,6 +104,23 @@ class DefenseSkill(Skill):
 
 
 class CommandSkill(Skill):
+    """所有指令技能会进入一个列表，再收集完所有指令技能后会进行排序
+    在game result处理之时
+    """
+
+    @staticmethod
+    def GetCmdOccasion() -> int:
+        """指令技能的使用时机
+
+        1 - 回合开始后
+
+        4 - 攻击技能结算后
+        """
+        return 9
+
+    def CouldCmdCast(self, occ: int) -> bool:
+        return occ == self.GetCmdOccasion()
+
     @staticmethod
     def GetSkillType() -> SkillType:
         return SkillType.COMMAND

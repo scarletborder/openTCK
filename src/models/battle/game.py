@@ -1,16 +1,33 @@
 from src.models.battle.player import Player
-from src.models.battle.skill import Skill, AttackSkill, SingleAttackSkill
+from src.models.battle.skill import (
+    Skill,
+    AttackSkill,
+    SingleAttackSkill,
+    MultiAttackSkill,
+    DefenseSkill,
+    CommandSkill,
+)
 from src.battle.skills import Skill_Table, ImportSkillTable
 import src.utils.judge_skill_type as jst
+from src.utils.cmd_skill_queue import GetCMDQueue
 from src.utils.lobby import Lobby
 from prettytable import PrettyTable
 from src.constant.enum.skill import SkillID, int_to_enum
+from typing import TYPE_CHECKING
+
+if TYPE_CHECKING:
+    from src.models.battle.trigger import (
+        TriggerType,
+        BattleTrigger,
+        SpecifiedSkillTrigger,
+    )
 
 
 class Game:
     def __init__(self):
         self.players: dict[int, Player] = {}
         self.Skill_Stash = SkillStash()
+        self.Trigger_Stash = TriggerStash()
 
     def AddPlayer(self, player: Player):
         self.players[player.id] = player
@@ -72,21 +89,23 @@ class Game:
         # 冰冻效果只能sleep
 
     def AddSkill(self, sk: "Skill"):
-        # tlist = self.Skill_Stash.caster_skill.get(caster_id, [])
-        # # 多次技能只允许全为单体攻击
-        # if len(tlist) > 0 and (jst.IsSingleByInt(skill_id) is not True):
-        #     return False, "多次技能只允许全为单体攻击"
-
-        # 成功添加
         self.Skill_Stash.caster_skill[sk.caster_id] = sk
-        # tlist.append((target_id, int_to_enum(skill_id, SkillID, SkillID.SLEEP), times))
-        # self.Skill_Stash.caster_skill[caster_id] = tlist
-        # self.Skill_Stash.UpdatePointRecord(
-        #     caster_id,
-        #     self.Skill_Stash.GetPointRecord(caster_id)
-        #     + Skill_Table[skill_id].GetPoint() * times,
-        # )
-        # return True, ""
+
+    def AddTrigger(self, tri: "BattleTrigger"):
+        # 判断是否是针对独特技能
+        if isinstance(tri, SpecifiedSkillTrigger):
+            if tri.Type == TriggerType.B_SPECIFIEDSKILL:
+                tril = self.Trigger_Stash.b_skill_triggers.get(tri.sp_skid, [])
+                tril.append(tri)
+                self.Trigger_Stash.b_skill_triggers[tri.sp_skid] = tril
+            else:
+                tril = self.Trigger_Stash.p_skill_triggers.get(tri.sp_skid, [])
+                tril.append(tri)
+                self.Trigger_Stash.p_skill_triggers[tri.sp_skid] = tril
+        else:
+            tril = self.Trigger_Stash.misc_triggers.get(tri.Type, [])
+            tril.append(tri)
+            self.Trigger_Stash.misc_triggers[tri.Type] = tril
 
     def OnRoundEnd(self):
         self.calculateRoundResult()
@@ -94,22 +113,26 @@ class Game:
             pl.OnRoundEnd()
 
     def calculateRoundResult(self):
-        # 1. 看指令技能，设置trigger
-        for caster_id, sk_v in self.Skill_Stash.caster_skill.items():
-            if jst.IsCommand(sk_v.GetSkillID()):
+        # 排序指令性技能
+        cmd_skills: list[CommandSkill] = []
+        for sk_v in self.Skill_Stash.caster_skill.values():
+            if isinstance(sk_v, CommandSkill):
+                cmd_skills.append(sk_v)
+        cmd_skills = GetCMDQueue(cmd_skills)
+
+        # 1. 看指令技能
+        for sk_v in cmd_skills:
+            if sk_v.CouldCmdCast(1):
+                caster_id = sk_v.caster_id
                 try:
-                    sk_v.Cast(self)
+                    CastSkill(self, sk_v)
                 except BaseException as e:
                     # 执行技能出错
                     self.Skill_Stash.sk_error += f"error in {caster_id}/{self.players[caster_id].Name} use {sk_v.GetName()}: {e}\n"
-                    ...
-            # for sk in sk_v:
-            #     if jst.IsCommand(sk[1]):
-            #         Skill_Table[sk[1].value].Cast(caster_id, sk[0], sk[2], self)
 
         # 2. 看防御技能
         for caster_id, sk_v in self.Skill_Stash.caster_skill.items():
-            if jst.IsDefense(sk_v.GetSkillID()):
+            if isinstance(sk_v, DefenseSkill):
                 try:
                     sk_v.Cast(self)
                 except BaseException as e:
@@ -117,10 +140,20 @@ class Game:
 
         # 3. 看攻击技能
         for caster_id, sk_v in self.Skill_Stash.caster_skill.items():
-            if jst.IsSingle(sk_v.GetSkillID()) or jst.IsMulti(sk_v.GetSkillID()):
+            if isinstance(sk_v, AttackSkill):
                 try:
                     sk_v.Cast(self)
                 except BaseException as e:
+                    self.Skill_Stash.sk_error += f"error in {caster_id}/{self.players[caster_id].Name} use {sk_v.GetName()}: {e}\n"
+
+        # 4. 看指令技能
+        for sk_v in cmd_skills:
+            if sk_v.CouldCmdCast(4):
+                caster_id = sk_v.caster_id
+                try:
+                    sk_v.Cast(self)
+                except BaseException as e:
+                    # 执行技能出错
                     self.Skill_Stash.sk_error += f"error in {caster_id}/{self.players[caster_id].Name} use {sk_v.GetName()}: {e}\n"
 
         # Final. 使用技能耗费点数
@@ -210,6 +243,59 @@ class SkillStash:
 
     # def GetPointRecord(self, caster_id):
     #     return self.point_record.get(caster_id, 0)
+
+
+class TriggerStash:
+    def __init__(self) -> None:
+        self.misc_triggers: dict["TriggerType", list["BattleTrigger"]] = {}
+        self.b_skill_triggers: dict[SkillID, list["BattleTrigger"]] = {}
+        self.p_skill_triggers: dict[SkillID, list["BattleTrigger"]] = {}
+        self.b_player_triggers: dict[int, list["BattleTrigger"]] = {}
+        self.p_player_triggers: dict[int, list["BattleTrigger"]] = {}
+
+    ...
+
+
+def CastSkill(game: Game, sk_v: "Skill"):
+    """触发技能，考虑到了触发可能的触发器"""
+    att_flag: bool = False
+    if isinstance(sk_v, AttackSkill):
+        # 如果是攻击技能
+        att_flag = True
+
+    # 特定用户
+    tril = game.Trigger_Stash.b_player_triggers.get(sk_v.caster_id, [])
+    for tri in tril:
+        tri.Cast(game, sk_v)
+
+    # 攻击技能
+    if att_flag:
+        tril = game.Trigger_Stash.misc_triggers.get(TriggerType.B_ATTACKSKILL, [])
+        for tri in tril:
+            tri.Cast(game, sk_v)
+
+    # 特定技能
+    tril = game.Trigger_Stash.b_skill_triggers.get(sk_v.GetSkillID(), [])
+    for tri in tril:
+        tri.Cast(game, sk_v)
+
+    sk_v.Cast(game)
+
+    # 特定技能
+    tril = game.Trigger_Stash.b_skill_triggers.get(sk_v.GetSkillID(), [])
+    for tri in tril:
+        tri.Cast(game, sk_v)
+
+    # 攻击技能
+    if att_flag:
+        tril = game.Trigger_Stash.misc_triggers.get(TriggerType.P_ATTACKSKILL, [])
+        for tri in tril:
+            tri.Cast(game, sk_v)
+
+    # 特定用户
+    tril = game.Trigger_Stash.b_player_triggers.get(sk_v.caster_id, [])
+    for tri in tril:
+        tri.Cast(game, sk_v)
 
 
 ImportSkillTable()  # Loading process

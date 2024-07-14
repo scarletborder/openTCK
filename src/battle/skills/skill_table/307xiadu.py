@@ -32,9 +32,9 @@ class SkillTao(CommandSkill):
     @staticmethod
     def NewSkill(caster, args: list[str]) -> tuple[bool, Skill | None, str]:
         if len(args) == 0:
-            return True, SkillTao(caster, []), ""
+            return False, None, "请至少选择一名玩家进行下毒"
         elif len(args) % 2 != 0:
-            return False, None, "桃参数需要为偶数"
+            return False, None, "下毒参数需要为偶数"
         else:
             ret = []
             for arg in args:
@@ -67,20 +67,21 @@ class SkillTao(CommandSkill):
     @staticmethod
     def GetTitle() -> str:
         """获取技能名称"""
-        return "桃"
+        return "下毒"
 
     @staticmethod
     def GetName() -> str:
-        return "tao"
+        return "xiadu"
 
     @staticmethod
     def GetDescription() -> str:
         """获取技能描述"""
-        return """指定目标，使目标+1，且目标可以为包括自己的所有人，同一回合可以使用多个桃，且可以分配"""
+        return """同一回合可以使用多个下毒。若场上有玩家使用桃和酒，各个玩家受到按照各自的桃、
+酒的数量乘场上的下毒数的伤害。并且拥有防住火舞的能力。其他效果见“赌x”“0档”“闪电”条目"""
 
     @staticmethod
     def GetBasicPoint() -> int:
-        return 3
+        return 1
 
     def GetPoint(self) -> int:
         """获取技能释放需要的点数"""
@@ -92,11 +93,11 @@ class SkillTao(CommandSkill):
 
     @staticmethod
     def GetSkillID() -> SkillID:
-        return SkillID.TAO
+        return SkillID.XIADU
 
     @staticmethod
     def GetCmdOccasion() -> int:
-        return 4
+        return 1
 
     # 使用类
     def Cast(self, game: "Game"):

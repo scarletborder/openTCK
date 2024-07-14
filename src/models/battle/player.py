@@ -1,3 +1,9 @@
+from typing import TYPE_CHECKING
+
+if TYPE_CHECKING:
+    from src.models.battle.game import Game, Skill, TriggerType
+
+
 class Player:
     def __init__(self, Name: str = "Anonymous", id: int = 0) -> None:
         # 基本信息
@@ -20,18 +26,55 @@ class Player:
         return f"<{self.id}{self.Name}>:{self.Health}/{self.Point}({self.health_change:+}/{self.point_change:+})"
 
     # 功能类函数
-    def ChangeHealth(self, val: int):
+    def ChangeHealth(
+        self, val: int, game: "Game|None" = None, sk_v: "Skill | None" = None
+    ):
         """修改生命值
         由于部分技能会计算血量变化故单独开此函数计算玩家在回合内的血量变化
+
+        tips: 血量B触发器cast时获取角色之前的血量，之前的health_change
+
+        血量P触发器cast时获取角色之前的血量，之前的health_change
         """
+
         if not self.is_health_change:
             self.is_health_change = True
-        self.health_change += val
 
-    def ChangePoint(self, val: int):
+        tmp_change = [val]
+        if game and sk_v:
+            tril = game.Trigger_Stash.misc_triggers.get(
+                TriggerType.B_ONCHANGEHEALTH, []
+            )
+            for tri in tril:
+                tri.Cast(game, sk_v, self.id, tmp_change)
+
+        self.health_change += tmp_change[0]
+
+        if game and sk_v:
+            tril = game.Trigger_Stash.misc_triggers.get(
+                TriggerType.P_ONCHANGEHEALTH, []
+            )
+            for tri in tril:
+                tri.Cast(game, sk_v, self.id, tmp_change)
+
+    def ChangePoint(
+        self, val: int, game: "Game|None" = None, sk_v: "Skill | None" = None
+    ):
         if not self.is_point_change:
             self.is_point_change = True
-        self.point_change += val
+
+        tmp_change = [val]
+        if game and sk_v:
+            tril = game.Trigger_Stash.misc_triggers.get(TriggerType.B_ONCHANGEPOINT, [])
+            for tri in tril:
+                tri.Cast(game, sk_v, self.id, tmp_change)
+
+        self.point_change += tmp_change[0]
+
+        if game and sk_v:
+            tril = game.Trigger_Stash.misc_triggers.get(TriggerType.P_ONCHANGEPOINT, [])
+            for tri in tril:
+                tri.Cast(game, sk_v, self.id, tmp_change)
 
     def OnRoundStart(self):
         """回合开始初始化数值"""

@@ -51,14 +51,15 @@ class SkillJidian(CommandSkill):
     def GetSkillID() -> SkillID:
         return SkillID.JIDIAN
 
+    @staticmethod
+    def GetCmdOccasion() -> int:
+        return 4
+
     # 使用类
     def Cast(self, game: "Game"):
         """在结算时候的释放技能"""
-        if self.used_times >= 1:
-            return
         # +1point
         game.players[self.caster_id].ChangePoint(+1)
-        self.used_times += 1
 
 
 from src.battle.skills import Skill_Table, Skill_Name_To_ID  # noqa: E402
