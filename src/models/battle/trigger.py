@@ -1,7 +1,6 @@
 from typing import TYPE_CHECKING
 
 from src.constant.enum.battle_trigger import TriggerType
-from src.models.battle.game import Game
 from src.models.battle.skill import Skill, SkillID
 
 if TYPE_CHECKING:
@@ -33,17 +32,17 @@ class BattleTrigger:
         ...
 
     @staticmethod
-    def NewTrigger(
-        game: "Game", tri_type: "TriggerType", sk: "Skill", args
-    ) -> "BattleTrigger": ...
+    def NewTrigger(game: "Game", sk: "Skill", args) -> "BattleTrigger": ...
 
 
 class SpecifiedSkillTrigger(BattleTrigger):
-    def __init__(self, game: Game, tri_type: TriggerType, sk: Skill, sp_skid: SkillID):
+    def __init__(
+        self, game: "Game", tri_type: TriggerType, sk: Skill, sp_skid: SkillID
+    ):
         super().__init__(game, tri_type, sk)
         self.sp_skid = sp_skid
 
-    def Cast(self, game: Game, arg: Skill):
+    def Cast(self, game: "Game", sk: Skill):
         """指定技能触发器触发时的函数
 
         固定接受参数包括game，和引发触发器的技能实例
@@ -52,13 +51,27 @@ class SpecifiedSkillTrigger(BattleTrigger):
 
 
 class SpecifiedPlayerTrigger(BattleTrigger):
-    def __init__(self, game: Game, tri_type: TriggerType, sk: Skill, sp_plid: int):
+    def __init__(self, game: "Game", tri_type: TriggerType, sk: Skill, sp_plid: int):
         super().__init__(game, tri_type, sk)
         self.sp_plid = sp_plid
 
-    def Cast(self, game: Game, arg: Skill):
+    def Cast(self, game: "Game", sk: Skill):
         """指定技能触发器触发时的函数
 
         固定接受参数包括game，和引发触发器的技能实例
+        """
+        ...
+
+
+class ChangePointTrigger(BattleTrigger):
+
+    def __init__(self, game: "Game", tri_type: TriggerType, sk: Skill, sp_plid: int):
+        super().__init__(game, tri_type, sk)
+        self.sp_plid = sp_plid
+
+    def Cast(self, game: "Game", sk: Skill, uid: int, change: list[int]):
+        """数值变动（血量和点数）
+
+        sk - 造成影响的技能技能,对于trigger造成的，是original_skill
         """
         ...

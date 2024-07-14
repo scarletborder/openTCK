@@ -13,15 +13,13 @@ from src.utils.cmd_skill_queue import GetCMDQueue
 from src.utils.lobby import Lobby
 from prettytable import PrettyTable
 from src.constant.enum.skill import SkillID, int_to_enum
+from src.constant.enum.battle_trigger import TriggerType
 from typing import TYPE_CHECKING
-
-if TYPE_CHECKING:
-    from src.models.battle.trigger import (
-        TriggerType,
-        BattleTrigger,
-        SpecifiedSkillTrigger,
-        SpecifiedPlayerTrigger,
-    )
+from src.models.battle.trigger import (
+    BattleTrigger,
+    SpecifiedSkillTrigger,
+    SpecifiedPlayerTrigger,
+)
 
 
 class Game:
@@ -29,6 +27,7 @@ class Game:
         self.players: dict[int, Player] = {}
         self.Skill_Stash = SkillStash()
         self.Trigger_Stash = TriggerStash()
+        self.Skill_Log = ""
 
     def AddPlayer(self, player: Player):
         self.players[player.id] = player
@@ -36,12 +35,16 @@ class Game:
     # def AddPlayerByID(self, uid:int):
     #     self.players[uid] = player
 
-    def GetStatus(self) -> PrettyTable:
+    def GetStatus(self):
         """展示场上每个玩家的属性"""
-        table = PrettyTable()
-        table.field_names = ["id", "name", "Health", "Point"]
+        return self.Skill_Log
+
+    def OnRoundStart(self):
+        # reset
+        tmp_table = PrettyTable()
+        tmp_table.field_names = ["id", "name", "Health", "Point"]
         for t_id, t_player in self.players.items():
-            table.add_row(
+            tmp_table.add_row(
                 [
                     f"{t_id}",
                     f"{t_player.Name}",
@@ -50,10 +53,8 @@ class Game:
                 ]
             )
 
-        return table
+        self.Skill_Log = tmp_table.get_formatted_string()
 
-    def OnRoundStart(self):
-        # reset
         self.Skill_Stash.reset()
         for pl in self.players.values():
             pl.OnRoundStart()
@@ -144,9 +145,12 @@ class Game:
             self.Trigger_Stash.Nmisc_triggers[tri.Type] = tril
 
     def OnRoundEnd(self):
+        self.Skill_Stash.ResetLog()
         self.calculateRoundResult()
         for pl in self.players.values():
             pl.OnRoundEnd()
+
+        self.Skill_Stash.MakeSkillLog()
 
     def calculateRoundResult(self):
         # 排序指令性技能
@@ -164,33 +168,33 @@ class Game:
                     CastSkill(self, sk_v)
                 except BaseException as e:
                     # 执行技能出错
-                    self.Skill_Stash.sk_error += f"error in {caster_id}/{self.players[caster_id].Name} use {sk_v.GetName()}: {e}\n"
+                    self.Skill_Stash.sk_error += f"\nerror in {caster_id}/{self.players[caster_id].Name} use {sk_v.GetName()}: {e}"
 
         # 2. 看防御技能
         for caster_id, sk_v in self.Skill_Stash.caster_skill.items():
             if isinstance(sk_v, DefenseSkill):
                 try:
-                    sk_v.Cast(self)
+                    CastSkill(self, sk_v)
                 except BaseException as e:
-                    self.Skill_Stash.sk_error += f"error in {caster_id}/{self.players[caster_id].Name} use {sk_v.GetName()}: {e}\n"
+                    self.Skill_Stash.sk_error += f"\nerror in {caster_id}/{self.players[caster_id].Name} use {sk_v.GetName()}: {e}"
 
         # 3. 看攻击技能
         for caster_id, sk_v in self.Skill_Stash.caster_skill.items():
             if isinstance(sk_v, AttackSkill):
                 try:
-                    sk_v.Cast(self)
+                    CastSkill(self, sk_v)
                 except BaseException as e:
-                    self.Skill_Stash.sk_error += f"error in {caster_id}/{self.players[caster_id].Name} use {sk_v.GetName()}: {e}\n"
+                    self.Skill_Stash.sk_error += f"\nerror in {caster_id}/{self.players[caster_id].Name} use {sk_v.GetName()}: {e}"
 
         # 4. 看指令技能
         for sk_v in cmd_skills:
             if sk_v.CouldCmdCast(4):
                 caster_id = sk_v.caster_id
                 try:
-                    sk_v.Cast(self)
+                    CastSkill(self, sk_v)
                 except BaseException as e:
                     # 执行技能出错
-                    self.Skill_Stash.sk_error += f"error in {caster_id}/{self.players[caster_id].Name} use {sk_v.GetName()}: {e}\n"
+                    self.Skill_Stash.sk_error += f"\nerror in {caster_id}/{self.players[caster_id].Name} use {sk_v.GetName()}: {e}"
 
         # Final. 使用技能耗费点数
         for caster_id, sk_v in self.Skill_Stash.caster_skill.items():
@@ -214,6 +218,7 @@ class Game:
 class SkillStash:
     def __init__(self) -> None:
         self.caster_skill: dict[int, Skill] = {}  # 施法者id - 技能实例
+        self.sk_log = ""
         self.sk_error = ""
 
         # # 统计人物这一局用过的点数
@@ -222,15 +227,22 @@ class SkillStash:
 
     def reset(self):
         self.caster_skill.clear()
-        self.sk_error = ""
+
         # for caster_id in self.point_record.keys():
         #     self.point_record[caster_id] = 0
 
+    def ResetLog(self):
+        self.sk_log = ""
+        self.sk_error = ""
+
     def Process(self, game: Game): ...
+
+    def MakeSkillLog(self):
+        self.sk_log = "\n".join([str(_) for _ in self.caster_skill.values()])
 
     def GetSkillStatus(self) -> str:
         """查看回合内技能的使用情况和错误日志"""
-        return "\n".join([str(_) for _ in self.caster_skill.values()]) + self.sk_error
+        return self.sk_log + self.sk_error
 
     # def IsPlayerUseSpecifiedSkillToPlayer(
     #     self, caster_id: int, target_id: int, skill_id: SkillID
@@ -335,7 +347,7 @@ def CastSkill(game: Game, sk_v: "Skill"):
     sk_v.Cast(game)
 
     # 特定技能
-    tril = game.Trigger_Stash.b_skill_triggers.get(sk_v.GetSkillID(), [])
+    tril = game.Trigger_Stash.p_skill_triggers.get(sk_v.GetSkillID(), [])
     for tri in tril:
         tri.Cast(game, sk_v)
 
@@ -346,7 +358,7 @@ def CastSkill(game: Game, sk_v: "Skill"):
             tri.Cast(game, sk_v)
 
     # 特定用户
-    tril = game.Trigger_Stash.b_player_triggers.get(sk_v.caster_id, [])
+    tril = game.Trigger_Stash.p_player_triggers.get(sk_v.caster_id, [])
     for tri in tril:
         tri.Cast(game, sk_v)
 

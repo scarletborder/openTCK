@@ -140,6 +140,8 @@ class HostPlayerLink(PlayerLink):
 
                     if SBA.Current_Game.HasAllLivePlayerDone(SLB.Current_Lobby):
                         SBA.Current_Game.OnRoundEnd()
+
+                        SBA.Current_Game.OnRoundStart()
                         await self.broadCast(
                             BattleResultData(
                                 SLB.My_Player_Info.GetId(), SBA.Current_Game
@@ -148,7 +150,7 @@ class HostPlayerLink(PlayerLink):
 
                         print(SBA.Current_Game.Skill_Stash.GetSkillStatus())
                         print(SBA.Current_Game.GetStatus())
-                        SBA.Current_Game.OnRoundStart()
+
                         # 判断游戏是否结束
                         lids = SBA.Current_Game.GetALiveUIDs(SLB.Current_Lobby)
                         if len(lids) <= 1:
@@ -208,13 +210,15 @@ class HostPlayerLink(PlayerLink):
 
         if SBA.Current_Game.HasAllLivePlayerDone(SLB.Current_Lobby):
             SBA.Current_Game.OnRoundEnd()
+
+            SBA.Current_Game.OnRoundStart()
             await self.broadCast(
                 BattleResultData(SLB.My_Player_Info.GetId(), SBA.Current_Game)
             )
 
             print(SBA.Current_Game.Skill_Stash.GetSkillStatus())
             print(SBA.Current_Game.GetStatus())
-            SBA.Current_Game.OnRoundStart()
+
             # 判断游戏是否结束
             lids = SBA.Current_Game.GetALiveUIDs(SLB.Current_Lobby)
             if len(lids) <= 1:

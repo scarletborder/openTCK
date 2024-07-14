@@ -1,6 +1,7 @@
 from src.constant.enum.skill import SkillType, SkillID
 from abc import ABC, abstractmethod
 from typing import TYPE_CHECKING
+import types
 
 if TYPE_CHECKING:
     from src.models.battle.game import Game
@@ -66,8 +67,9 @@ class Skill(ABC):
         ...
 
     def SetCast(self, new_cast_func):
-        """new_cast_func是新的cast方法，需要接受一个game类型的参数"""
-        self.Cast = new_cast_func
+        """new_cast_func是新的cast方法，需要接受(self,game)作为参数"""
+
+        self.Cast = types.MethodType(new_cast_func, self)
 
     def UnableCast(self):
         def blank(game: "Game"):

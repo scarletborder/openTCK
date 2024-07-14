@@ -1,7 +1,8 @@
 from typing import TYPE_CHECKING
+from src.constant.enum.battle_trigger import TriggerType
 
 if TYPE_CHECKING:
-    from src.models.battle.game import Game, Skill, TriggerType
+    from src.models.battle.game import Game, Skill
 
 
 class Player:
@@ -31,6 +32,10 @@ class Player:
     ):
         """修改生命值
         由于部分技能会计算血量变化故单独开此函数计算玩家在回合内的血量变化
+
+        技能 cast 时 changehealth 要把 game 和本身传入
+
+        trigger cast时， game 和 original_skill (造成 trigger 的技能) 传入
 
         tips: 血量B触发器cast时获取角色之前的血量，之前的health_change
 
