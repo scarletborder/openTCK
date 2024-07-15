@@ -18,3 +18,6 @@ class TriggerType(Enum):
 
     B_SPECIFIEDPLAYER = 31  # 特定玩家使用技能
     P_SPECIFIEDPLAYER = 32
+
+    B_SPECIFIEDTARGET = 41 # 特定玩家作为目标
+    P_SPECIFIEDTARGET = 42

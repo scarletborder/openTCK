@@ -14,7 +14,7 @@ class SkillGaofang(DefenseSkill):
         return
 
     @staticmethod
-    def NewSkill(caster, args: list[str]) -> tuple[bool, Skill | None, str]:
+    def NewSkill(caster, args: list[str], game: "Game|None" = None) -> tuple[bool, Skill | None, str]:
         if len(args) > 0:
             return False, None, "防御技能不接受参数"
 
