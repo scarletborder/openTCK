@@ -19,7 +19,7 @@ from src.models.battle.trigger import (
     BattleTrigger,
     SpecifiedSkillTrigger,
     SpecifiedPlayerTrigger,
-    SpecifiedTargetTrigger
+    SpecifiedTargetTrigger,
 )
 from src.constant.config.conf import Cfg
 
@@ -30,7 +30,7 @@ class Game:
         self.Skill_Stash = SkillStash()
         self.Trigger_Stash = TriggerStash()
         self.Player_Status = ""
-        self.Skill_Used_Times = {} # 用于每个Round中记录技能使用次数
+        self.Skill_Used_Times = {}  # 用于每个Round中记录技能使用次数
         self.context = {}
 
     def AddPlayer(self, player: Player):
@@ -174,13 +174,12 @@ class Game:
             self.Trigger_Stash.Nmisc_triggers[tri.Type] = tril
 
     def OnRoundEnd(self):
-        self.Skill_Used_Times = {} # 将其清零
+        self.Skill_Used_Times = {}  # 将其清零
         self.Skill_Stash.ResetLog()
+        self.Skill_Stash.MakeSkillLog()
         self.calculateRoundResult()
         for pl in self.players.values():
             pl.OnRoundEnd()
-
-        self.Skill_Stash.MakeSkillLog()
 
     def calculateRoundResult(self):
         # 排序指令性技能
@@ -357,7 +356,6 @@ class TriggerStash:
         self.Np_player_triggers.clear()
         self.Nb_target_triggers.clear()
         self.Np_target_triggers.clear()
-
 
 
 def CastSkill(game: Game, sk_v: "Skill"):
