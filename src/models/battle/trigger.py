@@ -62,6 +62,16 @@ class SpecifiedPlayerTrigger(BattleTrigger):
         """
         ...
 
+class SpecifiedTargetTrigger(BattleTrigger):
+    def __init__(
+        self, game: "Game", tri_type: TriggerType, sk: Skill, sp_tid: int
+    ):
+        super().__init__(game, tri_type, sk)
+        self.sp_tid = sp_tid
+
+    def Cast(self, game: "Game", sk: Skill):
+        ...
+
 
 class ChangePointTrigger(BattleTrigger):
 

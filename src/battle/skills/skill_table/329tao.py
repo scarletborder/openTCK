@@ -30,7 +30,7 @@ class SkillTao(CommandSkill):
         return f"{self.caster_id} -{self.GetTitle()}> {s}"
 
     @staticmethod
-    def NewSkill(caster, args: list[str]) -> tuple[bool, Skill | None, str]:
+    def NewSkill(caster, args: list[str], game: "Game|None" = None) -> tuple[bool, Skill | None, str]:
         if len(args) == 0:
             return True, SkillTao(caster, []), ""
         elif len(args) % 2 != 0:
@@ -97,15 +97,22 @@ class SkillTao(CommandSkill):
     @staticmethod
     def GetCmdOccasion() -> int:
         return 4
+    
+    def SetTarget(self, new_target: list[int]):
+        """用于trigger修改原技能的target"""
+        self.targets = new_target
 
     # 使用类
     def Cast(self, game: "Game"):
+        print(self.targets)
         """在结算时候的释放技能"""
         for idx in range(len(self.targets)):
             target_id = self.targets[idx]
             times = self.times[idx]
-
-            game.players[target_id].ChangeHealth(+times * 1)
+            if game.Skill_Used_Times.get(SkillID.XIADU, 0) != 0:
+                game.players[target_id].ChangeHealth(game.Skill_Used_Times[SkillID.XIADU] *times * (-3))
+            else:
+                game.players[target_id].ChangeHealth(times * 1)
 
 
 from src.battle.skills import Skill_Table, Skill_Name_To_ID  # noqa: E402

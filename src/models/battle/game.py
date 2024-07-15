@@ -19,6 +19,7 @@ from src.models.battle.trigger import (
     BattleTrigger,
     SpecifiedSkillTrigger,
     SpecifiedPlayerTrigger,
+    SpecifiedTargetTrigger
 )
 from src.constant.config.conf import Cfg
 
@@ -29,6 +30,7 @@ class Game:
         self.Skill_Stash = SkillStash()
         self.Trigger_Stash = TriggerStash()
         self.Player_Status = ""
+        self.Skill_Used_Times = {} # 用于每个Round中记录技能使用次数
         self.context = {}
 
     def AddPlayer(self, player: Player):
@@ -122,6 +124,15 @@ class Game:
                 tril = self.Trigger_Stash.p_player_triggers.get(tri.sp_plid, [])
                 tril.append(tri)
                 self.Trigger_Stash.p_player_triggers[tri.sp_plid] = tril
+        elif isinstance(tri, SpecifiedTargetTrigger):
+            if tri.Type == TriggerType.B_SPECIFIEDTARGET:
+                tril = self.Trigger_Stash.b_target_triggers.get(tri.sp_tid, [])
+                tril.append(tri)
+                self.Trigger_Stash.b_target_triggers[tri.sp_tid] = tril
+            else:
+                tril = self.Trigger_Stash.p_target_triggers.get(tri.sp_tid, [])
+                tril.append(tri)
+                self.Trigger_Stash.p_target_triggers[tri.sp_tid] = tril
         else:
             tril = self.Trigger_Stash.misc_triggers.get(tri.Type, [])
             tril.append(tri)
@@ -141,19 +152,29 @@ class Game:
                 self.Trigger_Stash.Np_skill_triggers[tri.sp_skid] = tril
         elif isinstance(tri, SpecifiedPlayerTrigger):
             if tri.Type == TriggerType.B_SPECIFIEDPLAYER:
-                tril = self.Trigger_Stash.b_player_triggers.get(tri.sp_plid, [])
+                tril = self.Trigger_Stash.Nb_player_triggers.get(tri.sp_plid, [])
                 tril.append(tri)
-                self.Trigger_Stash.b_player_triggers[tri.sp_plid] = tril
+                self.Trigger_Stash.Nb_player_triggers[tri.sp_plid] = tril
             else:
-                tril = self.Trigger_Stash.p_player_triggers.get(tri.sp_plid, [])
+                tril = self.Trigger_Stash.Np_player_triggers.get(tri.sp_plid, [])
                 tril.append(tri)
-                self.Trigger_Stash.p_player_triggers[tri.sp_plid] = tril
+                self.Trigger_Stash.Np_player_triggers[tri.sp_plid] = tril
+        elif isinstance(tri, SpecifiedTargetTrigger):
+            if tri.Type == TriggerType.B_SPECIFIEDTARGET:
+                tril = self.Trigger_Stash.Nb_target_triggers.get(tri.sp_tid, [])
+                tril.append(tri)
+                self.Trigger_Stash.Nb_target_triggers[tri.sp_tid] = tril
+            else:
+                tril = self.Trigger_Stash.Np_target_triggers.get(tri.sp_tid, [])
+                tril.append(tri)
+                self.Trigger_Stash.Np_target_triggers[tri.sp_tid] = tril
         else:
             tril = self.Trigger_Stash.Nmisc_triggers.get(tri.Type, [])
             tril.append(tri)
             self.Trigger_Stash.Nmisc_triggers[tri.Type] = tril
 
     def OnRoundEnd(self):
+        self.Skill_Used_Times = {} # 将其清零
         self.Skill_Stash.ResetLog()
         self.calculateRoundResult()
         for pl in self.players.values():
@@ -309,12 +330,16 @@ class TriggerStash:
         self.p_skill_triggers: dict[SkillID, list["BattleTrigger"]] = {}
         self.b_player_triggers: dict[int, list["BattleTrigger"]] = {}
         self.p_player_triggers: dict[int, list["BattleTrigger"]] = {}
+        self.b_target_triggers: dict[int, list["BattleTrigger"]] = {}
+        self.p_target_triggers: dict[int, list["BattleTrigger"]] = {}
 
         self.Nmisc_triggers: dict["TriggerType", list["BattleTrigger"]] = {}
         self.Nb_skill_triggers: dict[SkillID, list["BattleTrigger"]] = {}
         self.Np_skill_triggers: dict[SkillID, list["BattleTrigger"]] = {}
         self.Nb_player_triggers: dict[int, list["BattleTrigger"]] = {}
         self.Np_player_triggers: dict[int, list["BattleTrigger"]] = {}
+        self.Nb_target_triggers: dict[int, list["BattleTrigger"]] = {}
+        self.Np_target_triggers: dict[int, list["BattleTrigger"]] = {}
 
     def reset(self):
         self.misc_triggers = self.Nmisc_triggers.copy()
@@ -322,12 +347,17 @@ class TriggerStash:
         self.p_skill_triggers = self.Np_skill_triggers.copy()
         self.b_player_triggers = self.Nb_player_triggers.copy()
         self.p_player_triggers = self.Np_player_triggers.copy()
+        self.b_target_triggers = self.Nb_target_triggers.copy()
+        self.p_target_triggers = self.Np_target_triggers.copy()
 
         self.Nmisc_triggers.clear()
         self.Nb_skill_triggers.clear()
         self.Np_skill_triggers.clear()
         self.Nb_player_triggers.clear()
         self.Np_player_triggers.clear()
+        self.Nb_target_triggers.clear()
+        self.Np_target_triggers.clear()
+
 
 
 def CastSkill(game: Game, sk_v: "Skill"):
@@ -339,6 +369,14 @@ def CastSkill(game: Game, sk_v: "Skill"):
 
     # 特定用户
     tril = game.Trigger_Stash.b_player_triggers.get(sk_v.caster_id, [])
+    for tri in tril:
+        tri.Cast(game, sk_v)
+
+    # 特定目标
+    if hasattr(sk_v, "targets"):
+        print(sk_v.GetTitle(), sk_v.targets)
+        for target in sk_v.targets:
+            tril = game.Trigger_Stash.b_target_triggers.get(target, [])
     for tri in tril:
         tri.Cast(game, sk_v)
 
@@ -365,6 +403,11 @@ def CastSkill(game: Game, sk_v: "Skill"):
         tril = game.Trigger_Stash.misc_triggers.get(TriggerType.P_ATTACKSKILL, [])
         for tri in tril:
             tri.Cast(game, sk_v)
+
+    # 特定目标
+    tril = game.Trigger_Stash.p_target_triggers.get(sk_v.caster_id, [])
+    for tri in tril:
+        tri.Cast(game, sk_v)
 
     # 特定用户
     tril = game.Trigger_Stash.p_player_triggers.get(sk_v.caster_id, [])

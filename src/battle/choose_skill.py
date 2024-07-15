@@ -9,7 +9,7 @@ def ChooseSkillById(
     if skill_id not in Skill_Table.keys():
         return False, "该技能id不存在", None
 
-    ok, sk, msg = Skill_Table[skill_id].NewSkill(caster_id, args)
+    ok, sk, msg = Skill_Table[skill_id].NewSkill(caster_id, args, game)
     if ok is False or sk is None:
         return False, msg, None
     return *game.JudgeAddSkill(sk), sk
