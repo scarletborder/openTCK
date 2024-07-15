@@ -104,7 +104,6 @@ class SkillTao(CommandSkill):
 
     # 使用类
     def Cast(self, game: "Game"):
-        print(self.targets)
         """在结算时候的释放技能"""
         for idx in range(len(self.targets)):
             target_id = self.targets[idx]

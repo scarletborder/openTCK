@@ -93,7 +93,7 @@ game.OnRoundStart()
 _, _, sk = csk.ParserSkill(0, "tao 1 1", game)
 if sk:
     game.AddSkill(sk)
-_, _, sk = csk.ParserSkill(1, "xiadu", game)
+_, _, sk = csk.ParserSkill(1, "fantan 2", game)
 if sk:
     game.AddSkill(sk)
 _, _, sk = csk.ParserSkill(2, "xiadu", game)
