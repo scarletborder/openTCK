@@ -12,6 +12,7 @@ class Skill(ABC):
 
     def __init__(self, caster_id: int, args: list) -> None:
         self.caster_id = caster_id
+        self.modified_info = [] # 二维list，第一维为str，第二维为属性值
 
     @staticmethod
     @abstractmethod
@@ -70,6 +71,10 @@ class Skill(ABC):
         """new_cast_func是新的cast方法，需要接受(self,game)作为参数"""
 
         self.Cast = types.MethodType(new_cast_func, self)
+
+    def SetModifiedInfo(self, new_record: list):
+        """new_record是一个长度为2的一维列表，其中第一维是str，第二维是属性值"""
+        self.modified_info.append(new_record)
 
     def UnableCast(self):
         def blank(game: "Game"):

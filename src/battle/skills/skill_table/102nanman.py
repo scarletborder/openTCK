@@ -57,7 +57,9 @@ class SkillNanman(MultiAttackSkill):
     # 使用类
     def SingleCast(self, game: Game, caster_id: int, target_id: int, times: int):
         target_skill, target_targets = game.Skill_Stash.getTargetSkillDetail(target_id)
-        if isinstance(target_skill, AttackSkill):
+        if target_id == caster_id: # 针对反弹
+            game.players[target_id].ChangeHealth(-times * 2)
+        elif isinstance(target_skill, AttackSkill):
             if caster_id in target_targets:
                 if (
                     target_skill.GetAttackLevel() >= self.GetAttackLevel()

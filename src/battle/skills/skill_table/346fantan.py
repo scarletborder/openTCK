@@ -5,63 +5,28 @@ from src.constant.enum.skill import SkillType, SkillID
 from typing import TYPE_CHECKING
 
 from src.models.battle.trigger import BattleTrigger
-from src.models.battle.trigger import SpecifiedSkillTrigger, SpecifiedPlayerTrigger
+from src.models.battle.trigger import SpecifiedTargetTrigger, SpecifiedPlayerTrigger
 
 if TYPE_CHECKING:
     from src.models.battle.game import Game, TriggerType
 
 
-class FantanTaoTrigger(SpecifiedPlayerTrigger):
-    def __init__(
-        self, game: "Game", tri_type: TriggerType, sk: Skill, sp_plid: int
-    ):
-        super().__init__(game, tri_type, sk, sp_plid)
+class FantanTrigger(SpecifiedTargetTrigger):
+    def __init__(self, game: Game, tri_type: TriggerType, sk: Skill, sp_tid: int, target_id: int):
+        super().__init__(game, tri_type, sk, sp_tid)
+        self.target_id = target_id
 
     @staticmethod
-    def NewTrigger(game: "Game", sk: Skill, arg: int) -> SpecifiedPlayerTrigger:
+    def NewTrigger(game: Game, sk: Skill, arg: int) -> SpecifiedTargetTrigger:
         """param arg: target_id"""
-        tri = FantanTaoTrigger(game, TriggerType.B_SPECIFIEDPLAYER, sk, arg)
-        return tri
-
-    def Cast(self, game: "Game", sk: Skill):
-        """
-        param game: 游戏
-        type game: Game
-        param sk: 需要修改的技能
-        type sk: AttackSkill
-        """
-        target_targets = sk.targets
-        if self.Original_Skill.caster_id in target_targets:
-            target_targets = [sk.caster_id if i == self.Original_Skill.caster_id else i for i in target_targets] # 将目标修改为自身
-        sk.SetTarget(target_targets)
-        
-class FantanAttackTrigger(SpecifiedPlayerTrigger):
-    def __init__(
-        self, game: "Game", tri_type: TriggerType, sk: Skill, sp_plid: int
-    ):
-        super().__init__(game, tri_type, sk, sp_plid)
-
-    @staticmethod
-    def NewTrigger(game: "Game", sk: Skill, arg: int) -> SpecifiedPlayerTrigger:
-        """@arg: target_id"""
-        if isinstance(sk, AttackSkill):
-            tri = FantanAttackTrigger(game, TriggerType.B_SPECIFIEDPLAYER, sk, arg)
-        else:
-            return None
+        tri = FantanTrigger(game, TriggerType.B_SPECIFIEDTARGET, sk, sk.caster_id, arg)
         return tri
     
-    def Cast(self, game: "Game", sk: AttackSkill):
-        """
-        param game: 游戏
-        type game: Game
-        param sk: 需要修改的技能
-        type sk: AttackSkill
-        """
-        target_targets = sk.targets
-        if self.Original_Skill.caster_id in target_targets:
-            target_targets = [sk.caster_id if i == self.Original_Skill.caster_id else i for i in target_targets] # 将目标修改为自身
-        sk.SetTarget(target_targets)
-
+    def Cast(self, game: Game, sk: Skill):
+        original_skill = self.Original_Skill
+        if (sk.GetSkillID() == SkillID.TAO or isinstance(sk, AttackSkill)):
+            sk.SetTarget([int(self.target_id) if i == original_skill.caster_id else i for i in sk.targets])
+            
 class SkillFantan(CommandSkill):
 
     def __init__(self, caster_id: int, args: list, game: "Game|None" = None) -> None:
@@ -70,7 +35,7 @@ class SkillFantan(CommandSkill):
         self.game = game
 
     def __str__(self) -> str:
-        return f"{self.caster_id} -> {self.GetTitle()} ({self.GetAllTimes()} Times)"
+        return f"{self.caster_id} -{self.GetTitle()}> {self.target}"
 
     @staticmethod
     def NewSkill(caster, args: list[str], game: "Game|None" = None) -> tuple[bool, Skill | None, str]:
@@ -79,7 +44,7 @@ class SkillFantan(CommandSkill):
         elif game.players[caster].Point <= 0:
             return False, None, "你没有点数"
         else:
-            return True, SkillFantan(caster, []), ""
+            return True, SkillFantan(caster, args, game), ""
 
     @staticmethod
     def GetTitle() -> str:
@@ -96,12 +61,12 @@ class SkillFantan(CommandSkill):
         return """反弹攻击技能和桃"""
 
     @staticmethod
-    def GetBasicPoint(self) -> int:
-        return self.game.players[self.caster_id].Point
+    def GetBasicPoint() -> int:
+        return 
 
     def GetPoint(self) -> int:
         """获取技能释放需要的点数"""
-        return self.GetBasicPoint()
+        return self.game.players[self.caster_id].Point
 
     @staticmethod
     def GetSkillType() -> SkillType:
@@ -119,10 +84,8 @@ class SkillFantan(CommandSkill):
     def Cast(self, game: "Game"):
         """在结算时候的释放技能"""
         # 添加trigger
-        tri_attack = FantanAttackTrigger.NewTrigger(game, self, self.GetAllTimes())
-        game.AddTrigger(tri_attack)
-        tri_tao = FantanTaoTrigger.NewTrigger(game, self, self.GetAllTimes())
-        game.AddTrigger(tri_tao)
+        tri = FantanTrigger.NewTrigger(game, self, self.target)
+        game.AddTrigger(tri)
 
 
 from src.battle.skills import Skill_Table, Skill_Name_To_ID  # noqa: E402
