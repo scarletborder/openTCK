@@ -18,7 +18,6 @@ from src.utils.pkui.widgets import (
 
 from src.utils.pkui.utils import NewUI
 from src.storage.buffer import SetInput
-from src.storage.linker import Linker
 
 
 @Bindings.add("c-c")
@@ -51,10 +50,11 @@ def FocusNextt(event):
 @Bindings.add("enter")
 def InputConfirm(event):
     # 获取输入内容并清除输入框
+    # global GlobalLinker
     input_text = Input_Area.text
     Input_Area.text = ""
     asyncio.create_task(SetInput(input_text))
     if input_text[0] == "!":
         NewUI.PrintChatArea("YOU:" + input_text[1:])
-    elif Linker is None:
-        NewUI.PrintChatArea("游戏外用不了控制台命令")
+    # elif GlobalLinker is None:
+    #     NewUI.PrintChatArea("游戏外用不了控制台命令")

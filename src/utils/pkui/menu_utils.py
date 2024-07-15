@@ -17,40 +17,40 @@ from src.utils.pkui.widgets import (
 from src.utils.pkui.utils import NewUI
 from src.utils.link.player_link import HostPlayerLink
 from src.utils.link.player_link import ClientPlayerLink
-from src.storage.linker import LinkTask, Linker
+from src.storage.linker import LinkTask, GlobalLinker
 import src.utils.link.link_menu as LMM
 
 """联机"""
 
 
 async def HostLobby():
-    global LinkTask, Linker
+    global LinkTask, GlobalLinker
     if LinkTask is not None:
         NewUI.PrintChatArea("你已经在一场游戏中或尝试连接中")
     else:
-        Linker = HostPlayerLink()
-        LinkTask = asyncio.create_task(Linker.JoinLobby())
+        GlobalLinker = HostPlayerLink()
+        LinkTask = asyncio.create_task(GlobalLinker.JoinLobby())
 
 
 async def JoinLobby():
-    global LinkTask, Linker
+    global LinkTask, GlobalLinker
     if LinkTask is not None:
         NewUI.PrintChatArea("你已经在一场游戏中或尝试连接中")
     else:
-        Linker = ClientPlayerLink()
-        LinkTask = asyncio.create_task(Linker.JoinLobby())
+        GlobalLinker = ClientPlayerLink()
+        LinkTask = asyncio.create_task(GlobalLinker.JoinLobby())
 
 
 async def LeaveLobby():
-    global Linker, LinkTask
-    if LinkTask is not None and Linker is not None:
+    global GlobalLinker, LinkTask
+    if LinkTask is not None and GlobalLinker is not None:
         try:
-            await LMM.LeaveGame(Linker)
+            await LMM.LeaveGame(GlobalLinker)
         except BaseException:
             ...
         LinkTask.cancel()
         LinkTask = None
-        Linker = None
+        GlobalLinker = None
     else:
         NewUI.PrintChatArea("你已经退出了一场游戏")
 
@@ -67,8 +67,8 @@ async def Exit():
 
 
 async def LobbyList():
-    if LinkTask is not None and Linker is not None:
-        await LMM.RunMenuCommand("list", Linker)
+    if LinkTask is not None and GlobalLinker is not None:
+        await LMM.RunMenuCommand("list", GlobalLinker)
     else:
         NewUI.PrintChatArea("你已经退出了一场游戏")
 
@@ -77,8 +77,8 @@ async def LobbyList():
 
 
 async def StartGame():
-    if LinkTask is not None and Linker is not None:
-        await LMM.RunMenuCommand("start", Linker)
+    if LinkTask is not None and GlobalLinker is not None:
+        await LMM.RunMenuCommand("start", GlobalLinker)
     else:
         NewUI.PrintChatArea("你已经退出了一场游戏")
 

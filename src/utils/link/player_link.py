@@ -318,13 +318,17 @@ class ClientPlayerLink(PlayerLink):
                             >= 0
                         ):
                             self.could_send_action.set()
+                            # NewUI.PrintTipArea("准")
                             NewUI.PrintChatArea("你可以发送技能了")
                         else:
+                            NewUI.PrintTipArea("你4了，但是可以继续观战聊天")
                             NewUI.PrintChatArea("你4了，但是可以继续观战聊天")
 
                 elif recv_data.data_type == LinkEvent.LOBBYUPDATE:
                     SLB.Current_Lobby = recv_data.content
-                    NewUI.PrintChatArea(SLB.Current_Lobby.GetLobbyTable())
+                    NewUI.PrintChatArea(
+                        SLB.Current_Lobby.GetLobbyTable().get_formatted_string()
+                    )
 
                 elif recv_data.data_type == LinkEvent.LOBBYASSIGN:
                     """被分配id"""
