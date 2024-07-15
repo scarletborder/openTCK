@@ -13,11 +13,13 @@ from prompt_toolkit.layout import (
     VSplit,
 )
 from prompt_toolkit.widgets import Frame, Label, TextArea
+from src.battle.skills import Skill_Name_To_ID
 
 
 class CustomWordCompleter(Completer):
     def __init__(self, words: list, ignore_case: bool = False):
         self.word_completer = WordCompleter(words, ignore_case=ignore_case)
+        self.
 
     def get_completions(self, document, complete_event):
         text = document.text_before_cursor
@@ -28,3 +30,6 @@ class CustomWordCompleter(Completer):
 
         # 否则使用WordCompleter的补全
         yield from self.word_completer.get_completions(document, complete_event)
+
+
+MyCompleter = CustomWordCompleter(list(Skill_Name_To_ID.keys()), True)

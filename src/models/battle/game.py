@@ -7,7 +7,7 @@ from src.models.battle.skill import (
     DefenseSkill,
     CommandSkill,
 )
-from src.battle.skills import Skill_Table, ImportSkillTable
+import src.battle.skills as _
 import src.utils.judge_skill_type as jst
 from src.utils.cmd_skill_queue import GetCMDQueue
 from src.utils.lobby import Lobby
@@ -411,6 +411,3 @@ def CastSkill(game: Game, sk_v: "Skill"):
     tril = game.Trigger_Stash.p_player_triggers.get(sk_v.caster_id, [])
     for tri in tril:
         tri.Cast(game, sk_v)
-
-
-ImportSkillTable()  # Loading process

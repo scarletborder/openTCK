@@ -5,8 +5,12 @@ from prompt_toolkit.layout import Layout, HSplit, VSplit, Window
 from prompt_toolkit.widgets import TextArea, MenuContainer, MenuItem, Button
 from prompt_toolkit.output import ColorDepth
 from prompt_toolkit.styles import Style
+from src.utils.pkui.tools import MyCompleter
 
-Input_Area = TextArea(height=1, prompt="Input: ", multiline=False)
+
+Input_Area = TextArea(
+    height=1, prompt="Input: ", multiline=False, completer=MyCompleter
+)
 
 __intro = """openTCK dev version
 This program uses GPL-3.0 license
