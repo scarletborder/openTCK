@@ -64,9 +64,9 @@ exit - Leave the lobby.
             print("host only command")
             return True
         if s[:9] != "gamerule ":
-            print("==Game Rule==\n")
+            print("==Game Rule==")
             for key, settings in Cfg["gamerule"].items():
-                print(f"{key}\r{settings}")
+                print(f"{key} -- {settings}")
             return True
         keys = s[9:]
         op = keys.strip().split(" ")
