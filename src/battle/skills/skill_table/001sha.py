@@ -51,6 +51,12 @@ class SkillSha(SingleAttackSkill):
     def GetPoint(self) -> int:
         """获取技能释放需要的点数"""
         return self.GetAllTimes() * self.GetBasicPoint()
+    
+    def GetDamage(self) -> int:
+        """获取技能最终伤害"""
+        damage = 1
+        for extra_damage in Skill.ParseItemModifiedInfo(self.modified_info, "extra_damage"):
+            damage += extra_damage
 
     @staticmethod
     def GetSkillType() -> SkillType:
@@ -75,7 +81,7 @@ class SkillSha(SingleAttackSkill):
             )
 
             if target_id == caster_id: # 针对反弹
-                game.players[target_id].ChangeHealth(-times * 1)
+                game.players[target_id].ChangeHealth(-times * self.GetDamage())
                 continue
             
             elif isinstance(target_skill, AttackSkill):
@@ -107,7 +113,7 @@ class SkillSha(SingleAttackSkill):
             elif isinstance(target_skill, CommandSkill):
                 pass
 
-            game.players[target_id].ChangeHealth(-times * 1)
+            game.players[target_id].ChangeHealth(-times * self.GetDamage())
 
 
 from src.battle.skills import Skill_Table, Skill_Name_To_ID  # noqa: E402

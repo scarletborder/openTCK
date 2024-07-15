@@ -20,7 +20,9 @@ class Player:
         self.point_change = 0
         self.is_health_change = False
         self.is_point_change = False
+
         # 效果
+        self.tag = {}
 
     # 显示类函数
     def __repr__(self) -> str:
