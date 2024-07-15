@@ -1,5 +1,6 @@
 from src.constant.enum.battle_trigger import TriggerType
-from src.models.battle.game import Game
+
+# from src.models.battle.game import Game
 from src.models.battle.skill import CommandSkill, Skill
 from src.constant.enum.skill import SkillType, SkillID
 from typing import TYPE_CHECKING
@@ -54,7 +55,9 @@ class SkillXiadu(CommandSkill):
         return f"{self.caster_id} -> {self.GetTitle()} ({self.GetAllTimes()} Times)"
 
     @staticmethod
-    def NewSkill(caster, args: list[str], game: "Game|None" = None) -> tuple[bool, Skill | None, str]:
+    def NewSkill(
+        caster, args: list[str], game: "Game|None" = None
+    ) -> tuple[bool, Skill | None, str]:
         if len(args) >= 2:
             return False, None, "下毒参数至多为1"
         elif len(args) == 0:
@@ -114,7 +117,9 @@ class SkillXiadu(CommandSkill):
 
     # 使用类
     def Cast(self, game: "Game"):
-        game.Skill_Used_Times[self.GetSkillID()] = game.Skill_Used_Times.get(self.GetSkillID(), 0) + self.GetAllTimes()
+        game.Skill_Used_Times[self.GetSkillID()] = (
+            game.Skill_Used_Times.get(self.GetSkillID(), 0) + self.GetAllTimes()
+        )
 
     # def Cast(self, game: "Game"):
     #     for i in range(self.times): # 先使用循环，后期需要更改再将其次数写入trigger中

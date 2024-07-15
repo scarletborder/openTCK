@@ -1,4 +1,4 @@
-from src.models.battle.game import Game
+# from src.models.battle.game import Game
 from src.models.battle.skill import CommandSkill, Skill
 from src.constant.enum.skill import SkillType, SkillID
 from src.constant.enum.battle_trigger import TriggerType
@@ -9,19 +9,21 @@ from typing import TYPE_CHECKING
 if TYPE_CHECKING:
     from src.models.battle.game import Game
 
+
 class JiuTrigger(SpecifiedPlayerTrigger):
-    def __init__(self, game: Game, tri_type: TriggerType, sk: Skill, sp_plid: int):
+    def __init__(self, game: "Game", tri_type: TriggerType, sk: Skill, sp_plid: int):
         super().__init__(game, tri_type, sk, sp_plid)
 
     @staticmethod
-    def NewTrigger(game: Game, sk: Skill, arg: int) -> SpecifiedPlayerTrigger:
+    def NewTrigger(game: "Game", sk: Skill, arg: int) -> SpecifiedPlayerTrigger:
         """param arg: target_id"""
         tri = JiuTrigger(game, TriggerType.B_SPECIFIEDPLAYER, sk, arg)
         return tri
-    
-    def Cast(self, game: Game, sk: Skill):
+
+    def Cast(self, game: "Game", sk: Skill):
         if sk.GetSkillID == SkillID.SHA or sk.GetSkillID == SkillID.QIN:
             sk.SetModifiedInfo("extra_damage", 1)
+
 
 class SkillJiu(CommandSkill):
 
@@ -29,7 +31,9 @@ class SkillJiu(CommandSkill):
         super().__init__(caster_id, args)
 
     @staticmethod
-    def NewSkill(caster, args: list[str], game: "Game|None" = None) -> tuple[bool, Skill | None, str]:
+    def NewSkill(
+        caster, args: list[str], game: "Game|None" = None
+    ) -> tuple[bool, Skill | None, str]:
         if len(args) == 0:
             return True, SkillJiu(caster, []), ""
         else:
@@ -72,18 +76,21 @@ class SkillJiu(CommandSkill):
     @staticmethod
     def GetCmdOccasion() -> int:
         return 1
-    
+
     # 使用类
     def Cast(self, game: "Game"):
         """在结算时候的释放技能"""
         game.players[self.caster_id].tag[TagEvent.FUHUA] = 0
         if game.Skill_Used_Times.get(SkillID.XIADU, 0) != 0:
-            game.players[self.caster_id].ChangeHealth(game.Skill_Used_Times[SkillID.XIADU] * (-3))
+            game.players[self.caster_id].ChangeHealth(
+                game.Skill_Used_Times[SkillID.XIADU] * (-3)
+            )
         elif game.players[self.caster_id].Health == 0:
             game.players[self.caster_id].ChangeHealth(1)
 
         tri = JiuTrigger.NewTrigger(game, self, self.caster_id)
         game.AddNextTrigger(tri)
+
 
 from src.battle.skills import Skill_Table, Skill_Name_To_ID  # noqa: E402
 

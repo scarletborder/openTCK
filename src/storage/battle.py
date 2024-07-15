@@ -1,4 +1,4 @@
-from src.battle.new_game import Game
+from src.models.battle.game import Game
 
 
 Current_Game: Game

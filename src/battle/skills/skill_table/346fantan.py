@@ -1,5 +1,6 @@
 from src.constant.enum.battle_trigger import TriggerType
-from src.models.battle.game import Game
+
+# from src.models.battle.game import Game
 from src.models.battle.skill import CommandSkill, Skill, AttackSkill
 from src.constant.enum.skill import SkillType, SkillID
 from typing import TYPE_CHECKING
@@ -12,21 +13,34 @@ if TYPE_CHECKING:
 
 
 class FantanTrigger(SpecifiedTargetTrigger):
-    def __init__(self, game: Game, tri_type: TriggerType, sk: Skill, sp_tid: int, target_id: int):
+    def __init__(
+        self,
+        game: "Game",
+        tri_type: TriggerType,
+        sk: Skill,
+        sp_tid: int,
+        target_id: int,
+    ):
         super().__init__(game, tri_type, sk, sp_tid)
         self.target_id = target_id
 
     @staticmethod
-    def NewTrigger(game: Game, sk: Skill, arg: int) -> SpecifiedTargetTrigger:
+    def NewTrigger(game: "Game", sk: Skill, arg: int) -> SpecifiedTargetTrigger:
         """param arg: target_id"""
         tri = FantanTrigger(game, TriggerType.B_SPECIFIEDTARGET, sk, sk.caster_id, arg)
         return tri
-    
-    def Cast(self, game: Game, sk: Skill):
+
+    def Cast(self, game: "Game", sk: Skill):
         original_skill = self.Original_Skill
-        if (sk.GetSkillID() == SkillID.TAO or isinstance(sk, AttackSkill)):
-            sk.SetTarget([int(self.target_id) if i == original_skill.caster_id else i for i in sk.targets])
-            
+        if sk.GetSkillID() == SkillID.TAO or isinstance(sk, AttackSkill):
+            sk.SetTarget(
+                [
+                    int(self.target_id) if i == original_skill.caster_id else i
+                    for i in sk.targets
+                ]
+            )
+
+
 class SkillFantan(CommandSkill):
 
     def __init__(self, caster_id: int, args: list, game: "Game|None" = None) -> None:
@@ -38,7 +52,9 @@ class SkillFantan(CommandSkill):
         return f"{self.caster_id} -{self.GetTitle()}>  {self.target}"
 
     @staticmethod
-    def NewSkill(caster, args: list[str], game: "Game|None" = None) -> tuple[bool, Skill | None, str]:
+    def NewSkill(
+        caster, args: list[str], game: "Game|None" = None
+    ) -> tuple[bool, Skill | None, str]:
         if len(args) != 1:
             return False, None, "反弹参数需为1"
         elif game.players[caster].Point <= 0:
@@ -62,7 +78,7 @@ class SkillFantan(CommandSkill):
 
     @staticmethod
     def GetBasicPoint() -> int:
-        return 
+        return
 
     def GetPoint(self) -> int:
         """获取技能释放需要的点数"""

@@ -1,6 +1,7 @@
 from abc import ABC, abstractmethod
 from src.battle.choose_skill import ParserSkill
-from src.battle.new_game import Game, Player
+from src.models.battle.player import Player
+from src.models.battle.game import Game
 from src.models.link.link_data import (
     LinkData,
     MessageData,
