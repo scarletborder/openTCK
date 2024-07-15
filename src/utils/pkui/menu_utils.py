@@ -20,6 +20,10 @@ from src.utils.link.player_link import ClientPlayerLink
 from src.storage.linker import LinkTask, GlobalLinker
 import src.utils.link.link_menu as LMM
 
+from src.constant.enum.skill import SkillType
+from prettytable import PrettyTable
+from src.battle.skills import Skill_Name_To_ID, Skill_Table
+
 """联机"""
 
 
@@ -93,16 +97,52 @@ async def DisplayGameRule():
 """帮助"""
 
 
-async def DisplaySingleSkills(): ...
+async def DisplaySingleSkills():
+    table = PrettyTable()
+    table.field_names = ["Title", "id", "pinyin", "Point"]
+
+    for pinyin, sid in Skill_Name_To_ID.items():
+        sk = Skill_Table[sid]
+        if sk.GetSkillType() == SkillType.SINGLE:
+            table.add_row([sk.GetTitle(), sid, pinyin, sk.GetBasicPoint()])
+
+    NewUI.PrintChatArea(table.get_formatted_string())
 
 
-async def DisplayMultiSkills(): ...
+async def DisplayMultiSkills():
+    table = PrettyTable()
+    table.field_names = ["Title", "id", "pinyin", "Point"]
+
+    for pinyin, sid in Skill_Name_To_ID.items():
+        sk = Skill_Table[sid]
+        if sk.GetSkillType() == SkillType.MULTI:
+            table.add_row([sk.GetTitle(), sid, pinyin, sk.GetBasicPoint()])
+
+    NewUI.PrintChatArea(table.get_formatted_string())
 
 
-async def DisplayDefenseSkills(): ...
+async def DisplayDefenseSkills():
+    table = PrettyTable()
+    table.field_names = ["Title", "id", "pinyin", "Point"]
+
+    for pinyin, sid in Skill_Name_To_ID.items():
+        sk = Skill_Table[sid]
+        if sk.GetSkillType() == SkillType.DEFENSE:
+            table.add_row([sk.GetTitle(), sid, pinyin, sk.GetBasicPoint()])
+
+    NewUI.PrintChatArea(table.get_formatted_string())
 
 
-async def DisplayCommandSkills(): ...
+async def DisplayCommandSkills():
+    table = PrettyTable()
+    table.field_names = ["Title", "id", "pinyin", "Point"]
+
+    for pinyin, sid in Skill_Name_To_ID.items():
+        sk = Skill_Table[sid]
+        if sk.GetSkillType() == SkillType.COMMAND:
+            table.add_row([sk.GetTitle(), sid, pinyin, sk.GetBasicPoint()])
+
+    NewUI.PrintChatArea(table.get_formatted_string())
 
 
 Menu = MenuContainer(

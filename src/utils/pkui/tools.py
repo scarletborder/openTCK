@@ -19,7 +19,6 @@ from src.battle.skills import Skill_Name_To_ID
 class CustomWordCompleter(Completer):
     def __init__(self, words: list, ignore_case: bool = False):
         self.word_completer = WordCompleter(words, ignore_case=ignore_case)
-        self.
 
     def get_completions(self, document, complete_event):
         text = document.text_before_cursor
