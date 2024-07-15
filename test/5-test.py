@@ -90,13 +90,28 @@ print(game.Skill_Stash.GetSkillStatus())
 
 game.OnRoundStart()
 
-_, _, sk = csk.ParserSkill(0, "tao 1 1", game)
+_, _, sk = csk.ParserSkill(0, "jidian", game)
 if sk:
     game.AddSkill(sk)
-_, _, sk = csk.ParserSkill(1, "fantan 2", game)
+_, _, sk = csk.ParserSkill(1, "qin 0 3", game)
 if sk:
     game.AddSkill(sk)
-_, _, sk = csk.ParserSkill(2, "xiadu", game)
+_, _, sk = csk.ParserSkill(2, "jidian", game)
+if sk:
+    game.AddSkill(sk)
+
+game.OnRoundEnd()
+print(game.GetStatus())
+print(game.Skill_Stash.GetSkillStatus())
+
+game.OnRoundStart()
+_, _, sk = csk.ParserSkill(0, "jidian", game)
+if sk:
+    game.AddSkill(sk)
+_, _, sk = csk.ParserSkill(1, "jidian", game)
+if sk:
+    game.AddSkill(sk)
+_, _, sk = csk.ParserSkill(2, "jidian", game)
 if sk:
     game.AddSkill(sk)
 

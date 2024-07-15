@@ -9,16 +9,19 @@ if TYPE_CHECKING:
 
 class SkillNanman(MultiAttackSkill):
 
-    def __init__(self, caster_id: int, args: list) -> None:
+    def __init__(self, caster_id: int, args: list, game: "Game|None" = None) -> None:
         """args为空"""
         super().__init__(caster_id, args)
+        self.targets = list(game.GetLiveUIDs())
+        self.targets.remove(self.caster_id)
+        self.times = [1 for _ in range(len(self.targets))]
 
     @staticmethod
     def NewSkill(caster, args: list[str], game: "Game|None" = None) -> tuple[bool, Skill | None, str]:
         if len(args) > 0:
             return False, None, "MULTI不需要任何参数"
         else:
-            return True, SkillNanman(caster, []), ""
+            return True, SkillNanman(caster, [], game), ""
 
     @staticmethod
     def GetTitle() -> str:
@@ -58,7 +61,9 @@ class SkillNanman(MultiAttackSkill):
     def SingleCast(self, game: Game, caster_id: int, target_id: int, times: int):
         target_skill, target_targets = game.Skill_Stash.getTargetSkillDetail(target_id)
         if target_id == caster_id: # 针对反弹
-            game.players[target_id].ChangeHealth(-times * 2)
+            game.players[target_id].ChangeHealth(-times * 3)
+            return
+        
         elif isinstance(target_skill, AttackSkill):
             if caster_id in target_targets:
                 if (
@@ -75,7 +80,10 @@ class SkillNanman(MultiAttackSkill):
 
     def Cast(self, game: "Game"):
         """在结算时候的释放技能"""
-        super().Cast(game)
+        for idx in range(len(self.targets)):
+            tid = self.targets[idx]
+            times = self.times[idx]
+            self.SingleCast(game, self.caster_id, tid, times)
 
 
 from src.battle.skills import Skill_Table, Skill_Name_To_ID  # noqa: E402

@@ -35,7 +35,7 @@ class SkillFantan(CommandSkill):
         self.game = game
 
     def __str__(self) -> str:
-        return f"{self.caster_id} -{self.GetTitle()}> {self.target}"
+        return f"{self.caster_id} -{self.GetTitle()}>  {self.target}"
 
     @staticmethod
     def NewSkill(caster, args: list[str], game: "Game|None" = None) -> tuple[bool, Skill | None, str]:

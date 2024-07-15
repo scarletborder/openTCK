@@ -80,6 +80,8 @@ class SkillFagong(SingleAttackSkill):
 
             if target_id == caster_id: # 针对反弹
                 game.players[target_id].ChangeHealth(-times * 1)
+                continue
+            
             elif isinstance(target_skill, AttackSkill):
                 if isinstance(target_skill, SingleAttackSkill):
                     # 是单体攻击

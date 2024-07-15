@@ -76,6 +76,8 @@ class SkillSha(SingleAttackSkill):
 
             if target_id == caster_id: # 针对反弹
                 game.players[target_id].ChangeHealth(-times * 1)
+                continue
+            
             elif isinstance(target_skill, AttackSkill):
                 if isinstance(target_skill, SingleAttackSkill):
                     # 是单体攻击
@@ -85,8 +87,8 @@ class SkillSha(SingleAttackSkill):
                             continue
                         elif target_skill.GetAttackLevel() >= self.GetAttackLevel():
                             # 遇到高级攻击
-                            if target_skill.GetSkillID() == SkillID.FAGONG:
-                                # 遇到法攻则正常
+                            if target_skill.GetSkillID() == SkillID.FAGONG or target_skill.GetSkillID() == SkillID.XIXUE:
+                                # 遇到法攻或吸血则正常
                                 pass
                             else:  # 遇到其他高级攻击无效
                                 continue

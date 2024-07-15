@@ -167,14 +167,7 @@ class MultiAttackSkill(AttackSkill):
         """群体攻击对单体造成的结算"""
         ...
 
-    def Cast(self, game: "Game"):
-        self.targets = list(game.GetLiveUIDs())
-        self.targets.remove(self.caster_id)
-        self.times = [1 for _ in range(len(self.targets))]
-        for idx in range(len(self.targets)):
-            tid = self.targets[idx]
-            times = self.times[idx]
-            self.SingleCast(game, self.caster_id, tid, times)
+    
 
 
 class SingleAttackSkill(AttackSkill):

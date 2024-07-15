@@ -31,6 +31,8 @@ def ParserSkill(
     @input_s : 用户输入的原生内容，会被解析成skill供返回
     """
     sl = input_s.strip().split(" ")
+    if caster_id not in game.GetLiveUIDs():
+        return False, "你已死亡", None
     if len(sl) == 0:
         return False, "未识别到任何技能", None
 

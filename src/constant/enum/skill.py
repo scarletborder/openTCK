@@ -24,6 +24,7 @@ class SkillID(Enum):
     SHA = 1
     QIN = 2
     FAGONG = 3
+    XIXUE = 4
 
     # multi
     WANJIAN = 101

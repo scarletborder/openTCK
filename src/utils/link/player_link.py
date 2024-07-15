@@ -165,7 +165,7 @@ class HostPlayerLink(PlayerLink):
                                 SBA.Current_Game.players[
                                     SLB.My_Player_Info.GetId()
                                 ].Health
-                                > 0
+                                >= 0
                             ):
                                 self.could_send_action.set()
                                 print("你可以发送技能了")
@@ -229,7 +229,7 @@ class HostPlayerLink(PlayerLink):
                     print("人员全部离线，游戏结束")
                 return
             else:
-                if SBA.Current_Game.players[SLB.My_Player_Info.GetId()].Health > 0:
+                if SBA.Current_Game.players[SLB.My_Player_Info.GetId()].Health >= 0:
                     self.could_send_action.set()
                     print("你可以发送技能了")
                 else:
@@ -309,7 +309,7 @@ class ClientPlayerLink(PlayerLink):
                     else:
                         if (
                             SBA.Current_Game.players[SLB.My_Player_Info.GetId()].Health
-                            > 0
+                            >= 0
                         ):
                             self.could_send_action.set()
                             print("你可以发送技能了")

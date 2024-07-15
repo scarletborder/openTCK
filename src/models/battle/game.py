@@ -62,7 +62,7 @@ class Game:
                 [
                     f"{t_id}",
                     f"{t_player.Name}",
-                    f"{t_player.Health}",
+                    f"{t_player.Health if t_player.Health >= 0 else 'dead'}",
                     f"{t_player.Point}",
                 ]
             )
@@ -74,7 +74,7 @@ class Game:
         """获取所有活人的uid"""
         ret = []
         for uid, player_info in self.players.items():
-            if player_info.Health > 0:
+            if player_info.Health >= 0:
                 # 血大于0
                 ret.append(uid)
 
@@ -84,8 +84,8 @@ class Game:
         """获取所有在线活人的uid"""
         ret = []
         for uid, player_info in self.players.items():
-            if player_info.Health > 0 and lobby.IsUidLeave(uid) is False:
-                # 血大于0并且没有离开
+            if player_info.Health >= 0 and lobby.IsUidLeave(uid) is False:
+                # 血大于等于0并且没有离开
                 ret.append(uid)
 
         return ret
@@ -374,8 +374,8 @@ def CastSkill(game: Game, sk_v: "Skill"):
     if hasattr(sk_v, "targets"):
         for target in sk_v.targets:
             tril = game.Trigger_Stash.b_target_triggers.get(target, [])
-    for tri in tril:
-        tri.Cast(game, sk_v)
+            for tri in tril:
+                tri.Cast(game, sk_v)
 
     # 攻击技能
     if att_flag:
