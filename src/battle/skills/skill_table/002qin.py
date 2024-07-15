@@ -64,6 +64,12 @@ class SkillQin(SingleAttackSkill):
     @staticmethod
     def GetAttackLevel() -> int:
         return 1
+    
+    def GetDamage(self) -> int:
+        """获取技能最终伤害"""
+        damage = 3
+        for extra_damage in Skill.ParseItemModifiedInfo(self.modified_info, "extra_damage"):
+            damage += extra_damage
 
     # 使用类
     def Cast(self, game: "Game"):
@@ -76,7 +82,7 @@ class SkillQin(SingleAttackSkill):
                 target_id
             )
             if target_id == caster_id: # 针对反弹
-                game.players[target_id].ChangeHealth(-times * 3)
+                game.players[target_id].ChangeHealth(-times * self.GetDamage())
                 continue
             
             elif isinstance(target_skill, AttackSkill):
@@ -109,7 +115,7 @@ class SkillQin(SingleAttackSkill):
             elif isinstance(target_skill, CommandSkill):
                 pass
 
-            game.players[target_id].ChangeHealth(-times * 3)
+            game.players[target_id].ChangeHealth(-times * self.GetDamage())
 
 
 from src.battle.skills import Skill_Table, Skill_Name_To_ID  # noqa: E402

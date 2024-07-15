@@ -96,7 +96,7 @@ class SkillTao(CommandSkill):
 
     @staticmethod
     def GetCmdOccasion() -> int:
-        return 4
+        return 1
     
     def SetTarget(self, new_target: list[int]):
         """用于trigger修改原技能的target"""

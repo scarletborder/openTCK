@@ -92,7 +92,14 @@ class Skill(ABC):
 
     def __str__(self) -> str:
         return f"{self.caster_id} -> {self.GetTitle()}"
-
+    
+    # utils
+    @staticmethod
+    def ParseItemModifiedInfo(modified_info: list[list], item: str) -> list:
+        """
+        解析Modified Info中为Item的参数，返回所有符合条件的参数列表
+        """
+        return [i[1] for i in modified_info if i[0] == item]
 
 class AttackSkill(Skill):
     def __init__(self, caster_id: int, args: list) -> None:

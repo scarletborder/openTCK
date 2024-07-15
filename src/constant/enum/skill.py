@@ -38,5 +38,6 @@ class SkillID(Enum):
     SLEEP = 300
     JIDIAN = 301
     XIADU = 307
+    JIU = 310
     TAO = 329
     FANTAN = 346
