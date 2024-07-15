@@ -372,7 +372,7 @@ def CastSkill(game: Game, sk_v: "Skill"):
 
     # 特定目标
     if hasattr(sk_v, "targets"):
-        print(sk_v.GetTitle(), sk_v.targets)
+        # print(sk_v.GetTitle(), sk_v.targets)
         for target in sk_v.targets:
             tril = game.Trigger_Stash.b_target_triggers.get(target, [])
     for tri in tril:

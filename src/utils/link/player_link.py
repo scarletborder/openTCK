@@ -20,6 +20,8 @@ import src.storage.battle as SBA
 import src.storage.lobby as SLB
 import asyncio
 import pickle
+from src.storage.buffer import SetInput, ReadInput
+from src.utils.pkui.utils import NewUI
 
 
 class PlayerLink(ABC):
@@ -78,7 +80,7 @@ class HostPlayerLink(PlayerLink):
             self.handle_client, self.host_ip, self.port
         )
         addr = self.Server.sockets[0].getsockname()
-        print(f"Serving on {addr}")
+        NewUI.PrintChatArea(f"Serving on {addr}")
 
         self.could_type.set()
         self.could_send_action.clear()
@@ -87,7 +89,7 @@ class HostPlayerLink(PlayerLink):
         async with self.Server:
             await asyncio.gather(self.Server.serve_forever(), SendThingsForever(self))
 
-        print("大厅已经关闭")
+        NewUI.PrintChatArea("大厅已经关闭")
 
     async def StartGame(self):
         SBA.Current_Game = Game()
@@ -99,14 +101,14 @@ class HostPlayerLink(PlayerLink):
         await self.broadCast(
             BattleStartData(SLB.My_Player_Info.GetId(), SBA.Current_Game)
         )
-        print(SBA.Current_Game.GetStatus())
+        NewUI.PrintStatusArea(SBA.Current_Game.GetStatus())
         self.could_send_action.set()
-        print("你可以发送技能了")
+        NewUI.PrintChatArea("你可以发送技能了")
 
     async def handle_client(self, reader, writer):
         self.clients.append(writer)
         addr = writer.get_extra_info("peername")
-        print(f"New client: {addr}")
+        NewUI.PrintChatArea(f"New client: {addr}")
         # 分配一个player_info
         new_player_info = SLB.Current_Lobby.AddPlayer()
         writer.write(
@@ -126,7 +128,7 @@ class HostPlayerLink(PlayerLink):
                 parserd_data = recv_data.Parser()
                 # 根据messageEvent来分支
                 if recv_data.data_type == LinkEvent.CHATMESSAGE:
-                    print(
+                    NewUI.PrintChatArea(
                         f"{recv_data.uid}/{SLB.Current_Lobby.player_infos[recv_data.uid].GetName()}:"
                         + parserd_data["msg"]
                     )
@@ -147,18 +149,20 @@ class HostPlayerLink(PlayerLink):
                             )
                         )
 
-                        print(SBA.Current_Game.Skill_Stash.GetSkillStatus())
-                        print(SBA.Current_Game.GetStatus())
+                        NewUI.PrintChatArea(
+                            SBA.Current_Game.Skill_Stash.GetSkillStatus()
+                        )
+                        NewUI.PrintStatusArea(SBA.Current_Game.GetStatus())
 
                         # 判断游戏是否结束
                         lids = SBA.Current_Game.GetALiveUIDs(SLB.Current_Lobby)
                         if len(lids) <= 1:
                             if len(lids) == 1:
-                                print(
+                                NewUI.PrintChatArea(
                                     f"游戏结束了,{SBA.Current_Game.players[lids[0]].Name}是Winner\nhost输入start再开一把"
                                 )
                             else:
-                                print("人员全部离线，游戏结束")
+                                NewUI.PrintChatArea("人员全部离线，游戏结束")
                             continue
                         else:
                             if (
@@ -168,15 +172,15 @@ class HostPlayerLink(PlayerLink):
                                 > 0
                             ):
                                 self.could_send_action.set()
-                                print("你可以发送技能了")
+                                NewUI.PrintChatArea("你可以发送技能了")
                             else:
-                                print("你4了，但是可以继续观战聊天")
+                                NewUI.PrintChatArea("你4了，但是可以继续观战聊天")
 
                 elif recv_data.data_type == LinkEvent.LOBBYUPDATE:
                     # 昭告全国
                     await self.broadCast(recv_data, writer)
                     SLB.Current_Lobby = recv_data.content
-                    print(SLB.Current_Lobby.GetLobbyTable())
+                    NewUI.PrintChatArea(SLB.Current_Lobby.GetLobbyTable())
                 elif recv_data.data_type == LinkEvent.LOBBYASSIGN:
                     """uid用户发送了自己的name"""
                     SLB.Current_Lobby.player_infos[recv_data.uid].name = (
@@ -186,13 +190,13 @@ class HostPlayerLink(PlayerLink):
                         LobbyUpdateData(SLB.My_Player_Info.GetId(), SLB.Current_Lobby),
                         None,
                     )
-                    print(SLB.Current_Lobby.GetLobbyTable())
+                    NewUI.PrintChatArea(SLB.Current_Lobby.GetLobbyTable())
 
             except ConnectionResetError:
                 break
 
         # 用户离开
-        print(f"Client {addr} disconnected")
+        NewUI.PrintChatArea(f"Client {addr} disconnected")
         self.clients.remove(writer)
         writer.close()
         await writer.wait_closed()
@@ -215,25 +219,25 @@ class HostPlayerLink(PlayerLink):
                 BattleResultData(SLB.My_Player_Info.GetId(), SBA.Current_Game)
             )
 
-            print(SBA.Current_Game.Skill_Stash.GetSkillStatus())
-            print(SBA.Current_Game.GetStatus())
+            NewUI.PrintChatArea(SBA.Current_Game.Skill_Stash.GetSkillStatus())
+            NewUI.PrintStatusArea(SBA.Current_Game.GetStatus())
 
             # 判断游戏是否结束
             lids = SBA.Current_Game.GetALiveUIDs(SLB.Current_Lobby)
             if len(lids) <= 1:
                 if len(lids) == 1:
-                    print(
+                    NewUI.PrintChatArea(
                         f"游戏结束了,{SBA.Current_Game.players[lids[0]].Name}是Winner\nhost输入start再开一把"
                     )
                 else:
-                    print("人员全部离线，游戏结束")
+                    NewUI.PrintChatArea("人员全部离线，游戏结束")
                 return
             else:
                 if SBA.Current_Game.players[SLB.My_Player_Info.GetId()].Health > 0:
                     self.could_send_action.set()
-                    print("你可以发送技能了")
+                    NewUI.PrintChatArea("你可以发送技能了")
                 else:
-                    print("你4了，但是可以继续观战聊天")
+                    NewUI.PrintChatArea("你4了，但是可以继续观战聊天")
 
     async def SendMessage(self, msg: str):
         msg_data = MessageData(SLB.My_Player_Info.GetId(), msg)
@@ -255,12 +259,12 @@ class ClientPlayerLink(PlayerLink):
         """
         self.host_ip = Cfg["address"]["host_ip"]
         self.port = Cfg["address"]["port"]
-        print("Connecting...")
+        NewUI.PrintChatArea("Connecting...")
         self.reader, self.writer = await asyncio.open_connection(
             self.host_ip, self.port
         )
 
-        print("Connected to server!")
+        NewUI.PrintChatArea("Connected to server!")
         await asyncio.gather(
             self.recv_data(self.reader, self.writer), SendThingsForever(self)
         )
@@ -281,44 +285,44 @@ class ClientPlayerLink(PlayerLink):
             try:
                 data = await reader.read(4096)
                 if not data:
-                    print("Server disconnected")
+                    NewUI.PrintChatArea("Server disconnected")
                     break
 
                 recv_data: LinkData = pickle.loads(data)
                 parserd_data = recv_data.Parser()
                 # 根据messageEvent来分支
                 if recv_data.data_type == LinkEvent.CHATMESSAGE:
-                    print(
+                    NewUI.PrintChatArea(
                         f"{recv_data.uid}/{SLB.Current_Lobby.player_infos[recv_data.uid].GetName()}:"
                         + parserd_data["msg"]
                     )
 
                 elif recv_data.data_type == LinkEvent.BATTLERESULT:
                     SBA.Current_Game = parserd_data["game"]
-                    print(SBA.Current_Game.Skill_Stash.GetSkillStatus())
-                    print(SBA.Current_Game.GetStatus())
+                    NewUI.PrintChatArea(SBA.Current_Game.Skill_Stash.GetSkillStatus())
+                    NewUI.PrintStatusArea(SBA.Current_Game.GetStatus())
                     # 判断游戏是否结束
                     lids = SBA.Current_Game.GetALiveUIDs(SLB.Current_Lobby)
                     if len(lids) <= 1:
                         if len(lids) == 1:
-                            print(
+                            NewUI.PrintChatArea(
                                 f"游戏结束了,{SBA.Current_Game.players[lids[0]].Name}是Winner\nhost输入start再开一把"
                             )
                         else:
-                            print("人员全部离线，游戏结束")
+                            NewUI.PrintChatArea("人员全部离线，游戏结束")
                     else:
                         if (
                             SBA.Current_Game.players[SLB.My_Player_Info.GetId()].Health
                             > 0
                         ):
                             self.could_send_action.set()
-                            print("你可以发送技能了")
+                            NewUI.PrintChatArea("你可以发送技能了")
                         else:
-                            print("你4了，但是可以继续观战聊天")
+                            NewUI.PrintChatArea("你4了，但是可以继续观战聊天")
 
                 elif recv_data.data_type == LinkEvent.LOBBYUPDATE:
                     SLB.Current_Lobby = recv_data.content
-                    print(SLB.Current_Lobby.GetLobbyTable())
+                    NewUI.PrintChatArea(SLB.Current_Lobby.GetLobbyTable())
 
                 elif recv_data.data_type == LinkEvent.LOBBYASSIGN:
                     """被分配id"""
@@ -329,12 +333,12 @@ class ClientPlayerLink(PlayerLink):
                     )
                 elif recv_data.data_type == LinkEvent.BATTLESTART:
                     SBA.Current_Game = recv_data.content
-                    print(SBA.Current_Game.GetStatus())
+                    NewUI.PrintStatusArea(SBA.Current_Game.GetStatus())
                     self.could_send_action.set()
-                    print("你可以使用技能了")
+                    NewUI.PrintChatArea("你可以使用技能了")
 
             except (ConnectionResetError, EOFError, pickle.UnpicklingError):
-                print("Server disconnected")
+                NewUI.PrintChatArea("Server disconnected")
                 break
 
 
@@ -353,7 +357,7 @@ async def SendThingsForever(Linker: PlayerLink):
     loop = asyncio.get_running_loop()
     while True:
         await Linker.could_type.wait()
-        content = await loop.run_in_executor(None, input, ">")  # vanilla input
+        content = await ReadInput()  # vanilla input
         if content is None or len(content) == 0:
             continue
         if content[0] == "!":
@@ -367,7 +371,7 @@ async def SendThingsForever(Linker: PlayerLink):
             # action
             if Linker.could_send_action.is_set() is False:
                 # 现在不能发送action
-                print("It is not right time to send action")
+                NewUI.PrintChatArea("It is not right time to send action")
                 continue
             else:
                 # parser first
@@ -375,7 +379,7 @@ async def SendThingsForever(Linker: PlayerLink):
                     SLB.My_Player_Info.GetId(), content, SBA.Current_Game
                 )
                 if ok is False or sk is None:
-                    print("Fail:" + msg)
+                    NewUI.PrintChatArea("Fail:" + msg)
                     continue
                 else:
                     # sendaction

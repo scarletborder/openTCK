@@ -14,50 +14,50 @@ from src.utils.pkui.widgets import (
     Output_Tip_Area,
     Bindings,
 )
-
-
-class NewUI:
-    """UI暴露方法"""
-
-    @staticmethod
-    def PrintChatArea(s):
-        buffer = Output_Chat_Area.buffer
-        # window = output_chat_area.window
-
-        # 检查 TextArea 是否在最低端
-        is_at_bottom = buffer.document.cursor_position == len(buffer.text)
-
-        # 在终端中运行以确保线程安全
-        buffer.text += s + "\n"
-
-        # 如果在最低端，则滚动到底部
-        if is_at_bottom:
-            run_in_terminal(lambda: buffer.cursor_down(len(buffer.text)))
-
-    @staticmethod
-    def PrintStatusArea(s):
-        Output_Status_Area.text = s
-
-    @staticmethod
-    def PrintTipArea(s):
-        Output_Tip_Area.text = s
-
+from src.utils.pkui.utils import NewUI
+from src.utils.link.player_link import HostPlayerLink
+from src.utils.link.player_link import ClientPlayerLink
+from src.storage.linker import LinkTask, Linker
+import src.utils.link.link_menu as LMM
 
 """联机"""
 
 
-def HostLobby(): ...
+async def HostLobby():
+    global LinkTask, Linker
+    if LinkTask is not None:
+        NewUI.PrintChatArea("你已经在一场游戏中或尝试连接中")
+    else:
+        Linker = HostPlayerLink()
+        LinkTask = asyncio.create_task(Linker.JoinLobby())
 
 
-def JoinLobby(): ...
+async def JoinLobby():
+    global LinkTask, Linker
+    if LinkTask is not None:
+        NewUI.PrintChatArea("你已经在一场游戏中或尝试连接中")
+    else:
+        Linker = ClientPlayerLink()
+        LinkTask = asyncio.create_task(Linker.JoinLobby())
 
 
-def LeaveLobby(): ...
+async def LeaveLobby():
+    global Linker, LinkTask
+    if LinkTask is not None and Linker is not None:
+        try:
+            await LMM.LeaveGame(Linker)
+        except BaseException:
+            ...
+        LinkTask.cancel()
+        LinkTask = None
+        Linker = None
+    else:
+        NewUI.PrintChatArea("你已经退出了一场游戏")
 
 
-def Exit():
+async def Exit():
     App.exit()
-    exit()
+    # exit()
 
 
 """菜单
@@ -66,34 +66,43 @@ def Exit():
 """
 
 
-def LobbyList(): ...
+async def LobbyList():
+    if LinkTask is not None and Linker is not None:
+        await LMM.RunMenuCommand("list", Linker)
+    else:
+        NewUI.PrintChatArea("你已经退出了一场游戏")
 
 
 """游戏"""
 
 
-def StartGame(): ...
+async def StartGame():
+    if LinkTask is not None and Linker is not None:
+        await LMM.RunMenuCommand("start", Linker)
+    else:
+        NewUI.PrintChatArea("你已经退出了一场游戏")
 
 
 """配置"""
 
 
-def DisplayGameRule(): ...
+async def DisplayGameRule():
+    LMM.ListGameRule()
 
 
 """帮助"""
 
 
-def DisplaySingleSkills(): ...
+async def DisplaySingleSkills(): ...
 
 
-def DisplayMultiSkills(): ...
+async def DisplayMultiSkills(): ...
 
 
-def DisplayDefenseSkills(): ...
+async def DisplayDefenseSkills(): ...
 
 
-def DisplayCommandSkills(): ...
+async def DisplayCommandSkills(): ...
 
 
 Menu = MenuContainer(
@@ -121,32 +130,34 @@ Menu = MenuContainer(
             children=[
                 MenuItem(
                     "Host",
-                    handler=HostLobby,
+                    handler=lambda: asyncio.create_task(HostLobby()),
                 ),
                 MenuItem(
                     "Join",
-                    handler=JoinLobby,
+                    handler=lambda: asyncio.create_task(JoinLobby()),
                 ),
-                MenuItem("Leave", handler=LeaveLobby),
-                MenuItem("Exit", handler=Exit),
+                MenuItem("Leave", handler=lambda: asyncio.create_task(LeaveLobby())),
+                MenuItem("Exit", handler=lambda: asyncio.create_task(Exit())),
             ],
         ),
         MenuItem(
             "菜单",
             children=[
-                MenuItem("大厅列表", handler=LobbyList),
+                MenuItem("大厅列表", handler=lambda: asyncio.create_task(LobbyList())),
             ],
         ),
         MenuItem(
             "游戏",
             children=[
-                MenuItem("Restart", handler=StartGame),
+                MenuItem("Restart", handler=lambda: asyncio.create_task(StartGame())),
             ],
         ),
         MenuItem(
             "配置",
             children=[
-                MenuItem("gamerule", handler=DisplayGameRule),
+                MenuItem(
+                    "gamerule", handler=lambda: asyncio.create_task(DisplayGameRule())
+                ),
             ],
         ),
         MenuItem(
@@ -155,10 +166,22 @@ Menu = MenuContainer(
                 MenuItem(
                     "技能列表",
                     children=[
-                        MenuItem("单体攻击", handler=DisplaySingleSkills),
-                        MenuItem("群体攻击", handler=DisplayMultiSkills),
-                        MenuItem("防御", handler=DisplayDefenseSkills),
-                        MenuItem("指令", handler=DisplayCommandSkills),
+                        MenuItem(
+                            "单体攻击",
+                            handler=lambda: asyncio.create_task(DisplaySingleSkills()),
+                        ),
+                        MenuItem(
+                            "群体攻击",
+                            handler=lambda: asyncio.create_task(DisplayMultiSkills()),
+                        ),
+                        MenuItem(
+                            "防御",
+                            handler=lambda: asyncio.create_task(DisplayDefenseSkills()),
+                        ),
+                        MenuItem(
+                            "指令",
+                            handler=lambda: asyncio.create_task(DisplayCommandSkills()),
+                        ),
                     ],
                 ),
             ],

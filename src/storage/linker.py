@@ -1,3 +1,9 @@
-from src.utils.link.player_link import PlayerLink
+from asyncio import Task
 
-Linker: PlayerLink
+from typing import TYPE_CHECKING
+
+if TYPE_CHECKING:
+    from src.utils.link.player_link import PlayerLink
+
+LinkTask: Task | None = None
+Linker: "PlayerLink | None" = None
