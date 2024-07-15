@@ -97,6 +97,14 @@ async def DisplayGameRule():
 """帮助"""
 
 
+async def DisplayAbout():
+    NewUI.PrintChatArea(
+        """Made by scarletborder, JunruQ
+        This Game is still in developing.
+"""
+    )
+
+
 async def DisplaySingleSkills():
     table = PrettyTable()
     table.field_names = ["Title", "id", "pinyin", "Point"]
@@ -203,6 +211,7 @@ Menu = MenuContainer(
         MenuItem(
             "帮助",
             children=[
+                MenuItem("about", handler=lambda: asyncio.create_task(DisplayAbout())),
                 MenuItem(
                     "技能列表",
                     children=[
