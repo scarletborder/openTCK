@@ -190,7 +190,9 @@ class HostPlayerLink(PlayerLink):
                         LobbyUpdateData(SLB.My_Player_Info.GetId(), SLB.Current_Lobby),
                         None,
                     )
-                    NewUI.PrintChatArea(SLB.Current_Lobby.GetLobbyTable())
+                    NewUI.PrintChatArea(
+                        SLB.Current_Lobby.GetLobbyTable().get_formatted_string()
+                    )
 
             except ConnectionResetError:
                 break

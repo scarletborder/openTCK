@@ -25,7 +25,7 @@ async def RunMenuCommand(s: str, Linker: "PlayerLink") -> bool:
         return True
 
     elif s == "list":
-        NewUI.PrintChatArea(SLB.Current_Lobby.GetLobbyTable())
+        NewUI.PrintChatArea(SLB.Current_Lobby.GetLobbyTable().get_formatted_string())
         return True
 
     elif s == "start":
@@ -145,4 +145,4 @@ def ListSkills():
     for pinyin, sid in Skill_Name_To_ID.items():
         table.add_row([Skill_Table[sid].GetTitle(), sid, pinyin])
 
-    NewUI.PrintChatArea(table)
+    NewUI.PrintChatArea(table.get_formatted_string())
