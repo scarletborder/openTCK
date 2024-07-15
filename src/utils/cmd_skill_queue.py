@@ -3,7 +3,7 @@ from typing import TYPE_CHECKING
 if TYPE_CHECKING:
     from src.models.battle.skill import CommandSkill
 
-Cmd_Skill_Queue = ["xiadu", "fantan", "jidian", "tao"]
+Cmd_Skill_Queue = ["xiadu", "fantan", "jiu", "tao", "jidian"]
 
 
 def GetCMDQueue(cskl: list["CommandSkill"]) -> list["CommandSkill"]:
