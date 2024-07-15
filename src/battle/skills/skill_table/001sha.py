@@ -56,7 +56,8 @@ class SkillSha(SingleAttackSkill):
         """获取技能最终伤害"""
         damage = 1
         for extra_damage in Skill.ParseItemModifiedInfo(self.modified_info, "extra_damage"):
-            damage += extra_damage
+            damage += int(extra_damage)
+        return damage
 
     @staticmethod
     def GetSkillType() -> SkillType:
