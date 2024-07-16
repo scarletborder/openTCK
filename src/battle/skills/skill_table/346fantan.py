@@ -45,7 +45,7 @@ class SkillFantan(CommandSkill):
 
     def __init__(self, caster_id: int, args: list, game: "Game|None" = None) -> None:
         super().__init__(caster_id, args)
-        self.target = args[0]
+        self.target = int(args[0])
         self.game = game
 
     def __str__(self) -> str:

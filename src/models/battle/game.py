@@ -177,6 +177,7 @@ class Game:
         self.Skill_Used_Times = {}  # 将其清零
         self.Skill_Stash.ResetLog()
         self.Skill_Stash.MakeSkillLog()
+        self.Trigger_Stash.reset()
         self.calculateRoundResult()
         for pl in self.players.values():
             pl.OnRoundEnd()
