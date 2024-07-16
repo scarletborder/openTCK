@@ -9,12 +9,18 @@ from src.utils.pkui.tools import MyCompleter
 
 
 Input_Area = TextArea(
-    height=1, prompt="Input: ", multiline=False, completer=MyCompleter
+    height=2, prompt="Input: ", multiline=False, completer=MyCompleter
 )
 
-__intro = """openTCK dev version
+__intro = """Input content which begins with `!` will be broadcasted as chat message
+"""
+
+__intro2 = """openTCK dev version
 This program uses GPL-3.0 license
-Use `ctrl + j` OR `ctrl + k` to scroll down OR up\n"""
+Use `ctrl + j` OR `ctrl + k` to scroll down OR up
+Moreover, you can also you mouse to scroll
+Use `tab` to switch from menu to input area
+"""
 
 # 主要左边的对话框，和命令的输出框
 Output_Chat_Area = TextArea(
@@ -30,14 +36,14 @@ Output_Status_Area = TextArea(
     focusable=False,
     scrollbar=False,
     wrap_lines=False,
-    text="halo1",
+    text=__intro2,
 )
 Output_Tip_Area = TextArea(
     style="class:output-area",
     focusable=False,
     scrollbar=False,
     height=3,
-    text="halo2",
+    text="Tips",
 )
 
 Bindings = KeyBindings()

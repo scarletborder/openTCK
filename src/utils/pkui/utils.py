@@ -28,6 +28,11 @@ class NewUI:
             run_in_terminal(lambda: buffer.cursor_down(len(buffer.text)))
 
     @staticmethod
+    def ClearChatArea():
+        buffer = Output_Chat_Area.buffer
+        buffer.text = "\n"
+
+    @staticmethod
     def PrintStatusArea(s):
         s = str(s)
         Output_Status_Area.text = s

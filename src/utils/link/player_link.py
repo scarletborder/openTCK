@@ -106,6 +106,7 @@ class HostPlayerLink(PlayerLink):
         NewUI.PrintStatusArea(SBA.Current_Game.GetStatus())
         self.could_send_action.set()
         NewUI.PrintChatArea("你可以发送技能了")
+        NewUI.PrintTipArea("请输出技能")
 
     async def handle_client(self, reader, writer):
         self.clients.append(writer)
@@ -199,7 +200,9 @@ class HostPlayerLink(PlayerLink):
                             ):
                                 self.could_send_action.set()
                                 NewUI.PrintChatArea("你可以发送技能了")
+                                NewUI.PrintTipArea("请输出技能")
                             else:
+                                NewUI.PrintTipArea("你4了，但是可以继续观战聊天")
                                 NewUI.PrintChatArea("你4了，但是可以继续观战聊天")
 
                 elif recv_data.data_type == LinkEvent.LOBBYUPDATE:
@@ -238,6 +241,7 @@ class HostPlayerLink(PlayerLink):
 
     async def SendAction(self, sk: Skill):
         SBA.Current_Game.AddSkill(sk)
+        NewUI.PrintTipArea(str(sk))
 
         if SBA.Current_Game.HasAllLivePlayerDone(SLB.Current_Lobby):
             SBA.Current_Game.OnRoundEnd()
@@ -264,8 +268,10 @@ class HostPlayerLink(PlayerLink):
                 if SBA.Current_Game.players[SLB.My_Player_Info.GetId()].Health >= 0:
                     self.could_send_action.set()
                     NewUI.PrintChatArea("你可以发送技能了")
+                    NewUI.PrintTipArea("请输出技能")
                 else:
                     NewUI.PrintChatArea("你4了，但是可以继续观战聊天")
+                    NewUI.PrintTipArea("你4了，但是可以继续观战聊天")
 
     async def SendMessage(self, msg: str):
         msg_data = MessageData(SLB.My_Player_Info.GetId(), msg)
@@ -301,6 +307,7 @@ class ClientPlayerLink(PlayerLink):
         await self.writer.drain()
 
     async def SendAction(self, sk: Skill):
+        NewUI.PrintTipArea(str(sk))
         await self.Send(BattleActionData(SLB.My_Player_Info.GetId(), sk))
 
     async def SendMessage(self, msg: str):
@@ -357,6 +364,7 @@ class ClientPlayerLink(PlayerLink):
                             self.could_send_action.set()
                             # NewUI.PrintTipArea("准")
                             NewUI.PrintChatArea("你可以发送技能了")
+                            NewUI.PrintTipArea("请输入技能")
                         else:
                             NewUI.PrintTipArea("你4了，但是可以继续观战聊天")
                             NewUI.PrintChatArea("你4了，但是可以继续观战聊天")
@@ -378,6 +386,7 @@ class ClientPlayerLink(PlayerLink):
                     SBA.Current_Game = recv_data.content
                     NewUI.PrintStatusArea(SBA.Current_Game.GetStatus())
                     self.could_send_action.set()
+                    NewUI.PrintTipArea("请输出技能")
                     NewUI.PrintChatArea("你可以使用技能了")
 
             except (ConnectionResetError, EOFError, pickle.UnpicklingError):

@@ -1,0 +1,10 @@
+# OpenTCK (C)2024
+## Author
+scarletborder, JunruQ
+## Intro
+TCK是风靡于合肥一中的拍手游戏，开发者将其电子化方便联机。
+你可以在帮助中找到游戏的帮助信息。
+目前游戏仍然在测试阶段，可能存在不少的bug。
+## 许可证
+本软件遵循GNU通用公共许可证（GPL）版本3.0发布。您可以自由地使用、修改和分发本软件，但必须遵守GPL 3.0的条款。
+https://www.gnu.org/licenses/gpl-3.0.txt

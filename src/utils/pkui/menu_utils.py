@@ -98,11 +98,13 @@ async def DisplayGameRule():
 
 
 async def DisplayAbout():
-    NewUI.PrintChatArea(
-        """Made by scarletborder, JunruQ
-        This Game is still in developing.
-"""
-    )
+    with open("doc/help/about.txt", mode="r", encoding="utf-8") as file:
+        NewUI.PrintChatArea(file.read())
+
+
+async def DisplayBasicRules():
+    with open("doc/help/basic.txt", mode="r", encoding="utf-8") as file:
+        NewUI.PrintChatArea(file.read())
 
 
 async def DisplaySingleSkills():
@@ -153,6 +155,10 @@ async def DisplayCommandSkills():
     NewUI.PrintChatArea(table.get_formatted_string())
 
 
+async def ClearChatArea():
+    NewUI.ClearChatArea()
+
+
 Menu = MenuContainer(
     body=HSplit(
         [
@@ -191,12 +197,15 @@ Menu = MenuContainer(
         MenuItem(
             "菜单",
             children=[
-                MenuItem("大厅列表", handler=lambda: asyncio.create_task(LobbyList())),
+                MenuItem("Lobby", handler=lambda: asyncio.create_task(LobbyList())),
             ],
         ),
         MenuItem(
             "游戏",
             children=[
+                MenuItem(
+                    "ClearWindow", handler=lambda: asyncio.create_task(ClearChatArea())
+                ),
                 MenuItem("Restart", handler=lambda: asyncio.create_task(StartGame())),
             ],
         ),
@@ -213,22 +222,26 @@ Menu = MenuContainer(
             children=[
                 MenuItem("about", handler=lambda: asyncio.create_task(DisplayAbout())),
                 MenuItem(
-                    "技能列表",
+                    "BasicRules",
+                    handler=lambda: asyncio.create_task(DisplayBasicRules()),
+                ),
+                MenuItem(
+                    "Skills",
                     children=[
                         MenuItem(
-                            "单体攻击",
+                            "SingleAttack",
                             handler=lambda: asyncio.create_task(DisplaySingleSkills()),
                         ),
                         MenuItem(
-                            "群体攻击",
+                            "MultiAttack",
                             handler=lambda: asyncio.create_task(DisplayMultiSkills()),
                         ),
                         MenuItem(
-                            "防御",
+                            "Defense",
                             handler=lambda: asyncio.create_task(DisplayDefenseSkills()),
                         ),
                         MenuItem(
-                            "指令",
+                            "Command",
                             handler=lambda: asyncio.create_task(DisplayCommandSkills()),
                         ),
                     ],
@@ -244,4 +257,5 @@ App = Application(
     key_bindings=Bindings,
     full_screen=True,
     color_depth=ColorDepth.TRUE_COLOR,
+    mouse_support=True,
 )
