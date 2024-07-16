@@ -21,7 +21,8 @@ import src.storage.battle as SBA
 import src.storage.lobby as SLB
 import asyncio
 import pickle
-from src.storage.buffer import SetInput, ReadInput
+from src.storage.buffer import SetInput, ReadInput, TimesToReconnect
+
 from src.utils.pkui.utils import NewUI
 
 
@@ -120,12 +121,36 @@ class HostPlayerLink(PlayerLink):
         await writer.drain()
 
         while True:
+            data = []
             try:
-                data = await reader.read(4096)
-                if not data:
+                while not reader.at_eof():
+                    try:
+                        packet = await asyncio.wait_for(reader.read(4096), timeout=0.5)
+                        if not packet:
+                            NewUI.PrintChatArea("client disconnected")
+                            break
+                        data.append(packet)
+                    except asyncio.CancelledError:
+                        NewUI.PrintChatArea(f"Connection with {addr} was cancelled")
+                        break
+                    except ConnectionResetError:
+                        NewUI.PrintChatArea(f"Connection with {addr} was reset by peer")
+                        break
+                    except asyncio.IncompleteReadError:
+                        NewUI.PrintChatArea(f"Incomplete read error from {addr}")
+                        break
+                    except asyncio.TimeoutError:
+                        break
+
+                if reader.at_eof():
+                    NewUI.PrintChatArea("client disconnected")
                     break
 
-                recv_data: LinkData = pickle.loads(data)
+                if len(data) == 0:
+                    continue
+
+                recv_data: LinkData = pickle.loads(b"".join(data))
+
                 parserd_data = recv_data.Parser()
                 # 根据messageEvent来分支
                 if recv_data.data_type == LinkEvent.CHATMESSAGE:
@@ -268,9 +293,7 @@ class ClientPlayerLink(PlayerLink):
         )
 
         NewUI.PrintChatArea("Connected to server!")
-        await asyncio.gather(
-            self.recv_data(self.reader, self.writer), SendThingsForever(self)
-        )
+        await asyncio.gather(self.recv_data(), SendThingsForever(self))
 
     async def Send(self, data):
         data = pickle.dumps(data)
@@ -283,15 +306,28 @@ class ClientPlayerLink(PlayerLink):
     async def SendMessage(self, msg: str):
         await self.Send(MessageData(SLB.My_Player_Info.GetId(), msg))
 
-    async def recv_data(self, reader, writer):
+    async def recv_data(self):
+        global TimesToReconnect
+        TimesToReconnect = 5
         while True:
             try:
-                data = await reader.read(4096)
-                if not data:
-                    NewUI.PrintChatArea("Server disconnected")
-                    break
+                data = []
+                while not self.reader.at_eof():
+                    try:
+                        packet = await asyncio.wait_for(
+                            self.reader.read(4096), timeout=0.5
+                        )
+                        if not packet:
+                            NewUI.PrintChatArea("Server disconnected")
+                            break
+                        data.append(packet)
+                    except asyncio.TimeoutError:
+                        break
 
-                recv_data: LinkData = pickle.loads(data)
+                if len(data) == 0:
+                    continue
+
+                recv_data: LinkData = pickle.loads(b"".join(data))
                 parserd_data = recv_data.Parser()
                 # 根据messageEvent来分支
                 if recv_data.data_type == LinkEvent.CHATMESSAGE:
@@ -346,7 +382,23 @@ class ClientPlayerLink(PlayerLink):
 
             except (ConnectionResetError, EOFError, pickle.UnpicklingError):
                 NewUI.PrintChatArea("Server disconnected")
-                break
+
+                ok = False
+                while TimesToReconnect > 0:
+                    TimesToReconnect -= 1
+                    try:
+                        self.reader, self.writer = await asyncio.open_connection(
+                            self.host_ip, self.port
+                        )
+                        ok = True
+                        break
+                    except BaseException as e:
+                        NewUI.PrintChatArea(str(e))
+
+                if ok:
+                    continue
+                else:
+                    break
 
 
 """设置状态"""

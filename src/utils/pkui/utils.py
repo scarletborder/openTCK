@@ -13,6 +13,7 @@ class NewUI:
 
     @staticmethod
     def PrintChatArea(s, end="\n"):
+        s = str(s)
         buffer = Output_Chat_Area.buffer
         # window = output_chat_area.window
 
@@ -28,8 +29,10 @@ class NewUI:
 
     @staticmethod
     def PrintStatusArea(s):
+        s = str(s)
         Output_Status_Area.text = s
 
     @staticmethod
     def PrintTipArea(s):
+        s = str(s)
         Output_Tip_Area.text = s

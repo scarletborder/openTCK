@@ -54,6 +54,8 @@ def InputConfirm(event):
     input_text = Input_Area.text
     Input_Area.text = ""
     asyncio.create_task(SetInput(input_text))
+    if not input_text or len(input_text) == 0:
+        return
     if input_text[0] == "!":
         NewUI.PrintChatArea("YOU:" + input_text[1:])
     # elif GlobalLinker is None:

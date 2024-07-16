@@ -2,6 +2,7 @@ import asyncio
 
 Input_Content = ""
 InpLock = asyncio.Event()
+TimesToReconnect: int = 0
 
 
 async def ReadInput() -> str:
