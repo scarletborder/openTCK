@@ -42,6 +42,12 @@ class Game:
     def GetStatus(self):
         """展示场上每个玩家的属性"""
         return self.Player_Status
+    
+    def ResetAllAttr(self):
+        self.Skill_Used_Times = {}
+        self.Skill_Stash.reset()
+        self.Skill_Stash.ResetLog()
+        self.Trigger_Stash.reset()
 
     def OnRoundStart(self):
         # reset
@@ -68,7 +74,7 @@ class Game:
             )
 
         self.Player_Status = tmp_table.get_formatted_string()
-        self.Skill_Stash.reset()
+        self.ResetAllAttr()
 
     def GetLiveUIDs(self) -> list[int]:
         """获取所有活人的uid"""
@@ -174,10 +180,7 @@ class Game:
             self.Trigger_Stash.Nmisc_triggers[tri.Type] = tril
 
     def OnRoundEnd(self):
-        self.Skill_Used_Times = {}  # 将其清零
-        self.Skill_Stash.ResetLog()
         self.Skill_Stash.MakeSkillLog()
-        self.Trigger_Stash.reset()
         self.calculateRoundResult()
         for pl in self.players.values():
             pl.OnRoundEnd()
