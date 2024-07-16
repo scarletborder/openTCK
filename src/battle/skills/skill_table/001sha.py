@@ -1,5 +1,6 @@
 from src.models.battle.skill import *
 from src.constant.enum.skill import SkillType, SkillID
+from src.constant.enum.skill_modified_info import SkillModifiedInfo
 from typing import TYPE_CHECKING
 
 if TYPE_CHECKING:
@@ -55,7 +56,7 @@ class SkillSha(SingleAttackSkill):
     def GetDamage(self) -> int:
         """获取技能最终伤害"""
         damage = 1
-        for extra_damage in Skill.ParseItemModifiedInfo(self.modified_info, "extra_damage"):
+        for extra_damage in Skill.ParseItemModifiedInfo(self.modified_info, SkillModifiedInfo.EXTRA_DAMAGE):
             damage += int(extra_damage)
         return damage
 
@@ -77,10 +78,13 @@ class SkillSha(SingleAttackSkill):
         for idx in range(len(self.targets)):
             target_id = self.targets[idx]
             times = self.times[idx]
-            target_skill, target_targets = game.Skill_Stash.getTargetSkillDetail(
+            target_skill, target_targets = game.Skill_Stash.GetTargetSkillDetail(
                 target_id
             )
 
+            if not self.IsValidToTarget(target_id):
+                continue
+            
             if target_id == caster_id: # 针对反弹
                 game.players[target_id].ChangeHealth(-times * self.GetDamage())
                 continue

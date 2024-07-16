@@ -61,7 +61,11 @@ class SkillNanman(MultiAttackSkill):
 
     # 使用类
     def SingleCast(self, game: "Game", caster_id: int, target_id: int, times: int):
-        target_skill, target_targets = game.Skill_Stash.getTargetSkillDetail(target_id)
+        target_skill, target_targets = game.Skill_Stash.GetTargetSkillDetail(target_id)
+
+        if not self.IsValidToTarget(target_id):
+            return
+        
         if target_id == caster_id:  # 针对反弹
             game.players[target_id].ChangeHealth(-times * 3)
             return

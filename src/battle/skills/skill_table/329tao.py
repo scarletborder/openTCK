@@ -1,5 +1,6 @@
 from src.models.battle.skill import CommandSkill, Skill
 from src.constant.enum.skill import SkillType, SkillID
+from src.constant.enum.skill_modified_info import SkillModifiedInfo
 from typing import TYPE_CHECKING
 
 if TYPE_CHECKING:
@@ -104,6 +105,13 @@ class SkillTao(CommandSkill):
         """用于trigger修改原技能的target"""
         self.targets = new_target
 
+    def IsValidToTarget(self, target_id: int) -> bool:
+        _ = self.ParseItemModifiedInfo(self.modified_info, SkillModifiedInfo.INVALIDATED)
+        if (self.caster_id, target_id) in _:
+            return False
+        else:
+            return True
+
     # 使用类
     def Cast(self, game: "Game"):
         # print(self.targets)
@@ -111,6 +119,10 @@ class SkillTao(CommandSkill):
         for idx in range(len(self.targets)):
             target_id = self.targets[idx]
             times = self.times[idx]
+
+            if not self.IsValidToTarget(target_id):
+                continue
+
             if game.Skill_Used_Times.get(SkillID.XIADU, 0) != 0:
                 game.players[target_id].ChangeHealth(
                     game.Skill_Used_Times[SkillID.XIADU] * times * (-3)

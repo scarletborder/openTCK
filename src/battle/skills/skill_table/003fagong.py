@@ -74,9 +74,12 @@ class SkillFagong(SingleAttackSkill):
             target_id = self.targets[idx]
             times = self.times[idx]
 
-            target_skill, target_targets = game.Skill_Stash.getTargetSkillDetail(
+            target_skill, target_targets = game.Skill_Stash.GetTargetSkillDetail(
                 target_id
             )
+
+            if not self.IsValidToTarget(target_id):
+                continue
 
             if target_id == caster_id: # 针对反弹
                 game.players[target_id].ChangeHealth(-times * 1)

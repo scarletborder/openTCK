@@ -90,13 +90,13 @@ print(game.Skill_Stash.GetSkillStatus())
 
 game.OnRoundStart()
 
-_, _, sk = csk.ParserSkill(0, "jidian", game)
+_, _, sk = csk.ParserSkill(0, "nanman", game)
 if sk:
     game.AddSkill(sk)
-_, _, sk = csk.ParserSkill(1, "qin 0 3", game)
+_, _, sk = csk.ParserSkill(1, "fantan 2", game)
 if sk:
     game.AddSkill(sk)
-_, _, sk = csk.ParserSkill(2, "jidian", game)
+_, _, sk = csk.ParserSkill(2, "fantan 1", game)
 if sk:
     game.AddSkill(sk)
 

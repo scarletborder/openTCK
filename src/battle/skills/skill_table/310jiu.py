@@ -1,6 +1,7 @@
 # from src.models.battle.game import Game
 from src.models.battle.skill import CommandSkill, Skill
 from src.constant.enum.skill import SkillType, SkillID
+from src.constant.enum.skill_modified_info import SkillModifiedInfo
 from src.constant.enum.battle_trigger import TriggerType
 from src.models.battle.trigger import SpecifiedPlayerTrigger
 from src.constant.enum.battle_tag import TagEvent
@@ -22,7 +23,7 @@ class JiuTrigger(SpecifiedPlayerTrigger):
 
     def Cast(self, game: "Game", sk: Skill):
         if sk.GetSkillID == SkillID.SHA or sk.GetSkillID == SkillID.QIN:
-            sk.SetModifiedInfo("extra_damage", 1)
+            sk.SetModifiedInfo(SkillModifiedInfo.EXTRA_DAMAGE, 1)
 
 
 class SkillJiu(CommandSkill):

@@ -288,7 +288,7 @@ class SkillStash:
 
     #     return False, 0
 
-    def getTargetSkillDetail(self, target: int) -> tuple[Skill | None, list[int]]:
+    def GetTargetSkillDetail(self, target: int) -> tuple[Skill | None, list[int]]:
         """获取某个目标的单体技能实例和其选定的目标们"""
         sk = self.caster_skill[target]
         if isinstance(sk, AttackSkill):
@@ -318,6 +318,7 @@ class SkillStash:
             else:  # 是群体
                 return sk.GetAttackLevel()  # type: ignore
         return 0
+    
 
     # def UpdatePointRecord(self, caster_id, new_value):
     #     self.point_record[caster_id] = new_value

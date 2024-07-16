@@ -1,6 +1,7 @@
 from src.constant.enum.skill import SkillType, SkillID
+from src.constant.enum.skill_modified_info import SkillModifiedInfo
 from abc import ABC, abstractmethod
-from typing import TYPE_CHECKING
+from typing import TYPE_CHECKING, Any
 import types
 
 if TYPE_CHECKING:
@@ -72,8 +73,8 @@ class Skill(ABC):
 
         self.Cast = types.MethodType(new_cast_func, self)
 
-    def SetModifiedInfo(self, new_record: list):
-        """new_record是一个长度为2的一维列表，其中第一维是str，第二维是属性值"""
+    def SetModifiedInfo(self, new_record: list[int, Any]):
+        """new_record是一个长度为2的一维列表，其中第一维是SkillModifiedInfo决定的int，第二维是属性值"""
         self.modified_info.append(new_record)
 
     def UnableCast(self):
@@ -95,11 +96,12 @@ class Skill(ABC):
     
     # utils
     @staticmethod
-    def ParseItemModifiedInfo(modified_info: list[list], item: str) -> list:
+    def ParseItemModifiedInfo(modified_info: list[list], item: int) -> list:
         """
         解析Modified Info中为Item的参数，返回所有符合条件的参数列表
         """
         return [i[1] for i in modified_info if i[0] == item]
+    
 
 class AttackSkill(Skill):
     def __init__(self, caster_id: int, args: list) -> None:
@@ -114,6 +116,12 @@ class AttackSkill(Skill):
     @staticmethod
     def GetAttackLevel() -> int: ...
 
+    def IsValidToTarget(self, target_id: int) -> bool:
+        _ = self.ParseItemModifiedInfo(self.modified_info, SkillModifiedInfo.INVALIDATED)
+        if (self.caster_id, target_id) in _:
+            return False
+        else:
+            return True
 
 class DefenseSkill(Skill):
     @staticmethod

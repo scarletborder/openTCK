@@ -68,7 +68,7 @@ class SkillQin(SingleAttackSkill):
     def GetDamage(self) -> int:
         """获取技能最终伤害"""
         damage = 3
-        for extra_damage in Skill.ParseItemModifiedInfo(self.modified_info, "extra_damage"):
+        for extra_damage in Skill.ParseItemModifiedInfo(self.modified_info, SkillModifiedInfo.EXTRA_DAMAGE):
             damage += int(extra_damage)
         return damage
 
@@ -79,9 +79,13 @@ class SkillQin(SingleAttackSkill):
         for idx in range(len(self.targets)):
             target_id = self.targets[idx]
             times = self.times[idx]
-            target_skill, target_targets = game.Skill_Stash.getTargetSkillDetail(
+            target_skill, target_targets = game.Skill_Stash.GetTargetSkillDetail(
                 target_id
             )
+
+            if not self.IsValidToTarget(target_id):
+                continue
+
             if target_id == caster_id: # 针对反弹
                 game.players[target_id].ChangeHealth(-times * self.GetDamage())
                 continue
