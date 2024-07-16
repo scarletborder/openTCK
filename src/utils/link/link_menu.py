@@ -2,7 +2,7 @@ import src.storage.lobby as SLB
 from src.models.link.link_data import LobbyUpdateData
 from prettytable import PrettyTable
 from typing import TYPE_CHECKING
-from src.constant.config.conf import Cfg
+from src.constant.config.conf import Cfg, ReadComment
 from src.utils.pkui.utils import NewUI
 
 if TYPE_CHECKING:
@@ -86,9 +86,13 @@ async def LeaveGame(Linker: "PlayerLink"):
 
 
 def ListGameRule():
-    NewUI.PrintChatArea("==Game Rule==")
+    table = PrettyTable()
+    table.field_names = ["Title", "Value", "Comment"]
     for key, settings in Cfg["gamerule"].items():
-        NewUI.PrintChatArea(f"{key} -- {settings}")
+        comment = ReadComment("gamerule", key)
+        table.add_row([key, settings, comment])
+
+    NewUI.PrintChatArea(table.get_formatted_string())
 
 
 def QuerySkill(key):

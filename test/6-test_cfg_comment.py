@@ -14,3 +14,4 @@ sys.path.append(project_root)
 from src.constant.config.conf import Cfg, ReadComment
 
 print(ReadComment("player_info", "player_name"))
+print(ReadComment("gamerule", "drain_when_hurt"))

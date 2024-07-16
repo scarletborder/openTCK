@@ -20,7 +20,10 @@ def ReadComment(father: str, setting: str) -> str:
     if setting not in Cfg[father]:
         return f"No such option '{setting}'"
 
-    comments = Cfg[father][setting].trivia.comment
+    try:
+        comments = Cfg[father][setting].trivia.comment
+    except BaseException:
+        comments = "Error in load comments"
 
     if comments:
         return comments
