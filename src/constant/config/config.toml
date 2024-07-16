@@ -1,8 +1,8 @@
 [player_info]
-player_name = "Anonymous" # Username which will be displayed in lobby
+player_name = "qjr" # Username which will be displayed in lobby
 
 [address]
-host_ip = "127.0.0.1" # The IP which will be broadcasted or connected to.
+host_ip = "120.233.26.237" # The IP which will be broadcasted or connected to.
 port = 47989          # host开放的port
 
 [gamerule]
