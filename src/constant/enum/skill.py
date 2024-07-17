@@ -31,7 +31,7 @@ class SkillID(Enum):
     WANJIAN = 101
     NANMAN = 102
     LEIDIAN = 103
-    HUOWU = 105
+    HUOWU = 104
 
     # defense
     FANGYU = 201

@@ -47,7 +47,7 @@ class SkillSha(SingleAttackSkill):
 
     @staticmethod
     def GetBasicPoint() -> int:
-        return 1
+        return 3
 
     def GetPoint(self) -> int:
         """获取技能释放需要的点数"""
