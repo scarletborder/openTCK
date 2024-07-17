@@ -122,12 +122,6 @@ class AttackSkill(Skill):
         _ = self.ParseItemModifiedInfo(self.modified_info, SkillModifiedInfo.INVALIDATED)
         if (self.caster_id, target_id) in _:
             return False
-        
-        # 2. 检查目标是否有护盾
-        if game.players[target_id].tag.get(TagEvent.HUDUN, 0):
-            game.players[target_id].is_hurt = True
-            game.players[target_id].is_health_change = True
-            return False
 
         return True
 

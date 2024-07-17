@@ -1,9 +1,12 @@
 from typing import TYPE_CHECKING
+import math
 from src.constant.enum.battle_trigger import TriggerType
 from src.constant.enum.battle_tag import TagEvent
 
+
 if TYPE_CHECKING:
     from src.models.battle.game import Game, Skill
+    from src.models.battle.skill import *
 
 
 class Player:
@@ -24,6 +27,7 @@ class Player:
         self.is_hurt = False
         self.is_healed = False
         self.reset_health = False
+        self.instant_killed = False
 
         # 效果
         self.tag = {}
@@ -50,6 +54,11 @@ class Player:
 
         if not self.is_health_change:
             self.is_health_change = True
+
+        # 针对护盾的判定
+        if self.tag.get(TagEvent.HUDUN, 0) and val < 0:
+            self.is_hurt = True
+            val = 0
 
         if val < 0:
             self.is_hurt = True
@@ -80,6 +89,14 @@ class Player:
             self.is_healed = True
 
         self.reset_health = True
+
+    def InstantKill(
+            self, game: "Game|None" = None, sk_v: "Skill | None" = None
+    ):
+        self.is_hurt = True
+        self.is_health_change = True
+        if self.tag.get(TagEvent.HUDUN, 0) == 0:
+            self.instant_killed = True
         
     def ChangePoint(
         self, val: int, game: "Game|None" = None, sk_v: "Skill | None" = None
@@ -110,15 +127,20 @@ class Player:
         self.is_hurt = False
         self.is_healed = False
         self.reset_health = False
+        self.instant_killed = False
 
     def OnRoundEnd(self):
         """回合结束结算数值"""
         self.Health += self.health_change
         self.Point += self.point_change
-        if self.reset_health:
-            self.Health = 6
         if self.is_hurt:
             if self.tag.get(TagEvent.HUDUN, 0):
                 self.tag[TagEvent.HUDUN] -= 1
+
+        if self.reset_health:
+            self.Health = 6
+        
+        if self.instant_killed:
+            self.Health = -math.inf
 
     # 交互类函数
