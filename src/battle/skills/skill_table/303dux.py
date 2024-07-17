@@ -73,7 +73,7 @@ class SkillDuX(CommandSkill):
     # 使用类
     def Cast(self, game: "Game"):
         """在结算时候的释放技能"""
-        if len(game.GetHurtPlayers(game)) + game.Skill_Used_Times[SkillID.XIADU] == self.x:
+        if len(game.GetHurtPlayers(game)) + game.Skill_Used_Times.get(SkillID.XIADU,0) == self.x:
             game.players[self.caster_id].ResetHealth()
 
 
