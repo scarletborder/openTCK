@@ -179,6 +179,7 @@ class Game:
             self.Trigger_Stash.Nmisc_triggers[tri.Type] = tril
 
     def OnRoundEnd(self):
+        self.Skill_Stash.ResetLog()
         self.Skill_Stash.MakeSkillLog()
         self.calculateRoundResult()
         for pl in self.players.values():
