@@ -1,4 +1,6 @@
+import shutil
 import asyncio
+import tomlkit
 from prompt_toolkit import Application
 from prompt_toolkit.key_binding import KeyBindings
 from prompt_toolkit.layout import Layout, HSplit, VSplit, Window
@@ -159,6 +161,15 @@ async def ClearChatArea():
     NewUI.ClearChatArea()
 
 
+async def ResetConfig():
+    global Cfg
+    try:
+        shutil.copy("src/constant/config/configtemplate.toml", "config.toml")
+        NewUI.PrintChatArea("现在你可以重新打开软件进行读取配置")
+    except BaseException as e:
+        NewUI.PrintChatArea("could not copy config file" + str(e))
+
+
 Menu = MenuContainer(
     body=HSplit(
         [
@@ -212,6 +223,7 @@ Menu = MenuContainer(
         MenuItem(
             "配置",
             children=[
+                MenuItem("reset", handler=lambda: asyncio.create_task(ResetConfig())),
                 MenuItem(
                     "gamerule", handler=lambda: asyncio.create_task(DisplayGameRule())
                 ),

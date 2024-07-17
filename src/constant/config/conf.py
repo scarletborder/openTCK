@@ -1,12 +1,19 @@
+import os
+import shutil
 import tomlkit
 from tomlkit import TOMLDocument
+from src.utils.pkui.utils import NewUI
 
 # from src.utils.pkui.global_utils import NewUI
 
 Cfg = {}
+if not os.path.exists("config.toml"):
+    try:
+        shutil.copy("src/constant/config/configtemplate.toml", "config.toml")
+    except BaseException as e:
+        NewUI.PrintChatArea("could not copy config file" + str(e))
 
-
-with open("src/constant/config/config.toml", "r", encoding="utf-8") as file:
+with open("config.toml", "r", encoding="utf-8") as file:
     # 读取 TOML 文件
     Cfg = tomlkit.parse(file.read())
 
