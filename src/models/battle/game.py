@@ -42,14 +42,13 @@ class Game:
     def GetStatus(self):
         """展示场上每个玩家的属性"""
         return self.Player_Status
-    
+
     def ResetAllAttr(self):
         """
         Resets all attributes related to skills and triggers in the game.
         """
         self.Skill_Used_Times = {}
         self.Skill_Stash.reset()
-        self.Skill_Stash.ResetLog()
         self.Trigger_Stash.reset()
 
     def OnRoundStart(self):
@@ -249,7 +248,7 @@ class Game:
                     return False
 
         return True
-    
+
     def GetHurtPlayers(self, game: "Game") -> list[int]:
         return [k for k, v in self.players.items() if v.is_hurt]
 
@@ -277,6 +276,7 @@ class SkillStash:
     def Process(self, game: Game): ...
 
     def MakeSkillLog(self):
+        self.ResetLog()
         self.sk_log = "\n".join([str(_) for _ in self.caster_skill.values()])
 
     def GetSkillStatus(self) -> str:
@@ -324,7 +324,6 @@ class SkillStash:
             else:  # 是群体
                 return sk.GetAttackLevel()  # type: ignore
         return 0
-    
 
     # def UpdatePointRecord(self, caster_id, new_value):
     #     self.point_record[caster_id] = new_value
