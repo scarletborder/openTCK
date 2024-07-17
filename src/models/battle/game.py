@@ -44,6 +44,9 @@ class Game:
         return self.Player_Status
     
     def ResetAllAttr(self):
+        """
+        Resets all attributes related to skills and triggers in the game.
+        """
         self.Skill_Used_Times = {}
         self.Skill_Stash.reset()
         self.Skill_Stash.ResetLog()
@@ -246,6 +249,9 @@ class Game:
                     return False
 
         return True
+    
+    def GetHurtPlayers(self, game: "Game") -> list[int]:
+        return [k for k, v in self.players.items() if v.is_hurt]
 
 
 class SkillStash:

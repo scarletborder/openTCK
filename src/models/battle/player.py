@@ -20,6 +20,9 @@ class Player:
         self.point_change = 0
         self.is_health_change = False
         self.is_point_change = False
+        self.is_hurt = False
+        self.is_healed = False
+        self.reset_health = False
 
         # 效果
         self.tag = {}
@@ -47,6 +50,11 @@ class Player:
         if not self.is_health_change:
             self.is_health_change = True
 
+        if val < 0:
+            self.is_hurt = True
+        elif val > 0:
+            self.is_healed = True
+
         tmp_change = [val]
         if game and sk_v:
             tril = game.Trigger_Stash.misc_triggers.get(
@@ -64,6 +72,14 @@ class Player:
             for tri in tril:
                 tri.Cast(game, sk_v, self.id, tmp_change)
 
+    def ResetHealth(
+            self, game: "Game|None" = None, sk_v: "Skill | None" = None
+    ):
+        if not self.is_healed:
+            self.is_healed = True
+
+        self.reset_health = True
+        
     def ChangePoint(
         self, val: int, game: "Game|None" = None, sk_v: "Skill | None" = None
     ):
@@ -95,5 +111,7 @@ class Player:
         """回合结束结算数值"""
         self.Health += self.health_change
         self.Point += self.point_change
+        if self.reset_health:
+            self.Health = 6
 
     # 交互类函数

@@ -82,7 +82,8 @@ class SkillXixue(SingleAttackSkill):
                 continue
 
             if target_id == caster_id: # 针对反弹
-                game.players[caster_id].is_health_change = True
+                game.players[caster_id].ChangeHealth(-1 * times)
+                game.players[caster_id].ChangeHealth(1 * times)
                 continue
             
             elif isinstance(target_skill, AttackSkill):
