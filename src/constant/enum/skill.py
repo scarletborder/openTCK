@@ -47,5 +47,6 @@ class SkillID(Enum):
     JIU = 310
     ZISHA = 324
     TAO = 329
+    SHANDIAN = 333
     HUDUN = 343
     FANTAN = 346
