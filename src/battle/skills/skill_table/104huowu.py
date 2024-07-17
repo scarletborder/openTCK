@@ -53,7 +53,7 @@ class SkillHuowu(MultiAttackSkill):
 
     @staticmethod
     def GetSkillID() -> SkillID:
-        return SkillID.LEIDIAN
+        return SkillID.HUOWU
 
     @staticmethod
     def GetAttackLevel() -> int:
