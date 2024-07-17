@@ -22,6 +22,7 @@ from src.models.battle.trigger import (
     SpecifiedTargetTrigger,
 )
 from src.constant.config.conf import Cfg
+from src.constant.enum.battle_tag import TagEvent
 
 
 class Game:
@@ -62,6 +63,7 @@ class Game:
             pl.OnRoundStart()
 
         if is_somebody_hurt and Cfg["gamerule"]["drain_when_hurt"]:
+            self.TagEventChange()
             for pl in self.players.values():
                 pl.Point = 0
 
@@ -189,6 +191,37 @@ class Game:
         for pl in self.players.values():
             pl.OnRoundEnd()
 
+    def CheckTagEvent(self):
+        for player_id in self.GetLiveUIDs():
+            if self.players[player_id].tag.get(TagEvent.SHANDIAN, 0):
+                if self.Skill_Used_Times.get(SkillID.XIADU, 0) >= 3:
+                    self.players[player_id].InstantKill()
+                    self.players[player_id].tag[TagEvent.SHANDIAN] = 0
+    
+    def TagEventChange(self):
+        live_uids = self.GetLiveUIDs()
+        num_players = len(live_uids)
+        
+        if num_players == 0:
+            return
+
+        # 创建一个列表来记录拥有 SHANDIAN 标签的玩家索引
+        shandian_indices = []
+        
+        for i in range(num_players):
+            if self.players[live_uids[i]].tag.get(TagEvent.SHANDIAN):
+                shandian_indices.append(i)
+        
+        # 遍历所有拥有 SHANDIAN 标签的玩家并将其传递给下一个玩家
+        for i in shandian_indices:
+            current_player = self.players[live_uids[i]]
+            current_player.tag[TagEvent.SHANDIAN] = 0
+            next_player = self.players[live_uids[(i + 1) % num_players]]
+            next_player.tag[TagEvent.SHANDIAN] = 1
+
+            
+
+
     def calculateRoundResult(self):
         # 排序指令性技能
         cmd_skills: list[CommandSkill] = []
@@ -206,6 +239,9 @@ class Game:
                 except BaseException as e:
                     # 执行技能出错
                     self.Skill_Stash.sk_error += f"\nerror in {caster_id}/{self.players[caster_id].Name} use {sk_v.GetName()}: {e}"
+
+        # TagEvent
+        self.CheckTagEvent()
 
         # 2. 看防御技能
         for caster_id, sk_v in self.Skill_Stash.caster_skill.items():
