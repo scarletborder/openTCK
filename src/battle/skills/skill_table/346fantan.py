@@ -34,7 +34,7 @@ class FantanTrigger(SpecifiedTargetTrigger):
 
     def Cast(self, game: "Game", sk: Skill):
         original_skill = self.Original_Skill
-        if sk.GetSkillID() == SkillID.TAO or isinstance(sk, AttackSkill):
+        if sk.GetSkillID() == SkillID.TAO or (isinstance(sk, AttackSkill) and sk.GetSkillID() != SkillID.JUESHA):
             sk.SetTarget(
                 [
                     int(self.target_id) if i == original_skill.caster_id else i
@@ -65,7 +65,7 @@ class CircFantanTrigger(SpecifiedTargetTrigger):
     def Cast(self, game: "Game", sk: Skill):
         # 注意测试绝杀等技能时，需要修改Fantan相关的Trigger
         original_skill = self.Original_Skill
-        if sk.GetSkillID() == SkillID.TAO or isinstance(sk, AttackSkill):
+        if sk.GetSkillID() == SkillID.TAO or (isinstance(sk, AttackSkill) and sk.GetSkillID() != SkillID.JUESHA):
             sk.SetModifiedInfo([SkillModifiedInfo.INVALIDATED, (sk.caster_id, self.sp_tid)])
 
 

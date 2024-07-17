@@ -1,5 +1,6 @@
 from src.constant.enum.skill import SkillType, SkillID
 from src.constant.enum.skill_modified_info import SkillModifiedInfo
+from src.constant.enum.battle_tag import TagEvent
 from abc import ABC, abstractmethod
 from typing import TYPE_CHECKING, Any
 import types
@@ -116,12 +117,19 @@ class AttackSkill(Skill):
     @staticmethod
     def GetAttackLevel() -> int: ...
 
-    def IsValidToTarget(self, target_id: int) -> bool:
+    def IsValidToTarget(self, target_id: int, game: "Game"|None = None) -> bool:
+        # 1. 检查是否被无效化
         _ = self.ParseItemModifiedInfo(self.modified_info, SkillModifiedInfo.INVALIDATED)
         if (self.caster_id, target_id) in _:
             return False
-        else:
-            return True
+        
+        # 2. 检查目标是否有护盾
+        if game.players[target_id].tag.get(TagEvent.HUDUN, 0):
+            game.players[target_id].is_hurt = True
+            game.players[target_id].is_health_change = True
+            return False
+
+        return True
 
 class DefenseSkill(Skill):
     @staticmethod

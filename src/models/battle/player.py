@@ -1,5 +1,6 @@
 from typing import TYPE_CHECKING
 from src.constant.enum.battle_trigger import TriggerType
+from src.constant.enum.battle_tag import TagEvent
 
 if TYPE_CHECKING:
     from src.models.battle.game import Game, Skill
@@ -106,6 +107,9 @@ class Player:
         self.point_change = 0
         self.is_health_change = False
         self.is_point_change = False
+        self.is_hurt = False
+        self.is_healed = False
+        self.reset_health = False
 
     def OnRoundEnd(self):
         """回合结束结算数值"""
@@ -113,5 +117,8 @@ class Player:
         self.Point += self.point_change
         if self.reset_health:
             self.Health = 6
+        if self.is_hurt:
+            if self.tag.get(TagEvent.HUDUN, 0):
+                self.tag[TagEvent.HUDUN] -= 1
 
     # 交互类函数
