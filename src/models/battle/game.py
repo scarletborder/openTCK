@@ -42,11 +42,10 @@ class Game:
     def GetStatus(self):
         """展示场上每个玩家的属性"""
         return self.Player_Status
-    
+
     def ResetAllAttr(self):
         self.Skill_Used_Times = {}
         self.Skill_Stash.reset()
-        self.Skill_Stash.ResetLog()
         self.Trigger_Stash.reset()
 
     def OnRoundStart(self):
@@ -318,7 +317,6 @@ class SkillStash:
             else:  # 是群体
                 return sk.GetAttackLevel()  # type: ignore
         return 0
-    
 
     # def UpdatePointRecord(self, caster_id, new_value):
     #     self.point_record[caster_id] = new_value

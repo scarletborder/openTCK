@@ -170,15 +170,17 @@ class HostPlayerLink(PlayerLink):
                         SBA.Current_Game.OnRoundEnd()
 
                         SBA.Current_Game.OnRoundStart()
+                        NewUI.PrintChatArea(
+                            SBA.Current_Game.Skill_Stash.GetSkillStatus()
+                        )
+
                         await self.broadCast(
                             BattleResultData(
                                 SLB.My_Player_Info.GetId(), SBA.Current_Game
                             )
                         )
+                        SBA.Current_Game.Skill_Stash.ResetLog()
 
-                        NewUI.PrintChatArea(
-                            SBA.Current_Game.Skill_Stash.GetSkillStatus()
-                        )
                         NewUI.PrintStatusArea(SBA.Current_Game.GetStatus())
 
                         # 判断游戏是否结束
@@ -252,6 +254,7 @@ class HostPlayerLink(PlayerLink):
             )
 
             NewUI.PrintChatArea(SBA.Current_Game.Skill_Stash.GetSkillStatus())
+            SBA.Current_Game.Skill_Stash.ResetLog()
             NewUI.PrintStatusArea(SBA.Current_Game.GetStatus())
 
             # 判断游戏是否结束
