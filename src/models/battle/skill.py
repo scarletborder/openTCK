@@ -73,7 +73,7 @@ class Skill(ABC):
 
         self.Cast = types.MethodType(new_cast_func, self)
 
-    def SetModifiedInfo(self, new_record: list[int, Any]):
+    def SetModifiedInfo(self, new_record: list[SkillModifiedInfo, Any]):
         """new_record是一个长度为2的一维列表，其中第一维是SkillModifiedInfo决定的int，第二维是属性值"""
         self.modified_info.append(new_record)
 
@@ -96,7 +96,7 @@ class Skill(ABC):
     
     # utils
     @staticmethod
-    def ParseItemModifiedInfo(modified_info: list[list], item: int) -> list:
+    def ParseItemModifiedInfo(modified_info: list[list], item: SkillModifiedInfo) -> list:
         """
         解析Modified Info中为Item的参数，返回所有符合条件的参数列表
         """
