@@ -1,9 +1,5 @@
 # openTCK
 
-[TOC]
-
-
-
 ## 这是什么
 
 TCK是风靡于合肥一中的拍手游戏，开发者将其电子化方便联机
@@ -24,7 +20,7 @@ TCK是风靡于合肥一中的拍手游戏，开发者将其电子化方便联�
 
 ### 配置文件
 
-在`.\src\constant\config\config.toml`是唯一的配置文件，你可以在其中设置用户名和将要开放或者连接的主机和端口号。
+软件第一次启动后，会在根目录下常见配置文件`.\config.toml`，你可以在其中设置用户名和将要开放或者连接的主机和端口号等设置。
 
 ```toml
 [player_info]
@@ -37,6 +33,7 @@ player_name = "Anonymous"
 host_ip = "127.0.0.1"
 port = 47989
 
+# More Settings are below
 ```
 
 ## 如何去玩

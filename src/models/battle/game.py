@@ -23,6 +23,7 @@ from src.models.battle.trigger import (
 )
 from src.constant.config.conf import Cfg
 from src.constant.enum.battle_tag import TagEvent
+from src.battle.events.utils import CheckPlayerTagEvent, AlterTagEvent
 
 
 class Game:
@@ -193,34 +194,10 @@ class Game:
 
     def CheckTagEvent(self):
         for player_id in self.GetLiveUIDs():
-            if self.players[player_id].tag.get(TagEvent.SHANDIAN, 0):
-                if self.Skill_Used_Times.get(SkillID.XIADU, 0) >= 3:
-                    self.players[player_id].InstantKill()
-                    self.players[player_id].tag[TagEvent.SHANDIAN] = 0
-    
+            CheckPlayerTagEvent(self, player_id)
+
     def TagEventChange(self):
-        live_uids = self.GetLiveUIDs()
-        num_players = len(live_uids)
-        
-        if num_players == 0:
-            return
-
-        # 创建一个列表来记录拥有 SHANDIAN 标签的玩家索引
-        shandian_indices = []
-        
-        for i in range(num_players):
-            if self.players[live_uids[i]].tag.get(TagEvent.SHANDIAN):
-                shandian_indices.append(i)
-        
-        # 遍历所有拥有 SHANDIAN 标签的玩家并将其传递给下一个玩家
-        for i in shandian_indices:
-            current_player = self.players[live_uids[i]]
-            current_player.tag[TagEvent.SHANDIAN] = 0
-            next_player = self.players[live_uids[(i + 1) % num_players]]
-            next_player.tag[TagEvent.SHANDIAN] = 1
-
-            
-
+        AlterTagEvent(self)
 
     def calculateRoundResult(self):
         # 排序指令性技能
@@ -289,7 +266,7 @@ class Game:
 
     def GetHurtPlayers(self) -> list[int]:
         return [k for k, v in self.players.items() if v.is_hurt]
-    
+
     def GetPlayerTag(self, player_id):
         return self.players[player_id].tag.keys(), self.players[player_id].tag.values()
 
