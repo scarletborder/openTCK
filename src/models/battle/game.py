@@ -287,8 +287,11 @@ class Game:
 
         return True
 
-    def GetHurtPlayers(self, game: "Game") -> list[int]:
+    def GetHurtPlayers(self) -> list[int]:
         return [k for k, v in self.players.items() if v.is_hurt]
+    
+    def GetPlayerTag(self, player_id):
+        return self.players[player_id].tag.keys(), self.players[player_id].tag.values()
 
 
 class SkillStash:
