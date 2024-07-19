@@ -23,7 +23,7 @@ from src.models.battle.trigger import (
 )
 from src.constant.config.conf import Cfg
 from src.constant.enum.battle_tag import TagEvent
-from src.battle.events.utils import CheckPlayerTagEvent, AlterTagEvent
+from src.battle.events.utils import CheckPlayerTagEvent, InitializeTagEvent
 
 
 class Game:
@@ -64,7 +64,7 @@ class Game:
             pl.OnRoundStart()
 
         if is_somebody_hurt and Cfg["gamerule"]["drain_when_hurt"]:
-            self.TagEventChange()
+            InitializeTagEvent(self)
             for pl in self.players.values():
                 pl.Point = 0
 
@@ -192,12 +192,9 @@ class Game:
         for pl in self.players.values():
             pl.OnRoundEnd()
 
-    def CheckTagEvent(self):
+    def CheckTagEvent(self, timing: int):
         for player_id in self.GetLiveUIDs():
             CheckPlayerTagEvent(self, player_id)
-
-    def TagEventChange(self):
-        AlterTagEvent(self)
 
     def calculateRoundResult(self):
         # 排序指令性技能
@@ -216,10 +213,9 @@ class Game:
                 except BaseException as e:
                     # 执行技能出错
                     self.Skill_Stash.sk_error += f"\nerror in {caster_id}/{self.players[caster_id].Name} use {sk_v.GetName()}: {e}"
-
-        # TagEvent
-        self.CheckTagEvent()
-
+        
+        self.CheckTagEvent(1)
+        
         # 2. 看防御技能
         for caster_id, sk_v in self.Skill_Stash.caster_skill.items():
             if isinstance(sk_v, DefenseSkill):
@@ -245,6 +241,8 @@ class Game:
                 except BaseException as e:
                     # 执行技能出错
                     self.Skill_Stash.sk_error += f"\nerror in {caster_id}/{self.players[caster_id].Name} use {sk_v.GetName()}: {e}"
+
+        self.CheckTagEvent(4)
 
         # Final. 使用技能耗费点数
         for caster_id, sk_v in self.Skill_Stash.caster_skill.items():

@@ -2,6 +2,7 @@ from typing import TYPE_CHECKING
 import math
 from src.constant.enum.battle_trigger import TriggerType
 from src.constant.enum.battle_tag import TagEvent
+from src.battle.events.utils import *
 
 
 if TYPE_CHECKING:
@@ -55,13 +56,11 @@ class Player:
         if not self.is_health_change:
             self.is_health_change = True
 
-        # 针对护盾的判定
-        if self.tag.get(TagEvent.HUDUN, 0) and val < 0:
-            self.is_hurt = True
-            val = 0
-
         if val < 0:
             self.is_hurt = True
+            # 针对护盾的判定
+            if PlayerCanBeHurt(game, self.id):
+                val = 0
         elif val > 0:
             self.is_healed = True
 
@@ -95,7 +94,7 @@ class Player:
     ):
         self.is_hurt = True
         self.is_health_change = True
-        if self.tag.get(TagEvent.HUDUN, 0) == 0:
+        if PlayerCanBeHurt(game, self.id):
             self.instant_killed = True
         
     def ChangePoint(
@@ -133,9 +132,6 @@ class Player:
         """回合结束结算数值"""
         self.Health += self.health_change
         self.Point += self.point_change
-        if self.is_hurt:
-            if self.tag.get(TagEvent.HUDUN, 0):
-                self.tag[TagEvent.HUDUN] -= 1
 
         if self.reset_health:
             self.Health = 6

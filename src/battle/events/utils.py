@@ -4,15 +4,22 @@ from src.constant.enum.battle_tag import TagEvent
 from typing import TYPE_CHECKING
 
 if TYPE_CHECKING:
-    from src.models.battle.game import Game
+    from src.models.battle.game import Game, Skill
 
 
-def CheckPlayerTagEvent(game: "Game", uid: int):
+def CheckPlayerTagEvent(game: "Game", uid: int, timing: int):
     """为某名玩家判定和触发TagEvent效果"""
-    if game.players[uid].tag.get(TagEvent.SHANDIAN, 0):
-        if game.Skill_Used_Times.get(SkillID.XIADU, 0) >= 3:
-            game.players[uid].InstantKill()
-            game.players[uid].tag[TagEvent.SHANDIAN] = 0
+
+    if timing == 1:
+        if game.players[uid].tag.get(TagEvent.SHANDIAN, 0):
+            if game.Skill_Used_Times.get(SkillID.XIADU, 0) >= 3:
+                game.players[uid].InstantKill()
+                game.players[uid].tag[TagEvent.SHANDIAN] = 0
+
+    if timing == 4:
+        if game.players[uid].is_hurt:
+            if game.players[uid].tag.get(TagEvent.HUDUN, 0):
+                game.players[uid].tag[TagEvent.HUDUN] -= 1
 
 
 def AlterTagEvent(game: "Game"):
@@ -36,3 +43,15 @@ def AlterTagEvent(game: "Game"):
         current_player.tag[TagEvent.SHANDIAN] = 0
         next_player = game.players[live_uids[(i + 1) % num_players]]
         next_player.tag[TagEvent.SHANDIAN] = 1
+
+def InitializeTagEvent(game: "Game"):
+    """初始化TagEvent"""
+
+    AlterTagEvent(game)
+
+def PlayerCanBeHurt(game: "Game", player_id: int):
+    if game.players[player_id].tag.get(TagEvent.HUDUN, 0):
+        return False
+    else:
+        return True
+    
