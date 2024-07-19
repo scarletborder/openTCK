@@ -27,9 +27,9 @@ class SkillDuX(CommandSkill):
         caster, args: list[str], game: "Game|None" = None
     ) -> tuple[bool, Skill | None, str]:
         if len(args) != 1:
-            return False, None, "X档参数需为1"
+            return False, None, "赌X参数需为1"
         if int(args[0]) <= 0:
-            return False, None, "X档参数需大于0" # 先不考虑负数档，可以之后再补充
+            return False, None, "赌X参数需大于0" # 先不考虑负数档，可以之后再补充
         else:
             return True, SkillDuX(caster, args, game), ""
 
