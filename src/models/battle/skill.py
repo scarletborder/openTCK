@@ -1,5 +1,6 @@
 from src.constant.enum.skill import SkillType, SkillID
 from src.constant.enum.skill_modified_info import SkillModifiedInfo
+from src.constant.enum.battle_tag import TagEvent
 from abc import ABC, abstractmethod
 from typing import TYPE_CHECKING, Any
 import types
@@ -13,11 +14,13 @@ class Skill(ABC):
 
     def __init__(self, caster_id: int, args: list) -> None:
         self.caster_id = caster_id
-        self.modified_info = [] # 二维list，第一维为str，第二维为属性值
+        self.modified_info = []  # 二维list，第一维为str，第二维为属性值
 
     @staticmethod
     @abstractmethod
-    def NewSkill(caster: int, args: list[str], game: "Game|None" = None) -> tuple[bool, "Skill | None", str]:
+    def NewSkill(
+        caster: int, args: list[str], game: "Game|None" = None
+    ) -> tuple[bool, "Skill | None", str]:
         """字符串参数是否正确，并导出一个实例化"""
         ...
 
@@ -93,22 +96,24 @@ class Skill(ABC):
 
     def __str__(self) -> str:
         return f"{self.caster_id} -> {self.GetTitle()}"
-    
+
     # utils
     @staticmethod
-    def ParseItemModifiedInfo(modified_info: list[list], item: SkillModifiedInfo) -> list:
+    def ParseItemModifiedInfo(
+        modified_info: list[list], item: SkillModifiedInfo
+    ) -> list:
         """
         解析Modified Info中为Item的参数，返回所有符合条件的参数列表
         """
         return [i[1] for i in modified_info if i[0] == item]
-    
+
 
 class AttackSkill(Skill):
     def __init__(self, caster_id: int, args: list) -> None:
         super().__init__(caster_id, args)
         self.targets = []
         self.times = []
-    
+
     def SetTarget(self, new_target: list[int]):
         """用于trigger修改原技能的target"""
         self.targets = new_target
@@ -116,12 +121,16 @@ class AttackSkill(Skill):
     @staticmethod
     def GetAttackLevel() -> int: ...
 
-    def IsValidToTarget(self, target_id: int) -> bool:
-        _ = self.ParseItemModifiedInfo(self.modified_info, SkillModifiedInfo.INVALIDATED)
+    def IsValidToTarget(self, target_id: int, game: "Game|None" = None) -> bool:
+        # 1. 检查是否被无效化
+        _ = self.ParseItemModifiedInfo(
+            self.modified_info, SkillModifiedInfo.INVALIDATED
+        )
         if (self.caster_id, target_id) in _:
             return False
-        else:
-            return True
+
+        return True
+
 
 class DefenseSkill(Skill):
     @staticmethod
@@ -181,8 +190,6 @@ class MultiAttackSkill(AttackSkill):
     def SingleCast(self, game: "Game", caster_id: int, target_id: int, times: int):
         """群体攻击对单体造成的结算"""
         ...
-
-    
 
 
 class SingleAttackSkill(AttackSkill):

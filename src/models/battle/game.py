@@ -22,6 +22,8 @@ from src.models.battle.trigger import (
     SpecifiedTargetTrigger,
 )
 from src.constant.config.conf import Cfg
+from src.constant.enum.battle_tag import TagEvent
+from src.battle.events.utils import CheckPlayerTagEvent, InitializeTagEvent
 
 
 class Game:
@@ -32,6 +34,7 @@ class Game:
         self.Player_Status = ""
         self.Skill_Used_Times = {}  # 用于每个Round中记录技能使用次数
         self.context = {}
+        self.turns = 0
 
     def AddPlayer(self, player: Player):
         self.players[player.id] = player
@@ -44,11 +47,15 @@ class Game:
         return self.Player_Status
 
     def ResetAllAttr(self):
+        """
+        Resets all attributes related to skills and triggers in the game.
+        """
         self.Skill_Used_Times = {}
         self.Skill_Stash.reset()
         self.Trigger_Stash.reset()
 
     def OnRoundStart(self):
+        self.turns += 1
         # reset
         is_somebody_hurt = False
         for pl in self.players.values():
@@ -57,6 +64,7 @@ class Game:
             pl.OnRoundStart()
 
         if is_somebody_hurt and Cfg["gamerule"]["drain_when_hurt"]:
+            InitializeTagEvent(self)
             for pl in self.players.values():
                 pl.Point = 0
 
@@ -185,6 +193,10 @@ class Game:
         for pl in self.players.values():
             pl.OnRoundEnd()
 
+    def CheckTagEvent(self, timing: int):
+        for player_id in self.GetLiveUIDs():
+            CheckPlayerTagEvent(self, player_id)
+
     def calculateRoundResult(self):
         # 排序指令性技能
         cmd_skills: list[CommandSkill] = []
@@ -202,7 +214,9 @@ class Game:
                 except BaseException as e:
                     # 执行技能出错
                     self.Skill_Stash.sk_error += f"\nerror in {caster_id}/{self.players[caster_id].Name} use {sk_v.GetName()}: {e}"
-
+        
+        self.CheckTagEvent(1)
+        
         # 2. 看防御技能
         for caster_id, sk_v in self.Skill_Stash.caster_skill.items():
             if isinstance(sk_v, DefenseSkill):
@@ -229,6 +243,8 @@ class Game:
                     # 执行技能出错
                     self.Skill_Stash.sk_error += f"\nerror in {caster_id}/{self.players[caster_id].Name} use {sk_v.GetName()}: {e}"
 
+        self.CheckTagEvent(4)
+
         # Final. 使用技能耗费点数
         for caster_id, sk_v in self.Skill_Stash.caster_skill.items():
             self.players[caster_id].ChangePoint(-sk_v.GetPoint())
@@ -246,6 +262,12 @@ class Game:
                     return False
 
         return True
+
+    def GetHurtPlayers(self) -> list[int]:
+        return [k for k, v in self.players.items() if v.is_hurt]
+
+    def GetPlayerTag(self, player_id):
+        return self.players[player_id].tag.keys(), self.players[player_id].tag.values()
 
 
 class SkillStash:
@@ -271,6 +293,7 @@ class SkillStash:
     def Process(self, game: Game): ...
 
     def MakeSkillLog(self):
+        self.ResetLog()
         self.sk_log = "\n".join([str(_) for _ in self.caster_skill.values()])
 
     def GetSkillStatus(self) -> str:

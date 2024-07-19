@@ -1,8 +1,13 @@
 from typing import TYPE_CHECKING
+import math
 from src.constant.enum.battle_trigger import TriggerType
+from src.constant.enum.battle_tag import TagEvent
+from src.battle.events.utils import *
+
 
 if TYPE_CHECKING:
     from src.models.battle.game import Game, Skill
+    from src.models.battle.skill import *
 
 
 class Player:
@@ -20,6 +25,10 @@ class Player:
         self.point_change = 0
         self.is_health_change = False
         self.is_point_change = False
+        self.is_hurt = False
+        self.is_healed = False
+        self.reset_health = False
+        self.instant_killed = False
 
         # 效果
         self.tag = {}
@@ -47,6 +56,14 @@ class Player:
         if not self.is_health_change:
             self.is_health_change = True
 
+        if val < 0:
+            self.is_hurt = True
+            # 针对护盾的判定
+            if PlayerCanBeHurt(game, self.id):
+                val = 0
+        elif val > 0:
+            self.is_healed = True
+
         tmp_change = [val]
         if game and sk_v:
             tril = game.Trigger_Stash.misc_triggers.get(
@@ -64,6 +81,22 @@ class Player:
             for tri in tril:
                 tri.Cast(game, sk_v, self.id, tmp_change)
 
+    def ResetHealth(
+            self, game: "Game|None" = None, sk_v: "Skill | None" = None
+    ):
+        if not self.is_healed:
+            self.is_healed = True
+
+        self.reset_health = True
+
+    def InstantKill(
+            self, game: "Game|None" = None, sk_v: "Skill | None" = None
+    ):
+        self.is_hurt = True
+        self.is_health_change = True
+        if PlayerCanBeHurt(game, self.id):
+            self.instant_killed = True
+        
     def ChangePoint(
         self, val: int, game: "Game|None" = None, sk_v: "Skill | None" = None
     ):
@@ -90,10 +123,20 @@ class Player:
         self.point_change = 0
         self.is_health_change = False
         self.is_point_change = False
+        self.is_hurt = False
+        self.is_healed = False
+        self.reset_health = False
+        self.instant_killed = False
 
     def OnRoundEnd(self):
         """回合结束结算数值"""
         self.Health += self.health_change
         self.Point += self.point_change
+
+        if self.reset_health:
+            self.Health = 6
+        
+        if self.instant_killed:
+            self.Health = -math.inf
 
     # 交互类函数

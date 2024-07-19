@@ -25,10 +25,13 @@ class SkillID(Enum):
     QIN = 2
     FAGONG = 3
     XIXUE = 4
+    JUESHA = 6
 
     # multi
     WANJIAN = 101
     NANMAN = 102
+    LEIDIAN = 103
+    HUOWU = 104
 
     # defense
     FANGYU = 201
@@ -37,8 +40,14 @@ class SkillID(Enum):
     # command
     SLEEP = 300
     JIDIAN = 301
+    XDANG = 302
+    DUX = 303
     BAOLI = 304
+    CHU = 305
     XIADU = 307
     JIU = 310
+    ZISHA = 324
     TAO = 329
+    SHANDIAN = 333
+    HUDUN = 343
     FANTAN = 346

@@ -10,15 +10,15 @@ if TYPE_CHECKING:
     from src.models.battle.game import Game, TriggerType
 
 
-class BaoliTrigger(SpecifiedSkillTrigger):
+class ChuTrigger(SpecifiedSkillTrigger):
     @staticmethod
-    def NewTrigger(game: "Game", sk: Skill) -> SpecifiedSkillTrigger:
-        tri = BaoliTrigger(game, TriggerType.B_SPECIFIEDSKILL, sk, SkillID.FANTAN)
+    def NewTrigger(game: "Game", sk: Skill, sp_skid: SkillID) -> SpecifiedSkillTrigger:
+        tri = ChuTrigger(game, TriggerType.B_SPECIFIEDSKILL, sk, sp_skid)
         return tri
 
     def Cast(self, game: "Game", sk: Skill):
 
-        # 直接修改Fantan的Cast函数为空，这是有风险的写法
+        # 直接修改相应技能的Cast函数为空，这是有风险的写法
 
         def Cast(self, game: "Game", sk: Skill):
             return
@@ -26,7 +26,7 @@ class BaoliTrigger(SpecifiedSkillTrigger):
         sk.SetCast(Cast)
 
 
-class SkillBaoli(CommandSkill):
+class SkillChu(CommandSkill):
 
     def __init__(self, caster_id: int, args: list) -> None:
         super().__init__(caster_id, args)
@@ -36,23 +36,23 @@ class SkillBaoli(CommandSkill):
         caster, args: list[str], game: "Game|None" = None
     ) -> tuple[bool, Skill | None, str]:
         if len(args) == 0:
-            return True, SkillBaoli(caster, []), ""
+            return True, SkillChu(caster, []), ""
         else:
-            return False, None, "暴力不需要别的参数"
+            return False, None, "除不需要参数"
 
     @staticmethod
     def GetTitle() -> str:
         """获取技能名称"""
-        return "暴力"
+        return "除"
 
     @staticmethod
     def GetName() -> str:
-        return "baoli"
+        return "chu"
 
     @staticmethod
     def GetDescription() -> str:
         """获取技能描述"""
-        return """使全场反弹无效"""
+        return """使全场X档、赌X、X倍无效"""
 
     @staticmethod
     def GetBasicPoint() -> int:
@@ -68,7 +68,7 @@ class SkillBaoli(CommandSkill):
 
     @staticmethod
     def GetSkillID() -> SkillID:
-        return SkillID.BAOLI
+        return SkillID.CHU
 
     @staticmethod
     def GetCmdOccasion() -> int:
@@ -76,11 +76,11 @@ class SkillBaoli(CommandSkill):
 
     # 使用类
     def Cast(self, game: "Game"):
-        tri = BaoliTrigger.NewTrigger(game, self)
-        game.AddTrigger(tri)
-
+        for sp_skid in [SkillID.XDANG, SkillID.DUX]:
+            tri = ChuTrigger.NewTrigger(game, self, sp_skid)
+            game.AddTrigger(tri)
 
 from src.battle.skills import Skill_Table, Skill_Name_To_ID  # noqa: E402
 
-Skill_Table[SkillBaoli.GetSkillID().value] = SkillBaoli
-Skill_Name_To_ID[SkillBaoli.GetName()] = SkillBaoli.GetSkillID().value
+Skill_Table[SkillChu.GetSkillID().value] = SkillChu
+Skill_Name_To_ID[SkillChu.GetName()] = SkillChu.GetSkillID().value

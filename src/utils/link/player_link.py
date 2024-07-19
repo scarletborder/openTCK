@@ -105,7 +105,7 @@ class HostPlayerLink(PlayerLink):
         )
         NewUI.PrintStatusArea(SBA.Current_Game.GetStatus())
         self.could_send_action.set()
-        NewUI.PrintChatArea("你可以发送技能了")
+        NewUI.PrintChatArea(f"第{SBA.Current_Game.turns}回合开始")
         NewUI.PrintTipArea("请输出技能")
 
     async def handle_client(self, reader, writer):
@@ -201,7 +201,9 @@ class HostPlayerLink(PlayerLink):
                                 >= 0
                             ):
                                 self.could_send_action.set()
-                                NewUI.PrintChatArea("你可以发送技能了")
+                                NewUI.PrintChatArea(
+                                    f"第{SBA.Current_Game.turns}回合开始"
+                                )
                                 NewUI.PrintTipArea("请输出技能")
                             else:
                                 NewUI.PrintTipArea("你4了，但是可以继续观战聊天")
@@ -270,7 +272,7 @@ class HostPlayerLink(PlayerLink):
             else:
                 if SBA.Current_Game.players[SLB.My_Player_Info.GetId()].Health >= 0:
                     self.could_send_action.set()
-                    NewUI.PrintChatArea("你可以发送技能了")
+                    NewUI.PrintChatArea(f"第{SBA.Current_Game.turns}回合开始")
                     NewUI.PrintTipArea("请输出技能")
                 else:
                     NewUI.PrintChatArea("你4了，但是可以继续观战聊天")
@@ -366,7 +368,7 @@ class ClientPlayerLink(PlayerLink):
                         ):
                             self.could_send_action.set()
                             # NewUI.PrintTipArea("准")
-                            NewUI.PrintChatArea("你可以发送技能了")
+                            NewUI.PrintChatArea(f"第{SBA.Current_Game.turns}回合开始")
                             NewUI.PrintTipArea("请输入技能")
                         else:
                             NewUI.PrintTipArea("你4了，但是可以继续观战聊天")
@@ -390,7 +392,7 @@ class ClientPlayerLink(PlayerLink):
                     NewUI.PrintStatusArea(SBA.Current_Game.GetStatus())
                     self.could_send_action.set()
                     NewUI.PrintTipArea("请输出技能")
-                    NewUI.PrintChatArea("你可以使用技能了")
+                    NewUI.PrintChatArea(f"第{SBA.Current_Game.turns}回合开始")
 
             except (ConnectionResetError, EOFError, pickle.UnpicklingError):
                 NewUI.PrintChatArea("Server disconnected")
