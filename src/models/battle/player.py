@@ -8,6 +8,7 @@ from src.battle.events.utils import *
 if TYPE_CHECKING:
     from src.models.battle.game import Game, Skill
     from src.models.battle.skill import *
+    from src.constant.enum.battle_tag import TagEvent
 
 
 class Player:
@@ -31,7 +32,7 @@ class Player:
         self.instant_killed = False
 
         # 效果
-        self.tag = {}
+        self.tag: "dict[TagEvent,int]" = {}
 
     # 显示类函数
     def __repr__(self) -> str:
@@ -59,7 +60,7 @@ class Player:
         if val < 0:
             self.is_hurt = True
             # 针对护盾的判定
-            if PlayerCanBeHurt(game, self.id):
+            if game and PlayerCanBeHurt(game, self.id):
                 val = 0
         elif val > 0:
             self.is_healed = True
@@ -81,22 +82,18 @@ class Player:
             for tri in tril:
                 tri.Cast(game, sk_v, self.id, tmp_change)
 
-    def ResetHealth(
-            self, game: "Game|None" = None, sk_v: "Skill | None" = None
-    ):
+    def ResetHealth(self, game: "Game|None" = None, sk_v: "Skill | None" = None):
         if not self.is_healed:
             self.is_healed = True
 
         self.reset_health = True
 
-    def InstantKill(
-            self, game: "Game|None" = None, sk_v: "Skill | None" = None
-    ):
+    def InstantKill(self, game: "Game|None" = None, sk_v: "Skill | None" = None):
         self.is_hurt = True
         self.is_health_change = True
         if PlayerCanBeHurt(game, self.id):
             self.instant_killed = True
-        
+
     def ChangePoint(
         self, val: int, game: "Game|None" = None, sk_v: "Skill | None" = None
     ):
@@ -135,7 +132,7 @@ class Player:
 
         if self.reset_health:
             self.Health = 6
-        
+
         if self.instant_killed:
             self.Health = -math.inf
 

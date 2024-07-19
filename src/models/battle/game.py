@@ -24,6 +24,7 @@ from src.models.battle.trigger import (
 from src.constant.config.conf import Cfg
 from src.constant.enum.battle_tag import TagEvent
 from src.battle.events.utils import CheckPlayerTagEvent, InitializeTagEvent
+from src.battle.events.display import GetPlayerTags
 
 
 class Game:
@@ -69,7 +70,7 @@ class Game:
                 pl.Point = 0
 
         tmp_table = PrettyTable()
-        tmp_table.field_names = ["id", "name", "Health", "Point"]
+        tmp_table.field_names = ["id", "name", "Health", "Point", "Tags"]
         for t_id, t_player in self.players.items():
             tmp_table.add_row(
                 [
@@ -77,6 +78,7 @@ class Game:
                     f"{t_player.Name}",
                     f"{t_player.Health if t_player.Health >= 0 else 'dead'}",
                     f"{t_player.Point}",
+                    GetPlayerTags(t_player),
                 ]
             )
 
@@ -214,9 +216,9 @@ class Game:
                 except BaseException as e:
                     # 执行技能出错
                     self.Skill_Stash.sk_error += f"\nerror in {caster_id}/{self.players[caster_id].Name} use {sk_v.GetName()}: {e}"
-        
+
         self.CheckTagEvent(1)
-        
+
         # 2. 看防御技能
         for caster_id, sk_v in self.Skill_Stash.caster_skill.items():
             if isinstance(sk_v, DefenseSkill):

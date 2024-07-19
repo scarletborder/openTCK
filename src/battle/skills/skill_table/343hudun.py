@@ -8,6 +8,7 @@ from typing import TYPE_CHECKING
 if TYPE_CHECKING:
     from src.models.battle.game import Game, TriggerType
 
+
 class SkillHudun(CommandSkill):
 
     def __init__(self, caster_id: int, args: list) -> None:
@@ -59,7 +60,10 @@ class SkillHudun(CommandSkill):
 
     # 使用类
     def Cast(self, game: "Game"):
-        game.players[self.caster_id].tag[TagEvent.HUDUN] = game.players[self.caster_id].tag.get(TagEvent.HUDUN, 0) + 1 * self.times[0]
+        game.players[self.caster_id].tag[TagEvent.HUDUN] = (
+            game.players[self.caster_id].tag.get(TagEvent.HUDUN, 0) + 1 * self.times[0]
+        )
+
 
 from src.battle.skills import Skill_Table, Skill_Name_To_ID  # noqa: E402
 
