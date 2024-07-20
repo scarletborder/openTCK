@@ -84,10 +84,11 @@ class SkillJiu(CommandSkill):
         game.players[self.caster_id].tag[TagEvent.FUHUA] = 0
         if game.Skill_Used_Times.get(SkillID.XIADU, 0) != 0:
             game.players[self.caster_id].ChangeHealth(
-                game.Skill_Used_Times[SkillID.XIADU] * (-3)
+                game.Skill_Used_Times[SkillID.XIADU] * (-3),
+                game
             )
         elif game.players[self.caster_id].Health == 0:
-            game.players[self.caster_id].ChangeHealth(1)
+            game.players[self.caster_id].ChangeHealth(1, game)
 
         tri = JiuTrigger.NewTrigger(game, self, self.caster_id)
         game.AddNextTrigger(tri)

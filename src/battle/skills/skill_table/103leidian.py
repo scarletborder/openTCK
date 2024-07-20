@@ -67,7 +67,7 @@ class SkillLeidian(MultiAttackSkill):
             return
         
         if target_id == caster_id:  # 针对反弹
-            game.players[target_id].ChangeHealth(-times * 4)
+            game.players[target_id].ChangeHealth(-times * 4, game)
             return
 
         elif isinstance(target_skill, AttackSkill):
@@ -82,7 +82,8 @@ class SkillLeidian(MultiAttackSkill):
                 return  # 无效化
         elif isinstance(target_skill, CommandSkill):
             pass
-        game.players[target_id].ChangeHealth(-times * 4)
+        game.players[target_id].ChangeHealth(-times * 4, game
+                                             )
 
     def Cast(self, game: "Game"):
         """在结算时候的释放技能"""

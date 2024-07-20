@@ -13,7 +13,7 @@ def CheckPlayerTagEvent(game: "Game", uid: int, timing: int):
     if timing == 1:
         if game.players[uid].tag.get(TagEvent.SHANDIAN, 0):
             if game.Skill_Used_Times.get(SkillID.XIADU, 0) >= 3:
-                game.players[uid].InstantKill()
+                game.players[uid].InstantKill(game)
                 game.players[uid].tag[TagEvent.SHANDIAN] = 0
 
     if timing == 4:

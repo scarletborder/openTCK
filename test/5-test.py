@@ -90,13 +90,13 @@ print(game.Skill_Stash.GetSkillStatus())
 
 game.OnRoundStart()
 
-_, _, sk = csk.ParserSkill(0, "nanman", game)
+_, _, sk = csk.ParserSkill(0, "jidian", game)
 if sk:
     game.AddSkill(sk)
-_, _, sk = csk.ParserSkill(1, "xdang 3", game)
+_, _, sk = csk.ParserSkill(1, "jidian", game)
 if sk:
     game.AddSkill(sk)
-_, _, sk = csk.ParserSkill(2, "dux 2", game)
+_, _, sk = csk.ParserSkill(2, "jidian", game)
 if sk:
     game.AddSkill(sk)
 
@@ -109,6 +109,21 @@ _, _, sk = csk.ParserSkill(0, "jidian", game)
 if sk:
     game.AddSkill(sk)
 _, _, sk = csk.ParserSkill(1, "jidian", game)
+if sk:
+    game.AddSkill(sk)
+_, _, sk = csk.ParserSkill(2, "jidian", game)
+if sk:
+    game.AddSkill(sk)
+
+game.OnRoundEnd()
+print(game.GetStatus())
+print(game.Skill_Stash.GetSkillStatus())
+
+game.OnRoundStart()
+_, _, sk = csk.ParserSkill(0, "hudun", game)
+if sk:
+    game.AddSkill(sk)
+_, _, sk = csk.ParserSkill(1, "sha 0 1", game)
 if sk:
     game.AddSkill(sk)
 _, _, sk = csk.ParserSkill(2, "jidian", game)

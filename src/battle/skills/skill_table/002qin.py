@@ -87,7 +87,7 @@ class SkillQin(SingleAttackSkill):
                 continue
 
             if target_id == caster_id: # 针对反弹
-                game.players[target_id].ChangeHealth(-times * self.GetDamage())
+                game.players[target_id].ChangeHealth(-times * self.GetDamage(), game)
                 continue
             
             elif isinstance(target_skill, AttackSkill):
@@ -97,9 +97,10 @@ class SkillQin(SingleAttackSkill):
                         if target_skill.GetSkillID() == SkillID.SHA:  # p Qin遇q Sha,揿方-pq,杀方+pq
                             used_times = target_skill.GetTargetTimes(self.caster_id)
                             game.players[self.caster_id].ChangeHealth(
-                                -times * used_times * 1
+                                -times * used_times * 1,
+                                game
                             )
-                            game.players[target_id].ChangeHealth(+times * used_times * 1)  # type: ignore
+                            game.players[target_id].ChangeHealth(+times * used_times * 1, game)  # type: ignore
                             continue
                         elif target_skill.GetAttackLevel() >= 1:  # 遇到高级攻击无效（法攻和吸血包含在高级攻击中，不需要单独列出）
                             continue
@@ -120,7 +121,7 @@ class SkillQin(SingleAttackSkill):
             elif isinstance(target_skill, CommandSkill):
                 pass
 
-            game.players[target_id].ChangeHealth(-times * self.GetDamage())
+            game.players[target_id].ChangeHealth(-times * self.GetDamage(), game)
 
 
 from src.battle.skills import Skill_Table, Skill_Name_To_ID  # noqa: E402

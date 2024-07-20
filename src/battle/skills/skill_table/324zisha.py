@@ -72,7 +72,7 @@ class SkillZisha(CommandSkill):
 
     # 使用类
     def Cast(self, game: "Game"):
-        game.players[self.caster_id].ChangeHealth(-self.times[0] * 1)
+        game.players[self.caster_id].ChangeHealth(-self.times[0] * 1, game)
         tri = ZishaTrigger.NewTrigger(game, self)
         game.AddTrigger(tri)
 

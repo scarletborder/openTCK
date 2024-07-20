@@ -82,8 +82,8 @@ class SkillXixue(SingleAttackSkill):
                 continue
 
             if target_id == caster_id: # 针对反弹
-                game.players[caster_id].ChangeHealth(-1 * times)
-                game.players[caster_id].ChangeHealth(1 * times)
+                game.players[caster_id].ChangeHealth(-1 * times, game)
+                game.players[caster_id].ChangeHealth(1 * times, game)
                 continue
             
             elif isinstance(target_skill, AttackSkill):
@@ -110,8 +110,8 @@ class SkillXixue(SingleAttackSkill):
             elif isinstance(target_skill, CommandSkill):
                 pass
 
-            game.players[caster_id].ChangeHealth(times * 1)
-            game.players[target_id].ChangeHealth(-times * 1)
+            game.players[caster_id].ChangeHealth(times * 1, game)
+            game.players[target_id].ChangeHealth(-times * 1, game)
 
 
 from src.battle.skills import Skill_Table, Skill_Name_To_ID  # noqa: E402

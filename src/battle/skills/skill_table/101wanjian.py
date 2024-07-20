@@ -67,7 +67,7 @@ class SkillWanjian(MultiAttackSkill):
             return
         
         if target_id == caster_id:  # 针对反弹
-            game.players[target_id].ChangeHealth(-times * 2)
+            game.players[target_id].ChangeHealth(-times * 2, game)
             return
 
         elif isinstance(target_skill, AttackSkill):
@@ -82,7 +82,7 @@ class SkillWanjian(MultiAttackSkill):
                 return  # 无效化
         elif isinstance(target_skill, CommandSkill):
             pass
-        game.players[target_id].ChangeHealth(-times * 2)
+        game.players[target_id].ChangeHealth(-times * 2, game)
 
     def Cast(self, game: "Game"):
         """在结算时候的释放技能"""

@@ -86,7 +86,7 @@ class SkillSha(SingleAttackSkill):
                 continue
             
             if target_id == caster_id: # 针对反弹
-                game.players[target_id].ChangeHealth(-times * self.GetDamage())
+                game.players[target_id].ChangeHealth(-times * self.GetDamage(), game)
                 continue
             
             elif isinstance(target_skill, AttackSkill):
@@ -118,7 +118,7 @@ class SkillSha(SingleAttackSkill):
             elif isinstance(target_skill, CommandSkill):
                 pass
 
-            game.players[target_id].ChangeHealth(-times * self.GetDamage())
+            game.players[target_id].ChangeHealth(-times * self.GetDamage(), game)
 
 
 from src.battle.skills import Skill_Table, Skill_Name_To_ID  # noqa: E402

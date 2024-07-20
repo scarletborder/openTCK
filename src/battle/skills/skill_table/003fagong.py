@@ -82,7 +82,7 @@ class SkillFagong(SingleAttackSkill):
                 continue
 
             if target_id == caster_id: # 针对反弹
-                game.players[target_id].ChangeHealth(-times * 1)
+                game.players[target_id].ChangeHealth(-times * 1, game)
                 continue
             
             elif isinstance(target_skill, AttackSkill):
@@ -108,7 +108,7 @@ class SkillFagong(SingleAttackSkill):
                     continue  # 无效化
             elif isinstance(target_skill, CommandSkill):
                 pass
-            game.players[target_id].ChangeHealth(-times * 1)
+            game.players[target_id].ChangeHealth(-times * 1, game)
 
 
 from src.battle.skills import Skill_Table, Skill_Name_To_ID  # noqa: E402

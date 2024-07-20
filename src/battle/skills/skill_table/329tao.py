@@ -125,10 +125,11 @@ class SkillTao(CommandSkill):
 
             if game.Skill_Used_Times.get(SkillID.XIADU, 0) != 0:
                 game.players[target_id].ChangeHealth(
-                    game.Skill_Used_Times[SkillID.XIADU] * times * (-3)
+                    game.Skill_Used_Times[SkillID.XIADU] * times * (-3),
+                    game
                 )
             else:
-                game.players[target_id].ChangeHealth(times * 1)
+                game.players[target_id].ChangeHealth(times * 1, game)
 
 
 from src.battle.skills import Skill_Table, Skill_Name_To_ID  # noqa: E402
