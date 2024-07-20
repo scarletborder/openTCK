@@ -91,7 +91,7 @@ class Player:
     def InstantKill(self, game: "Game|None" = None, sk_v: "Skill | None" = None):
         self.is_hurt = True
         self.is_health_change = True
-        if PlayerCanBeHurt(game, self.id):
+        if game and PlayerCanBeHurt(game, self.id):
             self.instant_killed = True
 
     def ChangePoint(
