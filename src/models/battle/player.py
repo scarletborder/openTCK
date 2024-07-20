@@ -60,7 +60,7 @@ class Player:
         if val < 0:
             self.is_hurt = True
             # 针对护盾的判定
-            if game and PlayerCanBeHurt(game, self.id):
+            if game and not PlayerCanBeHurt(game, self.id):
                 val = 0
         elif val > 0:
             self.is_healed = True
