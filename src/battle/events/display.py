@@ -11,5 +11,7 @@ if TYPE_CHECKING:
 def GetPlayerTags(player: "Player") -> str:
     ret = []
     for tag_eve, number in player.tag.items():
+        if number == 0:
+            continue
         ret.append(f"{tag_eve.name} {number}")
     return "|".join(ret)
