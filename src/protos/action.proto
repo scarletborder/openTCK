@@ -1,0 +1,26 @@
+syntax = "proto3";
+
+package action;
+
+// Client Player submit
+message LobbyPlayerRequest{
+    string name = 1;// 玩家用户名
+}
+
+// Information which assigned to client player
+message LobbyPlayerAssign{
+    int32 uid = 1;
+}
+
+// Send Message
+message MsgSend{
+    int32 uid = 1;
+    string content = 2;
+}
+
+
+// Client Send Action
+message ActionSend{
+    int32 uid = 1;
+    string args = 2;
+}

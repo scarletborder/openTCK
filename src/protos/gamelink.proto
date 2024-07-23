@@ -1,0 +1,30 @@
+syntax = "proto3";
+
+import public "common.proto";
+import public "action.proto";
+
+package gamelink;
+
+message ServerReply{
+    oneof response{
+        common.GeneralReply LinkStatus = 1;
+        common.LobbyPlayerAssign PlayerAssign = 2;
+        action.MsgSend RecvMsg= 3;
+        common.LobbyStatus RecvLobby = 4;
+        common.GameStatus RecvGame = 5;
+    }
+
+
+}
+
+// 连接类
+service Linker{
+    rpc Join_Game(action.LobbyPlayerRequest) returns (ServerReply) {}
+}
+
+// 通讯类
+service Communication{
+    rpc Send_Message(action.MsgSend) returns (common.GeneralReply){}
+
+    rpc Send_Action(action.ActionSend) returns (common.GeneralReply){}
+}
