@@ -7,11 +7,11 @@ package gamelink;
 
 message ServerReply{
     oneof response{
-        common.GeneralReply LinkStatus = 1;
-        common.LobbyPlayerAssign PlayerAssign = 2;
-        action.MsgSend RecvMsg= 3;
-        common.LobbyStatus RecvLobby = 4;
-        common.GameStatus RecvGame = 5;
+        common.GeneralReply linkStatus = 1;
+        action.LobbyPlayerAssign playerAssign = 2;
+        action.MsgSend recvMsg= 3;
+        common.LobbyStatus recvLobby = 4;
+        common.GameStatus recvGame = 5;
     }
 
 

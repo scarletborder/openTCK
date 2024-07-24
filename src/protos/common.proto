@@ -6,6 +6,7 @@ package common;
 message LobbyPlayer{
     int32 uid = 1;
     string name = 2;    
+    bool is_leave = 3;
 }
 
 // Player list of `Lobby`

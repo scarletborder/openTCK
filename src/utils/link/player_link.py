@@ -364,7 +364,6 @@ class ClientPlayerLink(PlayerLink):
                             >= 0
                         ):
                             self.could_send_action.set()
-                            # NewUI.PrintTipArea("准")
                             NewUI.PrintChatArea(f"第{SBA.Current_Game.turns}回合开始")
                             NewUI.PrintTipArea("请输入技能")
                         else:

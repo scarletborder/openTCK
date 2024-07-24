@@ -1,4 +1,5 @@
 from prettytable import PrettyTable
+import src.utils.link.stub.common_pb2 as copb2
 
 
 class PlayerInfo:
@@ -22,22 +23,38 @@ class Lobby:
         self.player_infos: list[PlayerInfo] = []
         self.lack = []
 
+    @staticmethod
+    def NewFromPb2(pb2: copb2.LobbyStatus) -> "Lobby":
+        ret = Lobby()
+        players: list[tuple[int, str, bool]] = []
+        for player in pb2.players:
+            players.append((player.uid, player.name, player.is_leave))
+        players = sorted(players, key=lambda x: x[0])
+
+        for player in players:
+            ret.player_infos.append(PlayerInfo(player[0], player[1]))
+            if player[2]:
+                ret.lack.append(player[0])
+        return ret
+
     def GetNumber(self):
-        """获取在线人数个数(包括死人)"""
+        """获取大厅在线人数(不包括离开人数)"""
         return len(self.player_infos) - len(self.lack)
 
     def AddPlayer(self, name: str = "Anonymous") -> PlayerInfo:
-        # 如果lack还有坑，填补上
-        if len(self.lack) > 0:
-            new_uid = self.lack[0]
-            self.lack = self.lack[1:]
-            new_player = PlayerInfo(new_uid, name)
-            self.player_infos[new_uid] = new_player
-        else:
-            new_uid = len(self.player_infos)
-            new_player = PlayerInfo(new_uid, name)
-            self.player_infos.append(new_player)
+        # 现在不再填lack的坑,只有当name相同时才填
+        for uid in self.lack:
+            if self.player_infos[uid].name == name:
+                # 占坑
+                ret = PlayerInfo(uid, name)
+                self.player_infos[uid] = ret
+                self.lack.remove(uid)
+                return ret
 
+        # 如果全部不匹配,说明新玩家
+        new_uid = len(self.player_infos)
+        new_player = PlayerInfo(new_uid, name)
+        self.player_infos.append(new_player)
         return new_player
 
     def IsUidLeave(self, uid: int) -> bool:

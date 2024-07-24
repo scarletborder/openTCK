@@ -34,7 +34,9 @@ class Game:
         self.Player_Status = ""
         self.Skill_Used_Times = {}  # 用于每个Round中记录技能使用次数
         self.context = {}
+
         self.turns = 0
+        self.is_game_end = False
 
     def AddPlayer(self, player: Player):
         self.players[player.id] = player
@@ -213,9 +215,9 @@ class Game:
                 except BaseException as e:
                     # 执行技能出错
                     self.Skill_Stash.sk_error += f"\nerror in {caster_id}/{self.players[caster_id].Name} use {sk_v.GetName()}: {e}"
-        
+
         self.CheckTagEvent(1)
-        
+
         # 2. 看防御技能
         for caster_id, sk_v in self.Skill_Stash.caster_skill.items():
             if isinstance(sk_v, DefenseSkill):
