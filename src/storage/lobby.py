@@ -4,6 +4,7 @@ from src.utils.pkui.utils import NewUI
 
 My_Player_Info: PlayerInfo = PlayerInfo(0, "Anonymous")
 Current_Lobby: Lobby
+Is_Host: bool = False
 
 
 def DisplayLobby():

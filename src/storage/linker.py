@@ -1,35 +1,35 @@
-from asyncio import Task
+# from asyncio import Task
 
-from typing import TYPE_CHECKING
+# from typing import TYPE_CHECKING
 
-if TYPE_CHECKING:
-    from src.utils.link.player_link import PlayerLink
+# if TYPE_CHECKING:
+#     from src.utils.link.player_link import PlayerLink
 
-import threading
-
-
-class Once:
-    def __init__(self):
-        self._lock = threading.Lock()
-        self._has_run = False
-
-    def do(self, func):
-        if not self._has_run:
-            with self._lock:
-                if not self._has_run:
-                    func()
-                    self._has_run = True
+# import threading
 
 
-LinkTask: Task | None
-GlobalLinker: "PlayerLink | None"
+# class Once:
+#     def __init__(self):
+#         self._lock = threading.Lock()
+#         self._has_run = False
+
+#     def do(self, func):
+#         if not self._has_run:
+#             with self._lock:
+#                 if not self._has_run:
+#                     func()
+#                     self._has_run = True
 
 
-def init():
-    global LinkTask, GlobalLinker
-    GlobalLinker = None
-    LinkTask = None
+# LinkTask: Task | None
+# GlobalLinker: "PlayerLink | None"
 
 
-once = Once()
-once.do(init)
+# def init():
+#     global LinkTask, GlobalLinker
+#     GlobalLinker = None
+#     LinkTask = None
+
+
+# once = Once()
+# once.do(init)

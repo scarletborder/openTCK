@@ -4,6 +4,7 @@ import src.utils.link.stub.gamelink_pb2_grpc as plpb2grpc
 from src.models.battle.game import Game
 from src.models.battle.skill import Skill
 from src.models.task_pool import TaskPool
+from src.utils.link.rpc.rpc_linker import RpcLinker
 
 from src.constant.config.conf import Cfg
 import src.utils.logging.utils as Logging
@@ -81,24 +82,25 @@ async def ProcessResponse(resp: plpb2.ServerReply) -> None:
         Logging.Errorln(f"Unexpected response {resp}")  # error
 
 
-async def SendAction(skargs: str, sk: Skill):
-    # 先发
-    async with grpc.aio.insecure_channel(addr) as channel:
-        stub = plpb2grpc.CommunicationStub(channel)
-        resp: "plpb2.GeneralReply" = await stub.Send_Action(
-            plpb2.ActionSend(uid=SLB.My_Player_Info.id, args=skargs)
-        )
-        if resp.status:
-            Display.PrintSentSkill(sk)
-        else:
-            Logging.Errorln(f"Fail in send skill: {resp.msg}")
+class RpcClient(RpcLinker):
+    async def SendAction(skargs: str, sk: Skill):
+        # 先发
+        async with grpc.aio.insecure_channel(addr) as channel:
+            stub = plpb2grpc.CommunicationStub(channel)
+            resp: "plpb2.GeneralReply" = await stub.Send_Action(
+                plpb2.ActionSend(uid=SLB.My_Player_Info.id, args=skargs)
+            )
+            if resp.status:
+                Display.PrintSentSkill(sk)
+            else:
+                Logging.Errorln(f"Fail in send skill: {resp.msg}")
+            Signal.could_send_action.set()  # 重新允许输入技能
 
-
-async def SendMessage(msg: str):
-    async with grpc.aio.insecure_channel(addr) as channel:
-        stub = plpb2grpc.CommunicationStub(channel)
-        resp: "plpb2.GeneralReply" = await stub.Send_Message(
-            plpb2.MsgSend(uid=SLB.My_Player_Info.id, content=msg)
-        )
-        if not resp.status:
-            Logging.Errorln(f"Fail in send message: {resp.msg}")
+    async def SendMessage(msg: str):
+        async with grpc.aio.insecure_channel(addr) as channel:
+            stub = plpb2grpc.CommunicationStub(channel)
+            resp: "plpb2.GeneralReply" = await stub.Send_Message(
+                plpb2.MsgSend(uid=SLB.My_Player_Info.id, content=msg)
+            )
+            if not resp.status:
+                Logging.Errorln(f"Fail in send message: {resp.msg}")
