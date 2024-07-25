@@ -15,7 +15,7 @@ sys.path.append(project_root)
 sys.path.append(stub_root)
 
 # 测试,import stub
-
+import src.utils.pkui.main as _
 import src.utils.link.stub.gamelink_pb2 as gpb2
 
 aa = gpb2.LobbyPlayer(uid=10, name="he")

@@ -3,7 +3,8 @@ import src.utils.link.stub.common_pb2 as copb2
 
 
 class PlayerInfo:
-    def __init__(self, id: int, name: str) -> None:
+
+    def __init__(self, id: int, name: str = "Anonymous") -> None:
         self.id = id
         self.name = name
         pass

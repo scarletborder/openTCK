@@ -1,4 +1,3 @@
-from src.utils.link.rpc.rpc_linker import RpcLinker
 import src.utils.link.link_menu as LM
 from src.battle.choose_skill import ParserSkill
 from src.utils.pkui.utils import NewUI
@@ -8,11 +7,14 @@ import src.storage.battle as SBA
 import src.storage.lobby as SLB
 import src.storage.signal as Signal
 from src.storage.buffer import ReadInput
-
+from typing import TYPE_CHECKING
 import asyncio
 
+if TYPE_CHECKING:
+    from src.utils.link.rpc.rpc_linker import RpcLinker
 
-async def SendThingsForever(Linker: RpcLinker):
+
+async def SendThingsForever(Linker: "RpcLinker"):
     while True:
         await Signal.could_type.wait()
         content = await ReadInput()  # vanilla input

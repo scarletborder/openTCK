@@ -32,9 +32,9 @@ def PrintNewRoundByGame():
     if SBA.Current_Game.turns == 1:
         # new game
         Logging.Infoln("#" * 5 + "New game begins" + "#" * 5)
-    NewUI.PrintChatArea("=" * 5 + f"Round {SBA.Current_Game.turns}" + "=" * 5)
     NewUI.PrintChatArea(SBA.Current_Game.Skill_Stash.GetSkillStatus())
     NewUI.PrintStatusArea(SBA.Current_Game.GetStatus())
+    NewUI.PrintChatArea("=" * 5 + f"Round {SBA.Current_Game.turns}" + "=" * 5)
 
 
 def PrintReadyTips(is_dead: bool):

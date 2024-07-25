@@ -10,6 +10,7 @@ from src.constant.config.conf import Cfg
 import src.utils.logging.utils as Logging
 from src.utils.link.display import PrintMsgByID, PrintLobbyByPb2
 import src.utils.link.display as Display
+from src.utils.link.player_loop import SendThingsForever
 
 import src.storage.battle as SBA
 import src.storage.lobby as SLB
@@ -20,22 +21,19 @@ import pickle
 import asyncio
 
 # GTask_Pool = TaskPool()
-addr = ""
 
 
-async def run() -> None:
+async def run(addr: str) -> None:
     """JoinLobby的gRPC版本
 
     包含向服务端发送一个登录的请求,并获得一个可以返回很多信息的流
 
     这个流式返回参数将被解析为不同的类型
     """
-    global addr
-    host_ip = Cfg["address"]["host_ip"]
-    port = Cfg["address"]["port"]
+
     my_name = Cfg["player_info"]["player_name"]
     SLB.My_Player_Info.name = my_name
-    addr = f"{host_ip}:{port}"
+
     SLB.Is_Host = False
 
     async with grpc.aio.insecure_channel(addr) as channel:
@@ -43,8 +41,8 @@ async def run() -> None:
         # asyncio.create_task(send_loop(stub))
 
         # Read from an async generator
-        async for response in stub.Join_Game(plpb2.LobbyPlayerRequest(my_name)):
-            ProcessResponse(response)
+        async for response in stub.Join_Game(plpb2.LobbyPlayerRequest(name=my_name)):
+            await ProcessResponse(response)
 
 
 async def ProcessResponse(resp: plpb2.ServerReply) -> None:
@@ -84,9 +82,13 @@ async def ProcessResponse(resp: plpb2.ServerReply) -> None:
 
 
 class RpcClient(RpcLinker):
+    def __init__(self) -> None:
+        super().__init__()
+        self.addr = ""
+
     async def SendAction(self, skargs: str, sk: Skill):
         # 先发
-        async with grpc.aio.insecure_channel(addr) as channel:
+        async with grpc.aio.insecure_channel(self.addr) as channel:
             stub = plpb2grpc.CommunicationStub(channel)
             resp: "plpb2.GeneralReply" = await stub.Send_Action(
                 plpb2.ActionSend(uid=SLB.My_Player_Info.id, args=skargs)
@@ -98,10 +100,17 @@ class RpcClient(RpcLinker):
             Signal.could_send_action.set()  # 重新允许输入技能
 
     async def SendMessage(self, msg: str):
-        async with grpc.aio.insecure_channel(addr) as channel:
+        async with grpc.aio.insecure_channel(self.addr) as channel:
             stub = plpb2grpc.CommunicationStub(channel)
             resp: "plpb2.GeneralReply" = await stub.Send_Message(
                 plpb2.MsgSend(uid=SLB.My_Player_Info.id, content=msg)
             )
             if not resp.status:
                 Logging.Errorln(f"Fail in send message: {resp.msg}")
+
+    async def JoinLobby(self):
+        self.addr = str(Cfg["address"]["host_ip"]) + ":" + str(Cfg["address"]["port"])
+        SLB.My_Player_Info = SLB.PlayerInfo(0)
+        Signal.could_type.set()
+        Signal.could_send_action.clear()
+        await asyncio.gather(run(self.addr), SendThingsForever(self))

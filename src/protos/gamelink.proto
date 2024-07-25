@@ -19,7 +19,7 @@ message ServerReply{
 
 // 连接类
 service Linker{
-    rpc Join_Game(action.LobbyPlayerRequest) returns (ServerReply) {}
+    rpc Join_Game(action.LobbyPlayerRequest) returns (stream ServerReply) {}
 }
 
 // 通讯类

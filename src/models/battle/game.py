@@ -197,7 +197,7 @@ class Game:
 
     def CheckTagEvent(self, timing: int):
         for player_id in self.GetLiveUIDs():
-            CheckPlayerTagEvent(self, player_id)
+            CheckPlayerTagEvent(self, player_id, timing)
 
     def calculateRoundResult(self):
         # 排序指令性技能

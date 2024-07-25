@@ -56,7 +56,7 @@ def InputConfirm(event):
     asyncio.create_task(SetInput(input_text))
     if not input_text or len(input_text) == 0:
         return
-    if input_text[0] == "!":
-        NewUI.PrintChatArea("YOU:" + input_text[1:])
+    # if input_text[0] == "!":
+    #     NewUI.PrintChatArea("YOU:" + input_text[1:])
     # elif GlobalLinker is None:
     #     NewUI.PrintChatArea("游戏外用不了控制台命令")
