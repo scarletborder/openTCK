@@ -12,7 +12,9 @@ class SkillQin(SingleAttackSkill):
         super().__init__(caster_id, args)
 
     @staticmethod
-    def NewSkill(caster, args: list[str], game: "Game|None" = None) -> tuple[bool, Skill | None, str]:
+    def NewSkill(
+        caster, args: list[str], game: "Game|None" = None
+    ) -> tuple[bool, Skill | None, str]:
         if len(args) == 0:
             return False, None, "请至少选择一名玩家进行攻击"
         if len(args) % 2 != 0:
@@ -64,11 +66,13 @@ class SkillQin(SingleAttackSkill):
     @staticmethod
     def GetAttackLevel() -> int:
         return 1
-    
+
     def GetDamage(self) -> int:
         """获取技能最终伤害"""
         damage = 3
-        for extra_damage in Skill.ParseItemModifiedInfo(self.modified_info, SkillModifiedInfo.EXTRA_DAMAGE):
+        for extra_damage in Skill.ParseItemModifiedInfo(
+            self.modified_info, SkillModifiedInfo.EXTRA_DAMAGE
+        ):
             damage += int(extra_damage)
         return damage
 
@@ -86,23 +90,28 @@ class SkillQin(SingleAttackSkill):
             if not self.IsValidToTarget(target_id):
                 continue
 
-            if target_id == caster_id: # 针对反弹
-                game.players[target_id].ChangeHealth(-times * self.GetDamage(), game)
+            if target_id == caster_id:  # 针对反弹
+                game.players[target_id].ChangeHealth(
+                    -times * self.GetDamage(), game, self
+                )
                 continue
-            
+
             elif isinstance(target_skill, AttackSkill):
                 if isinstance(target_skill, SingleAttackSkill):
                     # 是单体攻击
                     if caster_id in target_targets:
-                        if target_skill.GetSkillID() == SkillID.SHA:  # p Qin遇q Sha,揿方-pq,杀方+pq
+                        if (
+                            target_skill.GetSkillID() == SkillID.SHA
+                        ):  # p Qin遇q Sha,揿方-pq,杀方+pq
                             used_times = target_skill.GetTargetTimes(self.caster_id)
                             game.players[self.caster_id].ChangeHealth(
-                                -times * used_times * 1,
-                                game
+                                -times * used_times * 1, game, self
                             )
-                            game.players[target_id].ChangeHealth(+times * used_times * 1, game)  # type: ignore
+                            game.players[target_id].ChangeHealth(+times * used_times * 1, game, self)  # type: ignore
                             continue
-                        elif target_skill.GetAttackLevel() >= 1:  # 遇到高级攻击无效（法攻和吸血包含在高级攻击中，不需要单独列出）
+                        elif (
+                            target_skill.GetAttackLevel() >= 1
+                        ):  # 遇到高级攻击无效（法攻和吸血包含在高级攻击中，不需要单独列出）
                             continue
 
                 else:  # 是群体攻击
@@ -121,7 +130,9 @@ class SkillQin(SingleAttackSkill):
             elif isinstance(target_skill, CommandSkill):
                 pass
 
-            game.players[target_id].ChangeHealth(-times * self.GetDamage(), game)
+            game.players[target_id].ChangeHealth(
+                -times * self.GetDamage(), game, self, game, self
+            )
 
 
 from src.battle.skills import Skill_Table, Skill_Name_To_ID  # noqa: E402

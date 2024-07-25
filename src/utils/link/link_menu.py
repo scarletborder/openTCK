@@ -6,10 +6,10 @@ from src.constant.config.conf import Cfg, ReadComment
 from src.utils.pkui.utils import NewUI
 
 if TYPE_CHECKING:
-    from src.utils.link.player_link import PlayerLink, HostPlayerLink
+    from src.utils.link.rpc.rpc_linker import RpcLinker
 
 
-async def RunMenuCommand(s: str, Linker: "PlayerLink") -> bool:
+async def RunMenuCommand(s: str, Linker: "RpcLinker") -> bool:
     if s == "help":
         NewUI.PrintChatArea(
             """Menu Command
@@ -25,14 +25,14 @@ async def RunMenuCommand(s: str, Linker: "PlayerLink") -> bool:
         return True
 
     elif s == "list":
-        NewUI.PrintChatArea(SLB.Current_Lobby.GetLobbyTable().get_formatted_string())
+        SLB.DisplayLobby()
         return True
 
     elif s == "start":
         if Linker.is_host is False:
             NewUI.PrintChatArea("host only command")
             return True
-        NewUI.PrintChatArea("游戏开始了")
+
         # host下发游戏开始
         # Linker:HostPlayerLink
         await Linker.StartGame()  # type: ignore

@@ -12,7 +12,9 @@ class SkillSha(SingleAttackSkill):
         super().__init__(caster_id, args)
 
     @staticmethod
-    def NewSkill(caster, args: list[str], game: "Game|None" = None) -> tuple[bool, Skill | None, str]:
+    def NewSkill(
+        caster, args: list[str], game: "Game|None" = None
+    ) -> tuple[bool, Skill | None, str]:
         if len(args) == 0:
             return False, None, "请至少选择一名玩家进行攻击"
         if len(args) % 2 != 0:
@@ -52,11 +54,13 @@ class SkillSha(SingleAttackSkill):
     def GetPoint(self) -> int:
         """获取技能释放需要的点数"""
         return self.GetAllTimes() * self.GetBasicPoint()
-    
+
     def GetDamage(self) -> int:
         """获取技能最终伤害"""
         damage = 1
-        for extra_damage in Skill.ParseItemModifiedInfo(self.modified_info, SkillModifiedInfo.EXTRA_DAMAGE):
+        for extra_damage in Skill.ParseItemModifiedInfo(
+            self.modified_info, SkillModifiedInfo.EXTRA_DAMAGE
+        ):
             damage += int(extra_damage)
         return damage
 
@@ -84,11 +88,13 @@ class SkillSha(SingleAttackSkill):
 
             if not self.IsValidToTarget(target_id):
                 continue
-            
-            if target_id == caster_id: # 针对反弹
-                game.players[target_id].ChangeHealth(-times * self.GetDamage(), game)
+
+            if target_id == caster_id:  # 针对反弹
+                game.players[target_id].ChangeHealth(
+                    -times * self.GetDamage(), game, self
+                )
                 continue
-            
+
             elif isinstance(target_skill, AttackSkill):
                 if isinstance(target_skill, SingleAttackSkill):
                     # 是单体攻击
@@ -98,7 +104,10 @@ class SkillSha(SingleAttackSkill):
                             continue
                         elif target_skill.GetAttackLevel() >= self.GetAttackLevel():
                             # 遇到高级攻击
-                            if target_skill.GetSkillID() == SkillID.FAGONG or target_skill.GetSkillID() == SkillID.XIXUE:
+                            if (
+                                target_skill.GetSkillID() == SkillID.FAGONG
+                                or target_skill.GetSkillID() == SkillID.XIXUE
+                            ):
                                 # 遇到法攻或吸血则正常
                                 pass
                             else:  # 遇到其他高级攻击无效
@@ -118,7 +127,7 @@ class SkillSha(SingleAttackSkill):
             elif isinstance(target_skill, CommandSkill):
                 pass
 
-            game.players[target_id].ChangeHealth(-times * self.GetDamage(), game)
+            game.players[target_id].ChangeHealth(-times * self.GetDamage(), game, self)
 
 
 from src.battle.skills import Skill_Table, Skill_Name_To_ID  # noqa: E402

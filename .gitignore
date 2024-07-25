@@ -1,5 +1,9 @@
+# configure files
 **/config.toml
 !**/configtemplate.toml
+
+# gRPC stub
+src/utils/link/stub/
 
 # Byte-compiled / optimized / DLL files
 __pycache__/

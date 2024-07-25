@@ -57,6 +57,10 @@ class BattleResultData(LinkData):
 
 
 class BattleStartData(LinkData):
+    """
+    Will be deprecated, game, which `turn` is `0`, must be the start of a game
+    """
+
     def __init__(self, uid: int, game):
         super().__init__(LinkEvent.BATTLESTART, uid, game)
 

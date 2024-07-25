@@ -35,7 +35,9 @@ class Game:
         self.Player_Status = ""
         self.Skill_Used_Times = {}  # 用于每个Round中记录技能使用次数
         self.context = {}
+
         self.turns = 0
+        self.is_game_end = False
 
     def AddPlayer(self, player: Player):
         self.players[player.id] = player
@@ -57,6 +59,7 @@ class Game:
 
     def OnRoundStart(self):
         self.turns += 1
+        # self.is_game_end = self.GetALiveUIDs(SLB.Current_Lobby) <= 1
         # reset
         is_somebody_hurt = False
         for pl in self.players.values():

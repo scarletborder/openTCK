@@ -1,0 +1,26 @@
+syntax = "proto3";
+
+package common;
+
+// 大厅内参与玩家的信息
+message LobbyPlayer{
+    int32 uid = 1;
+    string name = 2;    
+    bool is_leave = 3;
+}
+
+// Player list of `Lobby`
+message LobbyStatus{
+    repeated LobbyPlayer players = 1;
+}
+
+// Dumps of `Game`
+message GameStatus{
+    bytes game = 1;
+}
+
+// General Reply to Communication request
+message GeneralReply{
+    bool status = 1;
+    string msg = 2;
+}

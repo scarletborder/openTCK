@@ -17,8 +17,11 @@ from src.utils.pkui.widgets import (
     Bindings,
 )
 from src.utils.pkui.utils import NewUI
-from src.utils.link.player_link import HostPlayerLink
-from src.utils.link.player_link import ClientPlayerLink
+
+# from src.utils.link.player_link import HostPlayerLink
+# from src.utils.link.player_link import ClientPlayerLink
+from src.utils.link.rpc.rpc_server import RpcServer as HostPlayerLink
+from src.utils.link.rpc.rpc_client import RpcClient as ClientPlayerLink
 from src.storage.linker import LinkTask, GlobalLinker
 import src.utils.link.link_menu as LMM
 
