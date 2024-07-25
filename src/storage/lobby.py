@@ -1,6 +1,6 @@
 from src.constant.config.conf import Cfg
 from src.utils.lobby import Lobby, PlayerInfo
-from src.utils.pkui.utils import NewUI
+from src.ui.adapter.utils import NewUI
 
 My_Player_Info: PlayerInfo = PlayerInfo(0, "Anonymous")
 Current_Lobby: Lobby | None = None

@@ -3,7 +3,7 @@ from src.models.link.link_data import LobbyUpdateData
 from prettytable import PrettyTable
 from typing import TYPE_CHECKING
 from src.constant.config.conf import Cfg, ReadComment
-from src.utils.pkui.utils import NewUI
+from src.ui.adapter.utils import NewUI
 
 if TYPE_CHECKING:
     from src.utils.link.rpc.rpc_linker import RpcLinker

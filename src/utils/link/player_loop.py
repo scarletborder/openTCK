@@ -1,6 +1,6 @@
 import src.utils.link.link_menu as LM
 from src.battle.choose_skill import ParserSkill
-from src.utils.pkui.utils import NewUI
+from src.ui.adapter.utils import NewUI
 import src.utils.logging.utils as Logging
 
 import src.storage.battle as SBA

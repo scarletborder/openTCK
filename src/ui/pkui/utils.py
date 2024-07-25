@@ -1,5 +1,5 @@
 from prompt_toolkit.application.run_in_terminal import run_in_terminal
-from src.utils.pkui.widgets import (
+from src.ui.pkui.widgets import (
     Input_Area,
     Output_Chat_Area,
     Output_Status_Area,

@@ -8,7 +8,7 @@ import src.utils.link.stub.gamelink_pb2 as plpb2
 import src.storage.lobby as SLB
 import src.storage.battle as SBA
 from src.models.battle.skill import Skill
-from src.utils.pkui.utils import NewUI
+from src.ui.adapter.utils import NewUI
 from src.utils.lobby import Lobby
 import src.utils.logging.utils as Logging
 

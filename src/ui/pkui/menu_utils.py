@@ -9,14 +9,14 @@ from prompt_toolkit.application.run_in_terminal import run_in_terminal
 from prompt_toolkit.output import ColorDepth
 from prompt_toolkit.styles import Style
 
-from src.utils.pkui.widgets import (
+from src.ui.pkui.widgets import (
     Input_Area,
     Output_Chat_Area,
     Output_Status_Area,
     Output_Tip_Area,
     Bindings,
 )
-from src.utils.pkui.utils import NewUI
+from src.ui.pkui.utils import NewUI
 
 # from src.utils.link.player_link import HostPlayerLink
 # from src.utils.link.player_link import ClientPlayerLink

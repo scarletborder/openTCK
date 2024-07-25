@@ -8,7 +8,7 @@ import asyncio
 # from prompt_toolkit.styles import Style
 # from prompt_toolkit.application.run_in_terminal import run_in_terminal
 
-from src.utils.pkui.widgets import (
+from src.ui.pkui.widgets import (
     Input_Area,
     Output_Chat_Area,
     Output_Status_Area,
@@ -16,7 +16,7 @@ from src.utils.pkui.widgets import (
     Bindings,
 )
 
-from src.utils.pkui.utils import NewUI
+from src.ui.pkui.utils import NewUI
 from src.storage.buffer import SetInput
 
 

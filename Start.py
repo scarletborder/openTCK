@@ -14,7 +14,7 @@ stub_root = os.path.abspath(os.path.join(project_root, "./src/utils/link/stub/")
 # sys.path.append(project_root)
 sys.path.append(stub_root)
 
-from src.utils.pkui.main import Main
+from src.ui.adapter.main import Main
 
 
 if __name__ == "__main__":

@@ -12,7 +12,7 @@ project_root = os.path.abspath(os.path.join(current_dir, "../"))
 # 将项目根目录添加到 sys.path
 sys.path.append(project_root)
 
-from src.utils.pkui.main import Main
+from src.ui.adapter.main import Main
 
 
 if __name__ == "__main__":

@@ -5,7 +5,7 @@ from prompt_toolkit.layout import Layout, HSplit, VSplit, Window
 from prompt_toolkit.widgets import TextArea, MenuContainer, MenuItem, Button
 from prompt_toolkit.output import ColorDepth
 from prompt_toolkit.styles import Style
-from src.utils.pkui.tools import MyCompleter
+from src.ui.pkui.tools import MyCompleter
 
 
 Input_Area = TextArea(

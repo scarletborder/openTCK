@@ -1,4 +1,4 @@
-from src.utils.pkui.utils import NewUI
+from src.ui.adapter.utils import NewUI
 import grpc
 import sys
 import logging

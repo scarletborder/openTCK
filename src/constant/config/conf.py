@@ -2,9 +2,9 @@ import os
 import shutil
 import tomlkit
 from tomlkit import TOMLDocument
-from src.utils.pkui.utils import NewUI
+from src.ui.adapter.utils import NewUI
 
-# from src.utils.pkui.global_utils import NewUI
+# from src.ui.pkui.global_utils import NewUI
 
 Cfg = {}
 if not os.path.exists("config.toml"):

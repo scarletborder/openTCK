@@ -6,8 +6,8 @@ from prompt_toolkit.widgets import TextArea, MenuContainer, MenuItem, Button
 from prompt_toolkit.output import ColorDepth
 from prompt_toolkit.styles import Style
 
-from src.utils.pkui.menu_utils import App
-import src.utils.pkui.keybindings as _
+from src.ui.pkui.menu_utils import App
+import src.ui.pkui.keybindings as _
 
 
 async def Main():
