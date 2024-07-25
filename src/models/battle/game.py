@@ -58,6 +58,7 @@ class Game:
 
     def OnRoundStart(self):
         self.turns += 1
+        # self.is_game_end = self.GetALiveUIDs(SLB.Current_Lobby) <= 1
         # reset
         is_somebody_hurt = False
         for pl in self.players.values():

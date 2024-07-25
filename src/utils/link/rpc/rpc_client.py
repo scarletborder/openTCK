@@ -36,6 +36,7 @@ async def run() -> None:
     my_name = Cfg["player_info"]["player_name"]
     SLB.My_Player_Info.name = my_name
     addr = f"{host_ip}:{port}"
+    SLB.Is_Host = False
 
     async with grpc.aio.insecure_channel(addr) as channel:
         stub = plpb2grpc.LinkerStub(channel)
@@ -83,7 +84,7 @@ async def ProcessResponse(resp: plpb2.ServerReply) -> None:
 
 
 class RpcClient(RpcLinker):
-    async def SendAction(skargs: str, sk: Skill):
+    async def SendAction(self, skargs: str, sk: Skill):
         # 先发
         async with grpc.aio.insecure_channel(addr) as channel:
             stub = plpb2grpc.CommunicationStub(channel)
@@ -96,7 +97,7 @@ class RpcClient(RpcLinker):
                 Logging.Errorln(f"Fail in send skill: {resp.msg}")
             Signal.could_send_action.set()  # 重新允许输入技能
 
-    async def SendMessage(msg: str):
+    async def SendMessage(self, msg: str):
         async with grpc.aio.insecure_channel(addr) as channel:
             stub = plpb2grpc.CommunicationStub(channel)
             resp: "plpb2.GeneralReply" = await stub.Send_Message(

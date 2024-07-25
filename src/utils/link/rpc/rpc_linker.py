@@ -5,7 +5,7 @@ from src.models.battle.skill import Skill
 class RpcLinker(ABC):
     @abstractmethod
     @staticmethod
-    async def SendAction(s: str, sk: Skill): ...
+    async def SendAction(sk_str: str, sk: Skill): ...
 
     @abstractmethod
     @staticmethod

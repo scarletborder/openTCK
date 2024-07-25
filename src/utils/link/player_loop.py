@@ -41,7 +41,7 @@ async def SendThingsForever(Linker: RpcLinker):
                     continue
                 else:
                     # sendaction
-                    asyncio.create_task(Linker.SendAction(sk))
+                    asyncio.create_task(Linker.SendAction(content, sk))
                     # 禁用
                     Signal.could_send_action.clear()
                     # t.add_done_callback()

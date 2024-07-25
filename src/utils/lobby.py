@@ -21,7 +21,7 @@ class PlayerInfo:
 class Lobby:
     def __init__(self) -> None:
         self.player_infos: list[PlayerInfo] = []
-        self.lack = []
+        self.lack: "list[int]" = []
 
     @staticmethod
     def NewFromPb2(pb2: copb2.LobbyStatus) -> "Lobby":

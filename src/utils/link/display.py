@@ -22,6 +22,7 @@ def PrintMsgByname(name: str, msg: str) -> None:
 
 
 def PrintLobbyByPb2(lobby_pb2: plpb2.LobbyStatus):
+    """更新并打印新的大厅"""
     new_lobby = Lobby.NewFromPb2(lobby_pb2)
     SLB.Current_Lobby = new_lobby  # 更新大厅
     SLB.DisplayLobby()
