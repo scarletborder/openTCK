@@ -36,6 +36,9 @@ port = 47989
 # More Settings are below
 ```
 
+### UI选择
+在`src\constant\config\ui_type.py`下可以选择相应的ui种类以获取不同的视觉体验
+
 ## 如何去玩
 
 在根目录下输入`python Start.py`即可打开软件，在联机菜单你可以选择host作为服务端，或是选择client作为客户端连接配置文件中的host。
