@@ -6,6 +6,8 @@
 
 # gRPC stub
 src/utils/link/stub/
+# qt widgets code
+src/ui/qtui/widgets/
 
 # Byte-compiled / optimized / DLL files
 __pycache__/
