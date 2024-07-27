@@ -1,5 +1,7 @@
 **/log.txt
 
+test
+
 # configure files
 **/config.toml
 !**/configtemplate.toml
