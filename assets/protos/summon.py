@@ -1,6 +1,7 @@
 import os
 import glob
 import shutil
+import platform
 
 
 def MakeProtos():
@@ -20,9 +21,11 @@ def MakeProtos():
 
     proto_files = glob.glob(f"{protos_dir}/*.proto")
     for proto_file in proto_files:
-        os.system(
-            f"python -m grpc_tools.protoc -I{protos_dir} --python_out={stub_dir} --pyi_out={stub_dir} --grpc_python_out={stub_dir} {proto_file}"
-        )
+        cmd_s = f"-m grpc_tools.protoc -I{protos_dir} --python_out={stub_dir} --pyi_out={stub_dir} --grpc_python_out={stub_dir} {proto_file}"
+        if platform.system() == "Windows":
+            os.system(f"python {cmd_s}")
+        else:
+            os.system(f"python3 {cmd_s}")
 
 
 if __name__ == "__main__":

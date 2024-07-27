@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <ui version="4.0">
- <class>MainWindow</class>
- <widget class="QMainWindow" name="MainWindow">
+ <class>SubGame</class>
+ <widget class="QMainWindow" name="SubGame">
   <property name="geometry">
    <rect>
     <x>0</x>
@@ -114,27 +114,31 @@ li.checked::marker { content: &quot;\2612&quot;; }
     <property name="title">
      <string>联机</string>
     </property>
-    <addaction name="action1"/>
-    <addaction name="action2"/>
+    <addaction name="Menu_NewGame"/>
+    <addaction name="Menu_LeaveGame"/>
    </widget>
    <widget class="QMenu" name="menu_2">
     <property name="title">
      <string>菜单</string>
     </property>
-    <addaction name="action1_2"/>
+    <addaction name="Menu_ListLobby"/>
    </widget>
    <widget class="QMenu" name="menu_3">
     <property name="title">
      <string>配置</string>
     </property>
-    <addaction name="actionreset"/>
+    <addaction name="Menu_ResetConf"/>
     <addaction name="separator"/>
-    <addaction name="actionGamerule"/>
+    <addaction name="Menu_GameRule"/>
    </widget>
    <widget class="QMenu" name="menu_4">
     <property name="title">
      <string>帮助</string>
     </property>
+    <addaction name="Menu_Turtorial"/>
+    <addaction name="separator"/>
+    <addaction name="Menu_License"/>
+    <addaction name="Menu_About"/>
    </widget>
    <addaction name="menu"/>
    <addaction name="menu_2"/>
@@ -142,17 +146,17 @@ li.checked::marker { content: &quot;\2612&quot;; }
    <addaction name="menu_4"/>
   </widget>
   <widget class="QStatusBar" name="statusbar"/>
-  <action name="action1">
+  <action name="Menu_NewGame">
    <property name="text">
     <string>新游戏</string>
    </property>
   </action>
-  <action name="action2">
+  <action name="Menu_LeaveGame">
    <property name="text">
     <string>离开游戏</string>
    </property>
   </action>
-  <action name="action1_2">
+  <action name="Menu_ListLobby">
    <property name="text">
     <string>大厅列表</string>
    </property>
@@ -167,14 +171,29 @@ li.checked::marker { content: &quot;\2612&quot;; }
     <string>3</string>
    </property>
   </action>
-  <action name="actionreset">
+  <action name="Menu_ResetConf">
    <property name="text">
-    <string>reset</string>
+    <string>Reset</string>
    </property>
   </action>
-  <action name="actionGamerule">
+  <action name="Menu_GameRule">
    <property name="text">
     <string>Gamerule</string>
+   </property>
+  </action>
+  <action name="Menu_Turtorial">
+   <property name="text">
+    <string>Turtorial</string>
+   </property>
+  </action>
+  <action name="Menu_License">
+   <property name="text">
+    <string>License</string>
+   </property>
+  </action>
+  <action name="Menu_About">
+   <property name="text">
+    <string>About</string>
    </property>
   </action>
  </widget>
