@@ -1,4 +1,3 @@
-from src.constant.config.conf import Cfg
 from src.utils.lobby import Lobby, PlayerInfo
 from src.ui.adapter.utils import NewUI
 

@@ -22,13 +22,14 @@ from src.models.battle.trigger import (
     SpecifiedTargetTrigger,
 )
 from src.constant.config.conf import Cfg
+from src.constant.config.gamerule_conf import GameruleConf
 from src.constant.enum.battle_tag import TagEvent
 from src.battle.events.utils import CheckPlayerTagEvent, InitializeTagEvent
 from src.battle.events.display import GetPlayerTags
 
 
 class Game:
-    def __init__(self):
+    def __init__(self, conf: dict | GameruleConf = GameruleConf()):
         self.players: dict[int, Player] = {}
         self.Skill_Stash = SkillStash()
         self.Trigger_Stash = TriggerStash()
@@ -38,6 +39,11 @@ class Game:
 
         self.turns = 0
         self.is_game_end = False
+
+        if isinstance(conf, dict):
+            self.Cfg = conf
+        else:
+            self.Cfg = conf.ToDict()
 
     def AddPlayer(self, player: Player):
         self.players[player.id] = player
@@ -67,7 +73,7 @@ class Game:
                 is_somebody_hurt = True
             pl.OnRoundStart()
 
-        if is_somebody_hurt and Cfg["gamerule"]["drain_when_hurt"]:
+        if is_somebody_hurt and self.Cfg["drain_when_hurt"]:
             InitializeTagEvent(self)
             for pl in self.players.values():
                 pl.Point = 0

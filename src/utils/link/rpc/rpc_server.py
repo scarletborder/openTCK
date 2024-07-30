@@ -241,7 +241,7 @@ class RpcServer(RpcLinker):
         await SendThingsForever(self)
 
     async def StartGame(self):
-        SBA.Current_Game = Game()
+        SBA.Current_Game = Game(Cfg["gamerule"])
         args = SLB.Current_Lobby.GetGameArgs()
         for uid, pname in args:
             SBA.Current_Game.AddPlayer(Player(pname, uid))
